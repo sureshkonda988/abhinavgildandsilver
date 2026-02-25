@@ -26,7 +26,7 @@ const Hero = () => {
                 />
 
                 {/* Overlaid Spot Rates Bar - Absolute on both Mobile & Desktop */}
-                <div className="absolute top-[65%] md:top-[75%] lg:top-[75%] left-0 w-full z-20">
+                <div className="absolute top-[62%] md:top-[72%] lg:top-[72%] left-0 w-full z-20">
                     <SpotBar />
                 </div>
             </section>

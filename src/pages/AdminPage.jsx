@@ -107,11 +107,11 @@ const AdminPage = () => {
     return (
         <div className="min-h-screen bg-slate-50 pb-32 text-slate-800">
             <div className="bg-white border-b border-slate-200 px-6 py-4 flex justify-between items-center sticky top-0 z-30">
-                <div className="flex items-center gap-3">
-                    <div className="w-8 h-8 gradient-luxury rounded flex items-center justify-center shadow-lg">
-                        <Settings className="text-white" size={18} />
+                <div className="flex items-center gap-2 md:gap-3">
+                    <div className="w-7 h-7 md:w-8 md:h-8 gradient-luxury rounded flex items-center justify-center shadow-lg">
+                        <Settings className="text-white" size={16} />
                     </div>
-                    <span className="font-playfair font-black text-magenta-700 uppercase tracking-widest text-lg">Dashboard</span>
+                    <span className="font-playfair font-black text-magenta-700 uppercase tracking-widest text-sm md:text-lg">Dashboard</span>
                 </div>
                 <button onClick={() => setIsLoggedIn(false)} className="flex items-center gap-2 text-slate-400 hover:text-red-500 font-poppins font-bold text-sm transition-colors">
                     <LogOut size={18} />
@@ -119,32 +119,32 @@ const AdminPage = () => {
                 </button>
             </div>
 
-            <div className="max-w-7xl mx-auto p-6 mt-8 grid lg:grid-cols-[280px_1fr] gap-10">
-                {/* Sidebar */}
-                <div className="flex flex-col gap-2">
-                    <TabBtn id="rates" icon={<TrendingUp size={20} />} label="Rates & Offsets" active={activeTab === 'rates'} onClick={setActiveTab} />
-                    <TabBtn id="news" icon={<MessageSquare size={20} />} label="News & Ticker" active={activeTab === 'news'} onClick={setActiveTab} />
-                    <TabBtn id="videos" icon={<Video size={20} />} label="Media Mgr" active={activeTab === 'videos'} onClick={setActiveTab} />
+            <div className="max-w-7xl mx-auto p-4 md:p-6 lg:mt-8 flex flex-col lg:grid lg:grid-cols-[280px_1fr] gap-6 md:gap-10">
+                {/* Sidebar / Navigation Row */}
+                <div className="flex flex-row overflow-x-auto lg:flex-col gap-2 pb-4 lg:pb-0 scrollbar-hide no-scrollbar">
+                    <TabBtn id="rates" icon={<TrendingUp size={18} />} label="Rates" active={activeTab === 'rates'} onClick={setActiveTab} />
+                    <TabBtn id="news" icon={<MessageSquare size={18} />} label="News" active={activeTab === 'news'} onClick={setActiveTab} />
+                    <TabBtn id="videos" icon={<Video size={18} />} label="Media" active={activeTab === 'videos'} onClick={setActiveTab} />
                 </div>
 
                 {/* Content */}
                 <AnimatePresence mode="wait">
                     {activeTab === 'rates' && (
                         <motion.div key="rates" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }}>
-                            <div className="grid gap-8">
-                                <section className="glass p-8 rounded-[40px] shadow-luxury border-white/40 min-h-[400px]">
-                                    <div className="flex justify-between items-center mb-10">
-                                        <h3 className="text-xl font-playfair font-black text-magenta-700 uppercase tracking-widest">Rate Adjustments</h3>
-                                        <div className="flex gap-2">
+                            <div className="grid gap-6 md:gap-8">
+                                <section className="glass p-4 md:p-8 rounded-[30px] md:rounded-[40px] shadow-luxury border-white/40 min-h-[400px]">
+                                    <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-6 md:mb-10">
+                                        <h3 className="text-lg md:text-xl font-playfair font-black text-magenta-700 uppercase tracking-widest">Rate Adjustments</h3>
+                                        <div className="flex gap-2 w-full md:w-auto">
                                             <button
                                                 onClick={() => toggleDisplayMode('live')}
-                                                className={`px-4 py-2 rounded-full text-[10px] font-black uppercase tracking-widest transition-all ${!showModified ? 'gradient-luxury text-white shadow-lg' : 'bg-slate-100 text-slate-500'}`}
+                                                className={`flex-1 md:flex-none px-4 py-2 rounded-full text-[9px] md:text-[10px] font-black uppercase tracking-widest transition-all ${!showModified ? 'gradient-luxury text-white shadow-lg' : 'bg-slate-100 text-slate-500'}`}
                                             >
                                                 Live Mode
                                             </button>
                                             <button
                                                 onClick={() => toggleDisplayMode('modified')}
-                                                className={`px-4 py-2 rounded-full text-[10px] font-black uppercase tracking-widest transition-all ${showModified ? 'gradient-luxury text-white shadow-lg' : 'bg-slate-100 text-slate-500'}`}
+                                                className={`flex-1 md:flex-none px-4 py-2 rounded-full text-[9px] md:text-[10px] font-black uppercase tracking-widest transition-all ${showModified ? 'gradient-luxury text-white shadow-lg' : 'bg-slate-100 text-slate-500'}`}
                                             >
                                                 Modified Mode
                                             </button>
@@ -195,19 +195,19 @@ const AdminPage = () => {
                     {
                         activeTab === 'news' && (
                             <motion.div key="news" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }}>
-                                <div className="glass p-8 rounded-[40px] shadow-luxury border-white/40">
-                                    <h3 className="text-xl font-playfair font-black text-magenta-700 uppercase tracking-widest mb-6">Ticker Message</h3>
+                                <div className="glass p-4 md:p-8 rounded-[30px] md:rounded-[40px] shadow-luxury border-white/40">
+                                    <h3 className="text-lg md:text-xl font-playfair font-black text-magenta-700 uppercase tracking-widest mb-4 md:mb-6">Ticker Message</h3>
                                     <textarea
-                                        className="w-full h-40 bg-white/50 border border-slate-200 px-6 py-6 rounded-3xl font-poppins text-lg focus:ring-2 focus:ring-magenta-600 outline-none transition-all resize-none"
+                                        className="w-full h-32 md:h-40 bg-white/50 border border-slate-200 px-4 md:px-6 py-4 md:py-6 rounded-2xl md:rounded-3xl font-poppins text-sm md:text-lg focus:ring-2 focus:ring-magenta-600 outline-none transition-all resize-none"
                                         value={ticker}
                                         onChange={(e) => setTicker(e.target.value)}
                                         placeholder="Enter market news alert..."
                                     />
                                     <button
                                         onClick={saveTicker}
-                                        className="mt-6 flex items-center gap-3 px-8 py-4 gradient-luxury text-white rounded-2xl font-poppins font-black uppercase tracking-widest shadow-gold-glow hover:scale-105 transition-all"
+                                        className="mt-4 md:mt-6 w-full md:w-auto flex items-center justify-center gap-3 px-8 py-4 gradient-luxury text-white rounded-xl md:rounded-2xl font-poppins font-black uppercase tracking-widest shadow-gold-glow hover:scale-105 transition-all text-xs md:text-sm"
                                     >
-                                        <Save size={20} />
+                                        <Save size={18} />
                                         Update Ticker
                                     </button>
                                 </div>
@@ -218,28 +218,28 @@ const AdminPage = () => {
                     {
                         activeTab === 'videos' && (
                             <motion.div key="videos" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }}>
-                                <div className="glass p-8 rounded-[40px] shadow-luxury border-white/40">
-                                    <div className="flex justify-between items-center mb-8">
-                                        <h3 className="text-xl font-playfair font-black text-magenta-700 uppercase tracking-widest">Media Manager</h3>
-                                        <button onClick={addVideo} className="px-6 py-2 bg-magenta-50 text-magenta-600 rounded-full font-poppins font-black text-[10px] uppercase tracking-widest hover:bg-magenta-600 hover:text-white transition-all">
+                                <div className="glass p-4 md:p-8 rounded-[30px] md:rounded-[40px] shadow-luxury border-white/40">
+                                    <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-6 md:mb-8">
+                                        <h3 className="text-lg md:text-xl font-playfair font-black text-magenta-700 uppercase tracking-widest">Media Manager</h3>
+                                        <button onClick={addVideo} className="w-full md:w-auto px-6 py-2.5 bg-magenta-50 text-magenta-600 rounded-full font-poppins font-black text-[10px] uppercase tracking-widest hover:bg-magenta-600 hover:text-white transition-all text-center">
                                             + Add Video
                                         </button>
                                     </div>
 
-                                    <div className="flex flex-col gap-6">
+                                    <div className="flex flex-col gap-4 md:gap-6">
                                         {videos.map((vid, i) => {
                                             const extractedId = getYouTubeId(vid.videoId);
                                             const isValid = extractedId.length === 11;
 
                                             return (
-                                                <div key={i} className="bg-slate-50 p-6 rounded-3xl flex flex-col gap-4">
-                                                    <div className="flex flex-col md:flex-row gap-4 items-center">
-                                                        <div className={`w-12 h-12 rounded-2xl flex items-center justify-center shrink-0 ${isValid ? 'bg-green-100 text-green-600' : 'bg-magenta-100 text-magenta-600'}`}>
+                                                <div key={i} className="bg-slate-50 p-4 md:p-6 rounded-2xl md:rounded-3xl flex flex-col gap-4">
+                                                    <div className="flex flex-col md:flex-row gap-3 md:gap-4 items-stretch md:items-center">
+                                                        <div className={`w-10 h-10 md:w-12 md:h-12 rounded-xl md:rounded-2xl flex items-center justify-center shrink-0 ${isValid ? 'bg-green-100 text-green-600' : 'bg-magenta-100 text-magenta-600'}`}>
                                                             {isValid ? <CheckCircle2 size={24} /> : <Video size={20} />}
                                                         </div>
-                                                        <div className="relative flex-1 w-full">
+                                                        <div className="relative flex-1">
                                                             <input
-                                                                className={`w-full bg-white border px-4 py-3 rounded-xl font-poppins text-sm outline-none transition-all ${vid.videoId && !isValid ? 'border-red-300 ring-2 ring-red-50' : 'border-slate-200'}`}
+                                                                className={`w-full bg-white border px-4 py-2.5 rounded-lg md:rounded-xl font-poppins text-xs md:text-sm outline-none transition-all ${vid.videoId && !isValid ? 'border-red-300 ring-2 ring-red-50' : 'border-slate-200'}`}
                                                                 placeholder="YouTube Link or ID"
                                                                 value={vid.videoId}
                                                                 onChange={(e) => {
@@ -249,13 +249,13 @@ const AdminPage = () => {
                                                                 }}
                                                             />
                                                             {vid.videoId && (
-                                                                <div className="absolute right-3 top-3">
-                                                                    {isValid ? <CheckCircle2 size={18} className="text-green-500" /> : <AlertCircle size={18} className="text-red-400" />}
+                                                                <div className="absolute right-3 top-2.5">
+                                                                    {isValid ? <CheckCircle2 size={16} className="text-green-500" /> : <AlertCircle size={16} className="text-red-400" />}
                                                                 </div>
                                                             )}
                                                         </div>
                                                         <input
-                                                            className="flex-[2] w-full bg-white border border-slate-200 px-4 py-3 rounded-xl font-poppins text-sm"
+                                                            className="flex-[2] w-full bg-white border border-slate-200 px-4 py-2.5 rounded-lg md:rounded-xl font-poppins text-xs md:text-sm"
                                                             placeholder="Video Title"
                                                             value={vid.title}
                                                             onChange={(e) => {
@@ -264,16 +264,16 @@ const AdminPage = () => {
                                                                 setVideos(v);
                                                             }}
                                                         />
-                                                        <button onClick={() => removeVideo(i)} className="p-3 text-slate-300 hover:text-red-500 hover:bg-red-50 rounded-xl transition-all">
-                                                            <Trash2 size={20} />
+                                                        <button onClick={() => removeVideo(i)} className="p-2.5 md:p-3 text-slate-300 hover:text-red-500 hover:bg-red-50 rounded-lg md:rounded-xl transition-all self-center md:self-auto">
+                                                            <Trash2 size={18} md:size={20} />
                                                         </button>
                                                     </div>
                                                     {vid.videoId && !isValid && (
-                                                        <p className="text-[10px] font-bold text-red-500 uppercase tracking-widest ml-16">Invalid YouTube Link. Please check the URL.</p>
+                                                        <p className="text-[9px] md:text-[10px] font-bold text-red-500 uppercase tracking-widest ml-1 md:ml-16">Invalid YouTube Link. Please check the URL.</p>
                                                     )}
                                                     {isValid && extractedId !== vid.videoId && (
-                                                        <p className="text-[10px] font-bold text-green-600 uppercase tracking-widest ml-16 flex items-center gap-1">
-                                                            <Play size={10} /> Extracted ID: {extractedId}
+                                                        <p className="text-[9px] md:text-[10px] font-bold text-green-600 uppercase tracking-widest ml-1 md:ml-16 flex items-center gap-1">
+                                                            <Play size={10} /> ID: {extractedId}
                                                         </p>
                                                     )}
                                                 </div>
@@ -283,9 +283,9 @@ const AdminPage = () => {
 
                                     <button
                                         onClick={saveVideos}
-                                        className="mt-10 flex items-center gap-3 px-8 py-4 gradient-luxury text-white rounded-2xl font-poppins font-black uppercase tracking-widest shadow-gold-glow hover:scale-105 transition-all w-full justify-center disabled:opacity-50"
+                                        className="mt-6 md:mt-10 flex items-center gap-3 px-8 py-4 gradient-luxury text-white rounded-xl md:rounded-2xl font-poppins font-black uppercase tracking-widest shadow-gold-glow hover:scale-105 transition-all w-full justify-center disabled:opacity-50 text-xs md:text-sm"
                                     >
-                                        <Save size={20} />
+                                        <Save size={18} md:size={20} />
                                         Save Video Library
                                     </button>
                                 </div>
@@ -301,7 +301,7 @@ const AdminPage = () => {
 const TabBtn = ({ id, icon, label, active, onClick }) => (
     <button
         onClick={() => onClick(id)}
-        className={`flex items-center gap-4 px-6 py-4 rounded-3xl font-poppins font-bold text-sm tracking-tight transition-all ${active ? 'gradient-luxury text-white shadow-lg' : 'text-slate-500 hover:bg-magenta-50 hover:text-magenta-600'}`}
+        className={`flex items-center gap-3 md:gap-4 px-4 md:px-6 py-3 md:py-4 rounded-2xl md:rounded-3xl font-poppins font-bold text-xs md:text-sm tracking-tight transition-all shrink-0 ${active ? 'gradient-luxury text-white shadow-lg' : 'text-slate-500 hover:bg-magenta-50 hover:text-magenta-600'}`}
     >
         {icon}
         {label}
@@ -332,59 +332,59 @@ const AdjustmentCard = ({ label, item, liveRates = [], onChange }) => {
     };
 
     return (
-        <div className="bg-slate-50/50 p-6 rounded-[30px] border border-slate-100 h-full">
-            <div className="flex justify-between items-start mb-6">
-                <div>
-                    <span className="text-[10px] font-bold text-magenta-600 uppercase tracking-[0.2em] mb-1 block font-poppins">{label}</span>
+        <div className="bg-slate-50/50 p-4 md:p-6 rounded-[24px] md:rounded-[30px] border border-slate-100 h-full">
+            <div className="flex justify-between items-start mb-4 md:mb-6">
+                <div className="flex-1 pr-2">
+                    <span className="text-[9px] md:text-[10px] font-bold text-magenta-600 uppercase tracking-[0.2em] mb-1 block font-poppins">{label}</span>
                     <div className="flex flex-col gap-2">
                         {liveRates.map((r, i) => {
                             const original = r.sell || 0;
                             const delta = item.mode === 'amount' ? item.value : (original * item.value) / 100;
                             const modified = original + delta;
                             return (
-                                <div key={i} className="flex flex-col gap-1.5">
+                                <div key={i} className="flex flex-col gap-1">
                                     <div className="flex items-center justify-between">
-                                        <span className="text-[9px] font-bold text-slate-400 uppercase tracking-wider">Live Rate:</span>
-                                        <span className="text-[11px] font-bold text-slate-600 font-poppins">₹{original.toLocaleString('en-IN')}</span>
+                                        <span className="text-[8px] md:text-[9px] font-bold text-slate-400 uppercase tracking-wider">Live:</span>
+                                        <span className="text-[10px] md:text-[11px] font-bold text-slate-600 font-poppins">₹{original.toLocaleString('en-IN')}</span>
                                     </div>
                                     <div className="flex items-center justify-between">
-                                        <span className="text-[9px] font-bold text-green-600 uppercase tracking-wider">Modified:</span>
-                                        <span className="text-[13px] font-black text-green-600 font-poppins">₹{modified.toLocaleString('en-IN', { maximumFractionDigits: 2 })}</span>
+                                        <span className="text-[8px] md:text-[9px] font-bold text-green-600 uppercase tracking-wider">Alt:</span>
+                                        <span className="text-[11px] md:text-[13px] font-black text-green-600 font-poppins">₹{modified.toLocaleString('en-IN', { maximumFractionDigits: 0 })}</span>
                                     </div>
-                                    <div className="h-[1px] bg-slate-100 w-full mt-1"></div>
-                                    <span className="text-[8px] font-medium text-slate-400 font-poppins uppercase tracking-wider mt-1">{r.name}</span>
+                                    <div className="h-[1px] bg-slate-100 w-full mt-0.5"></div>
+                                    <span className="text-[7px] md:text-[8px] font-medium text-slate-400 font-poppins uppercase tracking-wider truncate max-w-[120px] md:max-w-none">{r.name}</span>
                                 </div>
                             );
                         })}
                     </div>
                 </div>
-                <div className="flex flex-col gap-1 min-w-[100px]">
+                <div className="flex flex-col gap-1 min-w-[80px] md:min-w-[100px]">
                     <button
                         onClick={() => onChange({ ...item, mode: 'amount' })}
-                        className={`px-3 py-1 rounded-lg text-[9px] font-bold transition-all text-right ${item.mode === 'amount' ? 'text-magenta-600 bg-white shadow-sm' : 'text-slate-400'}`}
+                        className={`px-2 md:px-3 py-1 rounded-lg text-[8px] md:text-[9px] font-bold transition-all text-right ${item.mode === 'amount' ? 'text-magenta-600 bg-white shadow-sm' : 'text-slate-400'}`}
                     >
                         ₹ Fixed
                     </button>
                     <button
                         onClick={() => onChange({ ...item, mode: 'percent' })}
-                        className={`px-3 py-1 rounded-lg text-[9px] font-bold transition-all text-right ${item.mode === 'percent' ? 'text-magenta-600 bg-white shadow-sm' : 'text-slate-400'}`}
+                        className={`px-2 md:px-3 py-1 rounded-lg text-[8px] md:text-[9px] font-bold transition-all text-right ${item.mode === 'percent' ? 'text-magenta-600 bg-white shadow-sm' : 'text-slate-400'}`}
                     >
                         % Percent
                     </button>
                 </div>
             </div>
 
-            <div className="flex items-center gap-3">
+            <div className="flex items-center gap-2 md:gap-3">
                 <button
                     onClick={() => handleTextChange('-')}
-                    className="w-10 h-10 bg-white shadow-sm rounded-xl text-magenta-600 font-bold hover:scale-110 active:scale-90 transition-all font-poppins"
+                    className="w-8 h-8 md:w-10 md:h-10 bg-white shadow-sm rounded-lg md:rounded-xl text-magenta-600 font-bold hover:scale-110 active:scale-90 transition-all font-poppins text-sm"
                 >
                     −
                 </button>
                 <input
                     type="text"
                     inputMode="numeric"
-                    className="flex-1 bg-white border border-slate-200 text-center py-2.5 rounded-xl font-poppins font-bold text-magenta-700 text-lg"
+                    className="flex-1 bg-white border border-slate-200 text-center py-1.5 md:py-2.5 rounded-lg md:rounded-xl font-poppins font-bold text-magenta-700 text-sm md:text-lg min-w-0"
                     value={localVal}
                     onChange={(e) => handleTextChange(e.target.value)}
                     onKeyDown={(e) => {
@@ -395,7 +395,7 @@ const AdjustmentCard = ({ label, item, liveRates = [], onChange }) => {
                 />
                 <button
                     onClick={() => onChange({ ...item, value: item.value + 1 })}
-                    className="w-10 h-10 bg-white shadow-sm rounded-xl text-magenta-600 font-bold hover:scale-110 active:scale-90 transition-all font-poppins"
+                    className="w-8 h-8 md:w-10 md:h-10 bg-white shadow-sm rounded-lg md:rounded-xl text-magenta-600 font-bold hover:scale-110 active:scale-90 transition-all font-poppins text-sm"
                 >
                     +
                 </button>

@@ -2,7 +2,14 @@ import React, { createContext, useContext, useState, useEffect } from 'react';
 
 const RateContext = createContext();
 
-const RATE_ENDPOINT = 'https://bcast.rbgoldspot.com:7768/VOTSBroadcastStreaming/Services/xml/GetLiveRateByTemplateID/rbgold';
+const POTENTIAL_ENDPOINTS = [
+    'https://bcast.rbgoldspot.com:7768/VOTSBroadcastStreaming/Services/xml/GetLiveRateByTemplateID/',
+    'https://bcast.rbgoldspot.com:7767/VOTSBroadcastStreaming/Services/xml/GetLiveRateByTemplateID/',
+    'https://bcast.rbgoldspot.com/VOTSBroadcastStreaming/Services/xml/GetLiveRateByTemplateID/',
+    'http://bcast.rbgoldspot.com:7767/VOTSBroadcastStreaming/Services/xml/GetLiveRateByTemplateID/'
+];
+const POTENTIAL_IDS = ['rbgold', 'rbgoldspot'];
+
 const CORS_PROXIES = [
     url => `https://api.allorigins.win/get?url=${encodeURIComponent(url)}`,
     url => `https://thingproxy.freeboard.io/fetch/${url}`,
@@ -33,6 +40,8 @@ export const RateProvider = ({ children }) => {
     const [error, setError] = useState(null);
     const isFetching = React.useRef(false);
     const lastProxyIndex = React.useRef(0);
+    const lastEndpointIndex = React.useRef(0);
+    const lastIdIndex = React.useRef(0);
 
     // Robust initial state for adj
     const getInitialAdj = () => {
@@ -62,7 +71,7 @@ export const RateProvider = ({ children }) => {
         }
     };
 
-    const fetchWithTimeout = async (url, ms = 1500) => {
+    const fetchWithTimeout = async (url, ms = 2500) => {
         const controller = new AbortController();
         const id = setTimeout(() => controller.abort(), ms);
         try {
@@ -87,8 +96,6 @@ export const RateProvider = ({ children }) => {
             // Split by all whitespace (tabs or spaces)
             const parts = trimmed.split(/\s+/);
 
-            // Expected format: ID, Name (1+ words), Bid, Ask, High, Low, Stock
-            // Minimal parts: 1 (ID) + 1 (Name) + 4 (Rates) + 1 (Stock) = 7
             if (parts.length >= 7) {
                 const id = parts[0];
                 const stockStr = parts[parts.length - 1];
@@ -97,7 +104,6 @@ export const RateProvider = ({ children }) => {
                 const ask = parts[parts.length - 4];
                 const bid = parts[parts.length - 5];
 
-                // Name is everything in between
                 const name = parts.slice(1, parts.length - 5).join(' ');
 
                 const parseVal = (v) => {
@@ -135,48 +141,64 @@ export const RateProvider = ({ children }) => {
         isFetching.current = true;
 
         let lastError;
-        // Super aggressive cache busting
-        const salt = Math.random().toString(36).substring(7);
-        const endpoint = `${RATE_ENDPOINT}?t=${Date.now()}&s=${salt}&cb=${Math.floor(Math.random() * 10000)}`;
-
         const proxyCount = CORS_PROXIES.length;
-        // Start from last successful proxy to maintain speed
-        for (let i = 0; i < proxyCount; i++) {
-            const idx = (lastProxyIndex.current + i) % proxyCount;
-            const makeUrl = CORS_PROXIES[idx];
-            try {
-                const url = makeUrl(endpoint);
-                const res = await fetchWithTimeout(url, 2000); // 2s timeout for reliability
-                if (!res.ok) throw new Error(`HTTP ${res.status}`);
+        const endpointCount = POTENTIAL_ENDPOINTS.length;
+        const idCount = POTENTIAL_IDS.length;
 
-                let text = await res.text();
+        // Nested loops to find a working combination
+        for (let eIdx = 0; eIdx < endpointCount; eIdx++) {
+            const currentE = POTENTIAL_ENDPOINTS[(lastEndpointIndex.current + eIdx) % endpointCount];
 
-                // Handle JSON-wrapped responses
-                try {
-                    if (text.trim().startsWith('{')) {
-                        const json = JSON.parse(text);
-                        if (json.contents) text = json.contents;
-                        else if (json.Error) throw new Error(json.Error);
+            for (let iIdx = 0; iIdx < idCount; iIdx++) {
+                const currentId = POTENTIAL_IDS[(lastIdIndex.current + iIdx) % idCount];
+                const baseEndpoint = `${currentE}${currentId}`;
+
+                // Add minimal cache busting only if needed
+                const salt = Math.random().toString(36).substring(7);
+                const finalEndpoint = `${baseEndpoint}?cb=${salt}`;
+
+                for (let pIdx = 0; pIdx < proxyCount; pIdx++) {
+                    const currentPIdx = (lastProxyIndex.current + pIdx) % proxyCount;
+                    const makeUrl = CORS_PROXIES[currentPIdx];
+
+                    try {
+                        const url = makeUrl(finalEndpoint);
+                        const res = await fetchWithTimeout(url, 3000);
+                        if (!res.ok) throw new Error(`HTTP ${res.status}`);
+
+                        let text = await res.text();
+
+                        // Handle JSON-wrapped responses
+                        try {
+                            if (text.trim().startsWith('{')) {
+                                const json = JSON.parse(text);
+                                if (json.contents) text = json.contents;
+                                else if (json.Error) throw new Error(json.Error);
+                            }
+                        } catch (e) { }
+
+                        if (!text || text.trim().length < 5) throw new Error('Short response');
+                        const parsed = parseRateText(text);
+
+                        setRawRates(parsed);
+                        setError(null);
+                        setLoading(false);
+
+                        // Save working configuration
+                        lastEndpointIndex.current = (lastEndpointIndex.current + eIdx) % endpointCount;
+                        lastIdIndex.current = (lastIdIndex.current + iIdx) % idCount;
+                        lastProxyIndex.current = currentPIdx;
+
+                        isFetching.current = false;
+                        return;
+                    } catch (e) {
+                        lastError = e;
                     }
-                } catch (e) { }
-
-                if (!text || text.trim().length < 5) throw new Error('Short response');
-                const parsed = parseRateText(text);
-
-                setRawRates(parsed);
-                setError(null);
-                setLoading(false);
-                lastProxyIndex.current = idx;
-                isFetching.current = false;
-                return;
-            } catch (e) {
-                lastError = e;
-                // Move to next proxy index for next round if this one fails
-                lastProxyIndex.current = (idx + 1) % proxyCount;
+                }
             }
         }
 
-        setError(lastError?.message || 'Update failed');
+        setError(lastError?.message || 'Connection failed');
         setLoading(false);
         isFetching.current = false;
     };
