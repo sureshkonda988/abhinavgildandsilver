@@ -44,7 +44,7 @@ const VideosPage = () => {
             <div className="absolute top-4 right-6">
                 <Link
                     to="/admin"
-                    className="p-3 bg-white/60 hover:bg-magenta-600 hover:text-white text-magenta-600 rounded-2xl shadow-luxury border border-white/40 transition-all flex items-center gap-2 font-poppins font-bold text-xs uppercase tracking-widest backdrop-blur-sm"
+                    className="p-3 bg-white/5 hover:bg-gold-400 hover:text-magenta-800 text-white rounded-2xl shadow-luxury border border-white/20 transition-all flex items-center gap-2 font-poppins font-bold text-xs uppercase tracking-widest backdrop-blur-sm"
                 >
                     <Settings size={18} />
                     Login
@@ -52,8 +52,8 @@ const VideosPage = () => {
             </div>
 
             <div className="text-center mb-16 flex flex-col items-center gap-4">
-                <h1 className="text-6xl md:text-7xl font-playfair font-black text-magenta-700 uppercase tracking-tighter leading-none">Education Hub</h1>
-                <p className="text-slate-500 font-poppins max-w-2xl text-lg font-medium">Expert insights, market analysis, and educational content to guide your precious metal investments.</p>
+                <h1 className="text-4xl sm:text-6xl md:text-7xl font-playfair font-black text-white uppercase tracking-tighter leading-none drop-shadow-luxury px-4">Education Hub</h1>
+                <p className="text-white/60 font-poppins max-w-2xl text-base md:text-lg font-medium px-4">Expert insights, market analysis, and educational content to guide your precious metal investments.</p>
             </div>
 
             <AnimatePresence mode="wait">
@@ -77,9 +77,9 @@ const VideosPage = () => {
                         <div className="p-8 md:p-12 gradient-luxury flex flex-col md:flex-row justify-between items-center gap-6">
                             <div className="flex-1">
                                 <span className="text-gold-400 font-poppins font-black text-xs uppercase tracking-widest mb-2 block">Now Playing</span>
-                                <h2 className="text-3xl md:text-5xl font-playfair font-black text-white leading-tight">{activeVideo.title}</h2>
+                                <h2 className="text-xl sm:text-3xl md:text-5xl font-playfair font-black text-white leading-tight">{activeVideo.title}</h2>
                             </div>
-                            <button className="px-8 py-4 bg-white/10 backdrop-blur-md text-white border border-white/20 rounded-full font-poppins font-black text-xs uppercase tracking-widest hover:bg-white/20 transition-all">
+                            <button className="px-8 py-4 bg-white/5 backdrop-blur-md text-white border border-white/20 rounded-full font-poppins font-black text-xs uppercase tracking-widest hover:bg-white/10 transition-all">
                                 Video Library
                             </button>
                         </div>
@@ -103,7 +103,7 @@ const VideosPage = () => {
                             setActiveVideo(video);
                             window.scrollTo({ top: 300, behavior: 'smooth' });
                         }}
-                        className={`group relative glass rounded-[35px] overflow-hidden shadow-luxury border-white/40 cursor-pointer transition-all ${activeVideo?.videoId === video.videoId ? 'ring-2 ring-magenta-600' : ''}`}
+                        className={`group relative glass rounded-[35px] overflow-hidden shadow-luxury border-white/40 cursor-pointer transition-all ${activeVideo?.videoId === video.videoId ? 'ring-2 ring-gold-400' : ''}`}
                     >
                         {/* Thumbnail Wrap */}
                         <div className="relative h-48 overflow-hidden bg-slate-900">
@@ -123,9 +123,9 @@ const VideosPage = () => {
                         </div>
 
                         {/* Title Section */}
-                        <div className="p-6 flex justify-between items-center bg-white/60">
-                            <h3 className="text-lg font-playfair font-black text-magenta-700 leading-tight line-clamp-2">{video.title}</h3>
-                            <div className="p-2 bg-magenta-50 text-magenta-600 rounded-full group-hover:bg-magenta-600 group-hover:text-white transition-colors duration-300 shrink-0">
+                        <div className="p-6 flex justify-between items-center bg-white/5">
+                            <h3 className="text-lg font-playfair font-black text-white leading-tight line-clamp-2">{video.title}</h3>
+                            <div className="p-2 bg-white/5 text-gold-400 rounded-full group-hover:bg-gold-400 group-hover:text-magenta-800 transition-colors duration-300 shrink-0">
                                 <ChevronRight size={18} />
                             </div>
                         </div>

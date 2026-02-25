@@ -21,21 +21,21 @@ const SpotBar = () => {
     ];
 
     return (
-        <div className="w-full bg-transparent flex flex-row flex-wrap items-center justify-end gap-3 md:gap-5 px-6 md:pr-8">
+        <div className="w-full bg-transparent flex flex-row flex-wrap items-center justify-end gap-3 md:gap-12 px-4 md:px-12">
             {items.map((item, idx) => (
                 <motion.div
                     key={item.label}
                     initial={{ opacity: 0, scale: 0.9, y: 10 }}
                     animate={{ opacity: 1, scale: 1, y: 0 }}
                     transition={{ duration: 0.5, delay: idx * 0.1 }}
-                    className="flex flex-col items-center group"
+                    className="flex flex-col items-center group md:flex-initial"
                 >
-                    <span className="text-gold-400 font-poppins font-black text-[9px] md:text-[10px] uppercase tracking-[0.3em] mb-1 drop-shadow-md">
+                    <span className="text-gold-400 font-poppins font-black text-[7px] md:text-[11px] uppercase tracking-[0.2em] md:tracking-[0.3em] mb-0.5 drop-shadow-md">
                         {item.label}
                     </span>
-                    <div className="flex items-baseline gap-1.5 px-4 py-2 bg-white/10 backdrop-blur-[2px] rounded-xl border border-white/20 shadow-luxury-soft transition-all group-hover:bg-white/20">
-                        <span className="text-slate-900/60 font-playfair font-black text-sm md:text-base">{item.symbol}</span>
-                        <span className="text-slate-900 font-playfair font-black text-2xl md:text-4xl tracking-tighter whitespace-nowrap">
+                    <div className="flex items-baseline gap-1 md:gap-2 px-0 py-0 bg-transparent transition-all w-auto justify-center">
+                        <span className="text-white/60 font-playfair font-black text-[9px] md:text-lg">{item.symbol}</span>
+                        <span className="text-white font-playfair font-black text-sm md:text-5xl tracking-tighter whitespace-nowrap drop-shadow-lg">
                             {fmt(item.value)}
                         </span>
                     </div>
