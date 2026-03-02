@@ -25,11 +25,6 @@ const Hero = () => {
                     className="flex flex-col gap-12"
                 >
                     <div className="flex flex-col gap-8 md:gap-16">
-                        {/* Detailed Spot Rates */}
-                        <div className="flex flex-col gap-6">
-                            <SpotRatesCard />
-                        </div>
-
                         {/* Physical Inventory Column */}
                         <div className="flex flex-col gap-6">
                             <div className="bg-white rounded-2xl overflow-hidden shadow-luxury border border-slate-200">
@@ -43,6 +38,8 @@ const Hero = () => {
                                                 <th className="py-2 px-3 md:py-3 md:px-4 text-[9px] md:text-[11px] font-extrabold text-slate-500 uppercase tracking-tight md:tracking-widest text-left">Item Name</th>
                                                 <th className="py-2 px-3 md:py-3 md:px-4 text-[9px] md:text-[11px] font-extrabold text-slate-500 uppercase tracking-tight md:tracking-widest text-center">Buy (INR)</th>
                                                 <th className="py-2 px-3 md:py-3 md:px-4 text-[9px] md:text-[11px] font-extrabold text-slate-500 uppercase tracking-tight md:tracking-widest text-center">Sell (INR)</th>
+                                                <th className="py-2 px-3 md:py-3 md:px-4 text-[9px] md:text-[11px] font-extrabold text-red-500/60 uppercase tracking-tight md:tracking-widest text-center">Low</th>
+                                                <th className="py-2 px-3 md:py-3 md:px-4 text-[9px] md:text-[11px] font-extrabold text-green-500/60 uppercase tracking-tight md:tracking-widest text-center">High</th>
                                                 <th className="py-2 px-3 md:py-3 md:px-4 text-[9px] md:text-[11px] font-extrabold text-slate-500 uppercase tracking-tight md:tracking-widest text-right">Stock</th>
                                             </tr>
                                         </thead>
@@ -50,8 +47,10 @@ const Hero = () => {
                                             {rates.rtgs.map((item, idx) => (
                                                 <tr key={idx} className="hover:bg-slate-50 transition-colors group whitespace-nowrap">
                                                     <td className="py-3 px-3 md:py-4 md:px-4 text-[10px] md:text-[13px] font-bold text-slate-900 font-poppins">{item.name}</td>
-                                                    <td className="py-3 px-3 md:py-4 md:px-4 text-[11px] md:text-[13px] font-black text-slate-600 text-center font-poppins">₹{fmt(item.sell)}</td>
+                                                    <td className="py-3 px-3 md:py-4 md:px-4 text-[11px] md:text-[13px] font-black text-slate-400 text-center font-poppins">₹{item.buy !== '-' ? fmt(item.buy) : '-'}</td>
                                                     <td className="py-3 px-3 md:py-4 md:px-4 text-[11px] md:text-[13px] font-black text-magenta-600 text-center font-poppins group-hover:text-magenta-800 transition-colors">₹{fmt(item.sell)}</td>
+                                                    <td className="py-3 px-3 md:py-4 md:px-4 text-[10px] md:text-[12px] font-black text-red-500/40 text-center font-poppins">₹{item.low !== '-' ? fmt(item.low || item.sell) : fmt(item.sell)}</td>
+                                                    <td className="py-3 px-3 md:py-4 md:px-4 text-[10px] md:text-[12px] font-black text-green-500/40 text-center font-poppins">₹{item.high !== '-' ? fmt(item.high || item.sell) : fmt(item.sell)}</td>
                                                     <td className="py-3 px-3 md:py-4 md:px-4 text-right">
                                                         <span className={`px-1.5 md:px-2 py-0.5 rounded-full text-[7px] md:text-[10px] font-black uppercase whitespace-nowrap ${item.stock ? 'bg-green-500/10 text-green-300' : 'bg-red-500/10 text-red-300'}`}>
                                                             {item.stock ? 'In Stock' : 'Out'}

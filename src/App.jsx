@@ -19,8 +19,12 @@ const AppLayout = () => {
   return (
     <main
       className="min-h-screen Selection:bg-gold-400 Selection:text-magenta-800 relative bg-soft-pink pb-10"
-      style={!isHomePage ? {
-        backgroundImage: 'url("/Untitled design (14).png")',
+      style={!isHomePage && !isAdminPage ? {
+        backgroundImage: location.pathname === '/alerts'
+          ? 'url("/WhatsApp Image 2026-02-20 at 9.30.40 AM.jpeg")'
+          : location.pathname === '/videos'
+            ? 'url("/Untitled design (10).png")'
+            : 'url("/Untitled design (14).png")',
         backgroundAttachment: 'fixed',
         backgroundPosition: 'center',
         backgroundRepeat: 'no-repeat',
@@ -36,7 +40,7 @@ const AppLayout = () => {
             initial={{ opacity: 1 }}
             animate={{ opacity: 1 }}
             transition={{ duration: 0.5 }}
-            src="/Untitled design (17).png"
+            src={isHomePage ? "/Untitled design (17).png" : "/ChatGPT Image Mar 2, 2026, 03_05_58 PM.png"}
             alt="Abhinav Gold & Silver Header"
             className="w-full h-auto min-h-[120px] md:h-auto object-contain md:object-cover object-center block"
           />

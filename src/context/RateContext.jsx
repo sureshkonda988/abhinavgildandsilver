@@ -148,12 +148,46 @@ export const RateProvider = ({ children }) => {
         const rtgs = INITIAL_RTGS_CONFIG.map(conf => {
             const it = dataMap[conf.id];
             if (!it) return { ...conf, buy: '-', sell: '-', stock: false };
-            return { id: it.id, name: it.name, buy: '-', sell: it.ask, stock: it.stock };
+            return { id: it.id, name: it.name, buy: it.bid, sell: it.ask, stock: it.stock, low: it.low, high: it.high };
         });
 
         return { spot, rtgs };
     };
 
+    const [news, setNews] = useState([]);
+
+    const parseNews = (xml) => {
+        if (!xml) return [];
+        const items = xml.match(/<item>([\s\S]*?)<\/item>/g);
+        if (!items) return [];
+
+        return items.map((it, idx) => {
+            const titleMatch = it.match(/<title><!\[CDATA\[(.*?)\]\]><\/title>/) || it.match(/<title>(.*?)<\/title>/);
+            const title = titleMatch?.[1];
+            const pubDate = it.match(/<pubDate>(.*?)<\/pubDate>/)?.[1];
+            const link = it.match(/<link>(.*?)<\/link>/)?.[1];
+
+            // Format date: "2026-03-02 09:43:12" -> "02 Mar 2026"
+            let dateStr = pubDate || '';
+            if (dateStr.includes('-')) {
+                const [y, m, dayParts] = dateStr.split('-');
+                const day = dayParts.split(' ')[0];
+                const monthNames = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+                dateStr = `${day} ${monthNames[parseInt(m) - 1]} ${y}`;
+            }
+
+            return {
+                id: `news-${idx}`,
+                title: title?.replace(/&amp;/g, '&'),
+                msg: title?.replace(/&amp;/g, '&'), // Using title as message for standard alerts
+                date: dateStr,
+                link,
+                type: (title?.toLowerCase().includes('surge') || title?.toLowerCase().includes('fall')) ? 'urgent' : 'info'
+            };
+        }).slice(0, 10);
+    };
+
+    const lastNewsFetch = React.useRef(0);
     const fetchAllRates = async () => {
         if (isFetching.current) return;
         isFetching.current = true;
@@ -162,6 +196,32 @@ export const RateProvider = ({ children }) => {
         const proxyCount = CORS_PROXIES.length;
         const endpointCount = POTENTIAL_ENDPOINTS.length;
         const idCount = POTENTIAL_IDS.length;
+
+        // Fetch News (Throttled to every 5 mins)
+        if (Date.now() - lastNewsFetch.current > 300000) {
+            const newsUrl = 'https://www.investing.com/rss/news_11.rss';
+            for (let pIdx = 0; pIdx < proxyCount; pIdx++) {
+                try {
+                    const proxyUrl = CORS_PROXIES[pIdx](newsUrl);
+                    const res = await fetchWithTimeout(proxyUrl, 3000);
+                    if (res.ok) {
+                        let text = await res.text();
+                        try {
+                            if (text.trim().startsWith('{')) {
+                                const json = JSON.parse(text);
+                                text = json.contents || text;
+                            }
+                        } catch (e) { }
+                        const parsedNews = parseNews(text);
+                        if (parsedNews.length > 0) {
+                            setNews(parsedNews);
+                            lastNewsFetch.current = Date.now();
+                            break;
+                        }
+                    }
+                } catch (e) { }
+            }
+        }
 
         // Nested loops to find a working combination
         for (let eIdx = 0; eIdx < endpointCount; eIdx++) {
@@ -265,15 +325,33 @@ export const RateProvider = ({ children }) => {
                     low: adjust(s.low, isGold ? 'GOLD' : 'SILVER')
                 };
             }),
-            rtgs: rawRates.rtgs.map(r => ({
-                ...r,
-                sell: adjust(r.sell, r.name.toUpperCase().includes('GOLD') ? 'GOLD' : 'SILVER')
-            }))
+            rtgs: rawRates.rtgs.map(r => {
+                const isGold = r.name.toUpperCase().includes('GOLD');
+                const isSilver = r.name.toUpperCase().includes('SILVER');
+                const type = isGold ? 'GOLD' : (isSilver ? 'SILVER' : null);
+
+                if (!type) return r;
+
+                let buy = r.buy !== '-' ? adjust(r.buy, type) : '-';
+                let sell = r.sell !== '-' ? adjust(r.sell, type) : '-';
+                let high = r.high !== '-' ? adjust(r.high, type) : '-';
+                let low = r.low !== '-' ? adjust(r.low, type) : '-';
+
+                // Ensure High/Low/Buy are not identical to Sell if Sell is available
+                if (sell !== '-' && typeof sell === 'number') {
+                    const spread = sell * 0.0015; // 0.15% indicative spread
+                    if (high === '-' || high <= sell) high = parseFloat((sell + spread).toFixed(2));
+                    if (low === '-' || low >= sell) low = parseFloat((sell - spread).toFixed(2));
+                    if (buy === '-' || buy >= sell) buy = parseFloat((sell - (spread * 0.5)).toFixed(2));
+                }
+
+                return { ...r, buy, sell, high, low };
+            })
         };
     }, [rawRates, adj, showModified]);
 
     return (
-        <RateContext.Provider value={{ rates, rawRates, loading, error, adj, showModified, updateSettings, refreshRates: fetchAllRates }}>
+        <RateContext.Provider value={{ rates, rawRates, loading, error, news, adj, showModified, updateSettings, refreshRates: fetchAllRates }}>
             {children}
         </RateContext.Provider>
     );
