@@ -7,7 +7,7 @@ import SpotBar from './SpotBar';
 import Ticker from './Ticker';
 
 const Hero = () => {
-    const { rates } = useRates();
+    const { rates, rawRates, loading, error } = useRates();
 
     const fmt = (val) => {
         if (typeof val !== 'number') return '-';
@@ -27,6 +27,16 @@ const Hero = () => {
                     <div className="flex flex-col gap-8 md:gap-16">
                         {/* Physical Inventory Column */}
                         <div className="flex flex-col gap-6">
+                            {loading && !rates.rtgs.length && (
+                                <div className="text-center font-poppins font-bold text-xs text-gold-400 animate-pulse uppercase tracking-widest">
+                                    Fetching Live Market Data...
+                                </div>
+                            )}
+                            {error && (
+                                <div className="text-center font-poppins font-black text-[10px] text-red-500 bg-red-50 py-2 rounded-xl uppercase tracking-widest border border-red-100">
+                                    Connection Alert: {error}
+                                </div>
+                            )}
                             <div className="bg-white rounded-2xl overflow-hidden shadow-luxury border border-slate-200">
                                 <div className="gradient-vibrant p-3">
                                     <span className="text-white font-poppins font-bold text-xs uppercase tracking-widest">Inventory Rates</span>
@@ -44,20 +54,23 @@ const Hero = () => {
                                             </tr>
                                         </thead>
                                         <tbody className="divide-y divide-slate-50">
-                                            {rates.rtgs.map((item, idx) => (
-                                                <tr key={idx} className="hover:bg-slate-50 transition-colors group whitespace-nowrap">
-                                                    <td className="py-3 px-3 md:py-4 md:px-4 text-[10px] md:text-[13px] font-bold text-slate-900 font-poppins">{item.name}</td>
-                                                    <td className="py-3 px-3 md:py-4 md:px-4 text-[11px] md:text-[13px] font-black text-slate-400 text-center font-poppins">₹{item.buy !== '-' ? fmt(item.buy) : '-'}</td>
-                                                    <td className="py-3 px-3 md:py-4 md:px-4 text-[11px] md:text-[13px] font-black text-magenta-600 text-center font-poppins group-hover:text-magenta-800 transition-colors">₹{fmt(item.sell)}</td>
-                                                    <td className="py-3 px-3 md:py-4 md:px-4 text-[10px] md:text-[12px] font-black text-red-500/40 text-center font-poppins">₹{item.low !== '-' ? fmt(item.low || item.sell) : fmt(item.sell)}</td>
-                                                    <td className="py-3 px-3 md:py-4 md:px-4 text-[10px] md:text-[12px] font-black text-green-500/40 text-center font-poppins">₹{item.high !== '-' ? fmt(item.high || item.sell) : fmt(item.sell)}</td>
-                                                    <td className="py-3 px-3 md:py-4 md:px-4 text-right">
-                                                        <span className={`px-1.5 md:px-2 py-0.5 rounded-full text-[7px] md:text-[10px] font-black uppercase whitespace-nowrap ${item.stock ? 'bg-green-500/10 text-green-300' : 'bg-red-500/10 text-red-300'}`}>
-                                                            {item.stock ? 'In Stock' : 'Out'}
-                                                        </span>
-                                                    </td>
-                                                </tr>
-                                            ))}
+                                            {rates.rtgs.map((item, idx) => {
+                                                const rawItem = rawRates.rtgs.find(r => r.id === item.id || (r.name && r.name === item.name)) || item;
+                                                return (
+                                                    <tr key={idx} className="hover:bg-slate-50 transition-colors group whitespace-nowrap">
+                                                        <td className="py-3 px-3 md:py-4 md:px-4 text-[10px] md:text-[13px] font-bold text-slate-900 font-poppins">{item.name}</td>
+                                                        <td className="py-3 px-3 md:py-4 md:px-4 text-[11px] md:text-[13px] font-black text-slate-900 text-center font-poppins">₹{item.buy !== '-' ? fmt(item.buy) : '-'}</td>
+                                                        <td className="py-3 px-3 md:py-4 md:px-4 text-[11px] md:text-[13px] font-black text-magenta-600 text-center font-poppins group-hover:text-magenta-800 transition-colors">₹{fmt(rawItem.sell)}</td>
+                                                        <td className="py-3 px-3 md:py-4 md:px-4 text-[10px] md:text-[12px] font-black text-red-600 text-center font-poppins">₹{rawItem.low !== '-' ? fmt(rawItem.low) : fmt(rawItem.sell)}</td>
+                                                        <td className="py-3 px-3 md:py-4 md:px-4 text-[10px] md:text-[12px] font-black text-green-600 text-center font-poppins">₹{rawItem.high !== '-' ? fmt(rawItem.high) : fmt(rawItem.sell)}</td>
+                                                        <td className="py-3 px-3 md:py-4 md:px-4 text-right">
+                                                            <span className={`px-1.5 md:px-2 py-0.5 rounded-full text-[7px] md:text-[10px] font-black uppercase whitespace-nowrap ${item.stock ? 'bg-green-500/10 text-green-300' : 'bg-red-500/10 text-red-300'}`}>
+                                                                {item.stock ? 'In Stock' : 'Out'}
+                                                            </span>
+                                                        </td>
+                                                    </tr>
+                                                );
+                                            })}
                                         </tbody>
                                     </table>
                                 </div>

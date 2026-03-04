@@ -40,7 +40,7 @@ const AppLayout = () => {
             initial={{ opacity: 1 }}
             animate={{ opacity: 1 }}
             transition={{ duration: 0.5 }}
-            src={isHomePage ? "/Untitled design (17).png" : "/ChatGPT Image Mar 2, 2026, 03_05_58 PM.png"}
+            src={isHomePage ? "/Untitled design (19).png" : "/ChatGPT Image Mar 2, 2026, 03_05_58 PM.png"}
             alt="Abhinav Gold & Silver Header"
             className="w-full h-auto min-h-[120px] md:h-auto object-contain md:object-cover object-center block"
           />

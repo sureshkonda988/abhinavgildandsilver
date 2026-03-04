@@ -48,8 +48,8 @@ const SpotRatesCard = () => {
                                     <td className="py-3 px-3 md:py-4 md:px-4 text-[9px] md:text-[13px] font-bold text-slate-900 font-poppins">{rate.name}</td>
                                     <td className="py-3 px-3 md:py-4 md:px-4 text-[9px] md:text-[13px] font-black text-slate-600 text-center font-poppins">{symbol}{fmt(rate.bid)}</td>
                                     <td className="py-3 px-3 md:py-4 md:px-4 text-[9px] md:text-[13px] font-black text-magenta-600 text-center font-poppins group-hover:text-magenta-800 transition-colors">{symbol}{fmt(rate.ask)}</td>
-                                    <td className="py-3 px-3 md:py-4 md:px-4 text-[9px] md:text-[13px] font-bold text-slate-400 text-center font-poppins">{symbol}{fmt(rate.high)}</td>
-                                    <td className="py-3 px-3 md:py-4 md:px-4 text-[9px] md:text-[13px] font-bold text-slate-400 text-right font-poppins">{symbol}{fmt(rate.low)}</td>
+                                    <td className="py-3 px-3 md:py-4 md:px-4 text-[9px] md:text-[13px] font-bold text-slate-600 text-center font-poppins">{symbol}{fmt(rate.high)}</td>
+                                    <td className="py-3 px-3 md:py-4 md:px-4 text-[9px] md:text-[13px] font-bold text-slate-600 text-right font-poppins">{symbol}{fmt(rate.low)}</td>
                                 </tr>
                             );
                         })}

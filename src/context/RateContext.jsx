@@ -2,23 +2,18 @@ import React, { createContext, useContext, useState, useEffect } from 'react';
 
 const RateContext = createContext();
 
+// Primary/live API endpoint and template ID you requested
 const POTENTIAL_ENDPOINTS = [
-    'https://bcast.rbgoldspot.com:7768/VOTSBroadcastStreaming/Services/xml/GetLiveRateByTemplateID/',
-    'https://bcast.rbgoldspot.com:7767/VOTSBroadcastStreaming/Services/xml/GetLiveRateByTemplateID/',
-    'http://13.201.9.242:7767/VOTSBroadcastStreaming/Services/xml/GetLiveRateByTemplateID/',
-    'https://bcast.rbgoldspot.com/VOTSBroadcastStreaming/Services/xml/GetLiveRateByTemplateID/',
-    'http://bcast.rbgoldspot.com:7767/VOTSBroadcastStreaming/Services/xml/GetLiveRateByTemplateID/',
-    'http://bcast.rbgoldspot.com:8080/VOTSBroadcastStreaming/Services/xml/GetLiveRateByTemplateID/',
-    'https://bcast.rbgoldspot.com:8081/VOTSBroadcastStreaming/Services/xml/GetLiveRateByTemplateID/'
+    'https://bcast.rbgoldspot.com:7768/VOTSBroadcastStreaming/Services/xml/GetLiveRateByTemplateID/'
 ];
-const POTENTIAL_IDS = ['rbgold', 'rbgoldspot'];
+const POTENTIAL_IDS = ['rbgold'];
 
 const CORS_PROXIES = [
+    url => `https://api.allorigins.win/raw?url=${encodeURIComponent(url)}`,
     url => `https://api.allorigins.win/get?url=${encodeURIComponent(url)}`,
-    url => `https://api.codetabs.com/v1/proxy?quest=${encodeURIComponent(url)}`,
-    url => `https://thingproxy.freeboard.io/fetch/${url}`,
     url => `https://corsproxy.org/?${encodeURIComponent(url)}`,
-    url => `https://allorigins.win/get?url=${encodeURIComponent(url)}`,
+    url => `https://api.codetabs.com/v1/proxy?quest=${encodeURIComponent(url)}`,
+    url => `https://corsproxy.io/?${encodeURIComponent(url)}`,
 ];
 
 const INITIAL_SPOT_CONFIG = [
@@ -54,12 +49,12 @@ export const RateProvider = ({ children }) => {
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
     const isFetching = React.useRef(false);
+    const lastNewsFetch = React.useRef(0);
+    const lastFetchStartTime = React.useRef(0);
+    const failureCount = React.useRef(0);
 
-    // Load last working config indices from localStorage
-    const savedConfig = JSON.parse(localStorage.getItem('ag_lastWorkingConfig') || '{}');
-    const lastProxyIndex = React.useRef(savedConfig.proxy || 0);
-    const lastEndpointIndex = React.useRef(savedConfig.endpoint || 0);
-    const lastIdIndex = React.useRef(savedConfig.id || 0);
+    // Proxy rotation state
+    const currentProxyIndex = React.useRef(0);
 
     // Robust initial state for adj
     const getInitialAdj = () => {
@@ -104,53 +99,78 @@ export const RateProvider = ({ children }) => {
 
     const parseRateText = (text) => {
         if (!text || typeof text !== 'string') return getPlaceholders();
-        const rows = text.trim().split('\n');
+
+        const cleanText = text.replace(/\r/g, '').trim();
+        const rows = cleanText.split('\n');
         const dataMap = {};
 
         rows.forEach(rawRow => {
             const trimmed = rawRow.trim();
             if (!trimmed) return;
 
-            // Split by all whitespace (tabs or spaces)
             const parts = trimmed.split(/\s+/);
 
-            if (parts.length >= 7) {
+            if (parts.length >= 4) {
                 const id = parts[0];
-                const stockStr = parts[parts.length - 1];
-                const low = parts[parts.length - 2];
-                const high = parts[parts.length - 3];
-                const ask = parts[parts.length - 4];
-                const bid = parts[parts.length - 5];
 
-                const name = parts.slice(1, parts.length - 5).join(' ');
+                let stockStr = '', low = '-', high = '-', ask = '-', bid = '-';
+                let nameEndIdx = parts.length;
+
+                const lastPart = parts[parts.length - 1].toLowerCase();
+                const hasStock = lastPart.includes('stock');
+
+                if (hasStock) {
+                    stockStr = parts[parts.length - 1];
+                    low = parts[parts.length - 2];
+                    high = parts[parts.length - 3];
+                    ask = parts[parts.length - 4];
+                    bid = parts[parts.length - 5];
+                    nameEndIdx = parts.length - 5;
+                } else {
+                    low = parts[parts.length - 1];
+                    high = parts[parts.length - 2];
+                    ask = parts[parts.length - 3];
+                    bid = parts[parts.length - 4];
+                    nameEndIdx = parts.length - 4;
+                }
+
+                const name = parts.slice(1, nameEndIdx).join(' ');
 
                 const parseVal = (v) => {
-                    if (v === '-' || !v) return '-';
-                    return parseFloat(v.replace(/,/g, ''));
+                    if (!v || v === '-') return '-';
+                    const num = parseFloat(v.replace(/,/g, ''));
+                    return isNaN(num) ? '-' : num;
                 };
 
-                dataMap[id] = {
+                const pBid = parseVal(bid);
+                const pAsk = parseVal(ask);
+
+                const data = {
                     id, name,
-                    bid: parseVal(bid),
-                    ask: parseVal(ask),
+                    bid: pBid !== '-' ? pBid : pAsk,
+                    ask: pAsk,
                     high: parseVal(high),
                     low: parseVal(low),
-                    stock: (stockStr || '').toLowerCase().includes('instock'),
+                    stock: hasStock ? stockStr.toLowerCase().includes('instock') : true,
                 };
+
+                dataMap[id] = data;
+                if (name) dataMap[name.toLowerCase()] = data;
             }
         });
 
         const spot = INITIAL_SPOT_CONFIG.map(conf => {
-            const it = dataMap[conf.id];
+            const it = dataMap[conf.id] || dataMap[conf.name.toLowerCase()];
             return it ? it : { ...conf, bid: '-', ask: '-', high: '-', low: '-', stock: false };
         });
 
         const rtgs = INITIAL_RTGS_CONFIG.map(conf => {
-            const it = dataMap[conf.id];
+            const it = dataMap[conf.id] || (conf.name && dataMap[conf.name.toLowerCase()]);
             if (!it) return { ...conf, buy: '-', sell: '-', stock: false };
             return { id: it.id, name: it.name, buy: it.bid, sell: it.ask, stock: it.stock, low: it.low, high: it.high };
         });
 
+        console.log("[DEBUG] Parsed RTGS (Inventory):", rtgs.filter(r => r.sell !== '-').length, "items found.");
         return { spot, rtgs };
     };
 
@@ -187,120 +207,144 @@ export const RateProvider = ({ children }) => {
         }).slice(0, 10);
     };
 
-    const lastNewsFetch = React.useRef(0);
+    const lastProcessedTimestamp = React.useRef(0);
+    const activeFetchesCount = React.useRef(0);
+    const isLocal = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1' || window.location.hostname.startsWith('192.168.');
+
     const fetchAllRates = async () => {
-        if (isFetching.current) return;
-        isFetching.current = true;
+        // Safety: Prevent excessive concurrent requests if network is extremely slow
+        if (activeFetchesCount.current >= 10) return;
 
-        let lastError;
-        const proxyCount = CORS_PROXIES.length;
-        const endpointCount = POTENTIAL_ENDPOINTS.length;
-        const idCount = POTENTIAL_IDS.length;
+        activeFetchesCount.current++;
+        const currentFetchId = Date.now();
 
-        // Fetch News (Throttled to every 5 mins)
+        // 1. Background News Fetch (Throttled)
         if (Date.now() - lastNewsFetch.current > 300000) {
-            const newsUrl = 'https://www.investing.com/rss/news_11.rss';
-            for (let pIdx = 0; pIdx < proxyCount; pIdx++) {
-                try {
-                    const proxyUrl = CORS_PROXIES[pIdx](newsUrl);
-                    const res = await fetchWithTimeout(proxyUrl, 3000);
-                    if (res.ok) {
-                        let text = await res.text();
-                        try {
+            (async () => {
+                const newsUrl = isLocal ? '/api-news/rss/news_11.rss' : 'https://www.investing.com/rss/news_11.rss';
+                const proxies = isLocal ? [url => url] : CORS_PROXIES;
+
+                for (const p of proxies.slice(0, 3)) {
+                    try {
+                        const res = await fetchWithTimeout(p(newsUrl), 4000);
+                        if (res.ok) {
+                            let text = await res.text();
                             if (text.trim().startsWith('{')) {
-                                const json = JSON.parse(text);
-                                text = json.contents || text;
+                                try { text = JSON.parse(text).contents || text; } catch (e) { }
                             }
-                        } catch (e) { }
-                        const parsedNews = parseNews(text);
-                        if (parsedNews.length > 0) {
-                            setNews(parsedNews);
-                            lastNewsFetch.current = Date.now();
-                            break;
+                            const parsed = parseNews(text);
+                            if (parsed.length) { setNews(parsed); lastNewsFetch.current = Date.now(); break; }
                         }
-                    }
-                } catch (e) { }
-            }
+                    } catch (e) { }
+                }
+            })();
         }
 
-        // Nested loops to find a working combination
-        for (let eIdx = 0; eIdx < endpointCount; eIdx++) {
-            const currentE = POTENTIAL_ENDPOINTS[(lastEndpointIndex.current + eIdx) % endpointCount];
+        try {
+            let success = false;
+            const iterationTimestamp = Date.now();
 
-            for (let iIdx = 0; iIdx < idCount; iIdx++) {
-                const currentId = POTENTIAL_IDS[(lastIdIndex.current + iIdx) % idCount];
-                const baseEndpoint = `${currentE}${currentId}`;
+            if (isLocal) {
+                // Local Development: Use Vite Proxy (/api-rates -> bcast.rbgoldspot.com)
+                try {
+                    const localUrl = `/api-rates/${POTENTIAL_IDS[0]}?_=${iterationTimestamp}`;
+                    const res = await fetchWithTimeout(localUrl, 3000);
+                    if (res.ok) {
+                        const text = await res.text();
+                        if (text && text.length > 20) {
+                            const data = parseRateText(text);
+                            if (currentFetchId > lastProcessedTimestamp.current) {
+                                lastProcessedTimestamp.current = currentFetchId;
+                                setRawRates(data);
+                                localStorage.setItem('ag_cachedRates', JSON.stringify(data));
+                                setError(null);
+                                setLoading(false);
+                            }
+                            success = true;
+                            failureCount.current = 0;
+                        }
+                    }
+                } catch (e) {
+                    // Fall back to public proxies if local proxy fails for some reason
+                }
+            }
 
-                // Add minimal cache busting only if needed
-                const salt = Math.random().toString(36).substring(7);
-                const finalEndpoint = `${baseEndpoint}?cb=${salt}`;
+            if (!success) {
+                const targetUrl = `${POTENTIAL_ENDPOINTS[0]}${POTENTIAL_IDS[0]}`;
+                const backupUrl = `http://13.201.9.242:7768/VOTSBroadcastStreaming/Services/xml/GetLiveRateByTemplateID/${POTENTIAL_IDS[0]}`;
 
-                for (let pIdx = 0; pIdx < proxyCount; pIdx++) {
-                    const currentPIdx = (lastProxyIndex.current + pIdx) % proxyCount;
-                    const makeUrl = CORS_PROXIES[currentPIdx];
+                // Try first 3 proxies for speed
+                const proxyIndices = [
+                    currentProxyIndex.current,
+                    (currentProxyIndex.current + 1) % CORS_PROXIES.length,
+                    (currentProxyIndex.current + 2) % CORS_PROXIES.length
+                ].filter((v, i, a) => a.indexOf(v) === i);
 
-                    try {
-                        const url = makeUrl(finalEndpoint);
-                        const res = await fetchWithTimeout(url, 3000);
-                        if (!res.ok) throw new Error(`HTTP ${res.status}`);
+                for (const idx of proxyIndices) {
+                    if (success) break;
+                    const proxyFn = CORS_PROXIES[idx];
+                    // Prioritize HTTP IP to avoid SSL handshake issues (525/520) seen on the domain
+                    const urlsToTry = [backupUrl, targetUrl];
 
-                        let text = await res.text();
-
-                        // Handle JSON-wrapped responses
+                    for (const u of urlsToTry) {
+                        if (success) break;
                         try {
+                            // 5s timeout for individual requests in the pipeline
+                            const proxiedUrl = proxyFn(`${u}${u.includes('?') ? '&' : '?'}_=${iterationTimestamp}`);
+                            const res = await fetchWithTimeout(proxiedUrl, 5000);
+
+                            let text = await res.text();
+
+                            if (text.includes('1015') || text.toLowerCase().includes('rate limit')) continue;
+
                             if (text.trim().startsWith('{')) {
-                                const json = JSON.parse(text);
-                                if (json.contents) text = json.contents;
-                                else if (json.Error) throw new Error(json.Error);
+                                try {
+                                    const parsed = JSON.parse(text);
+                                    text = parsed.contents || text;
+                                } catch (e) { }
+                            }
+
+                            if (text && text.length > 20) {
+                                const data = parseRateText(text);
+                                const hasRates = data.rtgs.some(r => r.buy !== '-' || r.sell !== '-') ||
+                                    data.spot.some(s => s.bid !== '-' || s.ask !== '-');
+
+                                if (hasRates) {
+                                    // TIMESTAMP GUARD: Only update if this data is newer than what we last processed
+                                    if (currentFetchId > lastProcessedTimestamp.current) {
+                                        lastProcessedTimestamp.current = currentFetchId;
+                                        setRawRates(data);
+                                        localStorage.setItem('ag_cachedRates', JSON.stringify(data));
+                                        currentProxyIndex.current = idx;
+                                        setError(null);
+                                        setLoading(false);
+                                    }
+                                    success = true;
+                                    failureCount.current = 0;
+                                    break;
+                                }
                             }
                         } catch (e) { }
-
-                        if (!text || text.trim().length < 5) throw new Error('Short response');
-                        const parsed = parseRateText(text);
-
-                        setRawRates(parsed);
-                        localStorage.setItem('ag_cachedRates', JSON.stringify(parsed));
-                        setError(null);
-                        setLoading(false);
-
-                        // Save working configuration
-                        const newEndpointIdx = (lastEndpointIndex.current + eIdx) % endpointCount;
-                        const newIdIdx = (lastIdIndex.current + iIdx) % idCount;
-
-                        lastEndpointIndex.current = newEndpointIdx;
-                        lastIdIndex.current = newIdIdx;
-                        lastProxyIndex.current = currentPIdx;
-
-                        localStorage.setItem('ag_lastWorkingConfig', JSON.stringify({
-                            proxy: currentPIdx,
-                            endpoint: newEndpointIdx,
-                            id: newIdIdx
-                        }));
-
-                        isFetching.current = false;
-                        return;
-                    } catch (e) {
-                        lastError = e;
                     }
                 }
             }
+
+            if (!success) throw new Error('Refresh failed');
+        } catch (e) {
+            failureCount.current++;
+            if (failureCount.current >= 10) { // Increased threshold for stability
+                setError("Syncing...");
+            }
+        } finally {
+            activeFetchesCount.current--;
         }
-
-        setError(lastError?.message || 'Connection failed');
-        setLoading(false);
-        isFetching.current = false;
     };
-
 
     useEffect(() => {
         fetchAllRates();
-        // 500ms interval ensures we check often, 
-        // but isFetching ref prevents overlapping requests.
-        const interval = setInterval(fetchAllRates, 500);
+        const interval = setInterval(fetchAllRates, 1000); // Pulse every 1s
         return () => clearInterval(interval);
     }, []);
-
-
 
     const rates = React.useMemo(() => {
         if (!showModified) return rawRates;
@@ -332,20 +376,12 @@ export const RateProvider = ({ children }) => {
 
                 if (!type) return r;
 
-                let buy = r.buy !== '-' ? adjust(r.buy, type) : '-';
-                let sell = r.sell !== '-' ? adjust(r.sell, type) : '-';
-                let high = r.high !== '-' ? adjust(r.high, type) : '-';
-                let low = r.low !== '-' ? adjust(r.low, type) : '-';
+                // SELL stays original (raw market), BUY gets user-defined offset
+                let sell = r.sell;
+                let baseBuy = r.buy !== '-' ? r.buy : r.sell;
+                let buy = baseBuy !== '-' ? adjust(baseBuy, type) : '-';
 
-                // Ensure High/Low/Buy are not identical to Sell if Sell is available
-                if (sell !== '-' && typeof sell === 'number') {
-                    const spread = sell * 0.0015; // 0.15% indicative spread
-                    if (high === '-' || high <= sell) high = parseFloat((sell + spread).toFixed(2));
-                    if (low === '-' || low >= sell) low = parseFloat((sell - spread).toFixed(2));
-                    if (buy === '-' || buy >= sell) buy = parseFloat((sell - (spread * 0.5)).toFixed(2));
-                }
-
-                return { ...r, buy, sell, high, low };
+                return { ...r, buy, sell };
             })
         };
     }, [rawRates, adj, showModified]);
