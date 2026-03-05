@@ -75,32 +75,37 @@ export const RateProvider = ({ children }) => {
     const [ticker, setTicker] = useState('Welcome to Abhinav Gold & Silver - Quality Purity Guaranteed');
     const [videos, setVideos] = useState([{ videoId: 'dQw4w9WgXcQ', title: 'Brand Film' }]);
 
-    // Fetch settings from MongoDB on mount
-    useEffect(() => {
-        const fetchSettings = async () => {
-            try {
-                const res = await fetch(`${API_BASE}/rates/settings`);
-                if (res.ok) {
-                    const data = await res.json();
-                    if (data) {
-                        setAdj({
-                            gold: data.goldOffset || { mode: 'amount', value: 0 },
-                            silver: data.silverOffset || { mode: 'amount', value: 0 },
-                            baseModifications: data.baseModifications || {
-                                gold999: { mode: 'amount', value: 0 },
-                                silver999: { mode: 'amount', value: 0 }
-                            },
-                            stockOverrides: data.stockOverrides || {}
-                        });
-                        if (data.ticker) setTicker(data.ticker);
-                        if (data.videos) setVideos(data.videos);
-                    }
+    // Use a ref for settings synchronization to avoid infinite loops if needed
+    const syncSettingsWithMongoDB = async () => {
+        try {
+            // Disable browser cache for this request explicitly
+            const res = await fetch(`${API_BASE}/rates/settings?_=${Date.now()}`, {
+                headers: { 'Cache-Control': 'no-cache', 'Pragma': 'no-cache' }
+            });
+            if (res.ok) {
+                const data = await res.json();
+                if (data) {
+                    setAdj({
+                        gold: data.goldOffset || { mode: 'amount', value: 0 },
+                        silver: data.silverOffset || { mode: 'amount', value: 0 },
+                        baseModifications: data.baseModifications || {
+                            gold999: { mode: 'amount', value: 0 },
+                            silver999: { mode: 'amount', value: 0 }
+                        },
+                        stockOverrides: data.stockOverrides || {}
+                    });
+                    if (data.ticker) setTicker(data.ticker);
+                    if (data.videos) setVideos(data.videos);
                 }
-            } catch (error) {
-                console.error("Failed to fetch settings from MongoDB:", error);
             }
-        };
-        fetchSettings();
+        } catch (error) {
+            console.error("Failed to sync settings from MongoDB:", error);
+        }
+    };
+
+    // Initial fetch on mount
+    useEffect(() => {
+        syncSettingsWithMongoDB();
     }, []);
 
     const updateSettings = async (payload) => {
@@ -379,239 +384,263 @@ export const RateProvider = ({ children }) => {
                             if (!text || text.length < 50) throw new Error('Too short');
                             const data = parseRateText(text);
                             const hasValidRates = data.rtgs.some(r => r.buy !== '-' || r.sell !== '-') ||
-                                data.spot.some(s => s.bid !== '-' || s.ask !== '-');
-                            if (!hasValidRates) throw new Error('No valid data');
-                            return { data, text };
-                        };
-
+                        // TOTAL RACE: Backend Proxy AND 4+ CORS Proxies all at once. First to respond wins.
                         const serverProxyUrl = `/api/rates/proxy?url=${encodeURIComponent(backupUrl)}&_=${iterationTimestamp}`;
-                        // Priority: Race EVERYTHING immediately for maximum speed
-                        const serverPromise = runSingleFetch(serverProxyUrl, 2500).then(r => ({ ...r, source: 'server' }));
 
-                        const corsPromises = CORS_PROXIES.slice(0, 3).map((proxyFn, i) => {
-                            const proxiedUrl = proxyFn(`${backupUrl}${backupUrl.includes('?') ? '&' : '?'}_=${iterationTimestamp}`);
-                            return runSingleFetch(proxiedUrl, 2500).then(r => ({ ...r, source: `cors-${i}` }));
-                        });
+                            const allSources = [
+                                { url: serverProxyUrl, type: 'backend', timeout: 2500 },
+                                { url: CORS_PROXIES[0](`${backupUrl}&_=${iterationTimestamp}`), type: 'cors', timeout: 3000 },
+                                { url: CORS_PROXIES[1](`${backupUrl}&_=${iterationTimestamp}`), type: 'cors', timeout: 3000 },
+                                { url: CORS_PROXIES[2](`${backupUrl}&_=${iterationTimestamp}`), type: 'cors', timeout: 3000 }
+                            ];
 
-                        const finalResult = await Promise.race([serverPromise, ...corsPromises]);
+                            const runSafeFetch = async (source) => {
+                                try {
+                                    const res = await fetchWithTimeout(source.url, source.timeout);
+                                    if (!res.ok) throw new Error(`Not OK ${res.status}`);
+                                    let text = await res.text();
+                                    if (text.includes('1015') || text.toLowerCase().includes('rate limit')) throw new Error('Blocked');
+                                    if (text.trim().startsWith('{')) {
+                                        try { const p = JSON.parse(text); text = p.contents || text; } catch (e) { }
+                                    }
+                                    if (!text || text.length < 50) throw new Error('Invalid Data');
+                                    const data = parseRateText(text);
+                                    const hasData = data.rtgs.some(r => r.buy !== '-' || r.sell !== '-') ||
+                                        data.spot.some(s => s.bid !== '-' || s.ask !== '-');
+                                    if (!hasData) throw new Error('No Rates');
+                                    return { data, source: source.type };
+                                } catch (e) {
+                                    throw e;
+                                }
+                            };
 
-                        if (finalResult && finalResult.data) {
-                            const { data, source } = finalResult;
-                            if (currentFetchId > lastProcessedTimestamp.current) {
-                                lastProcessedTimestamp.current = currentFetchId;
-                                const nextPriceMap = {};
-                                const recordFieldChange = (section, id, key, oldVal, newVal) => {
-                                    const toNum = (v) => (typeof v === 'number' ? v : Number.isFinite(parseFloat(v)) ? parseFloat(v) : null);
-                                    const o = toNum(oldVal); const n = toNum(newVal);
-                                    if (o === null || n === null) { nextPriceMap[`${section}-${id}-${key}`] = 'neutral'; return; }
-                                    if (n > o) nextPriceMap[`${section}-${id}-${key}`] = 'up';
-                                    else if (n < o) nextPriceMap[`${section}-${id}-${key}`] = 'down';
-                                    else nextPriceMap[`${section}-${id}-${key}`] = 'neutral';
-                                };
-                                const calculateTrend = (section, newList, oldList) => {
-                                    const now = Date.now();
-                                    return newList.map(newItem => {
-                                        const oldItem = oldList.find(o => o.id === newItem.id);
-                                        if (!oldItem) return { ...newItem, trend: 'stable', trendExpiry: 0 };
-                                        let change = 0;
-                                        const keys = newItem.buy !== undefined ? ['buy', 'sell'] : ['bid', 'ask'];
-                                        keys.forEach(key => {
-                                            recordFieldChange(section, newItem.id || newItem.name, key, oldItem[key], newItem[key]);
-                                            const nv = parseFloat(newItem[key]); const ov = parseFloat(oldItem[key]);
-                                            if (change === 0 && !isNaN(nv) && !isNaN(ov) && nv !== ov) change = nv > ov ? 1 : -1;
+                            // Race them all!
+                            const finalResult = await Promise.race(allSources.map(s => runSafeFetch(s)));
+
+                            if (finalResult && finalResult.data) {
+                                const { data } = finalResult;
+                                if (currentFetchId > lastProcessedTimestamp.current) {
+                                    lastProcessedTimestamp.current = currentFetchId;
+                                    const nextPriceMap = {};
+                                    const recordFieldChange = (section, id, key, oldVal, newVal) => {
+                                        const toNum = (v) => (typeof v === 'number' ? v : Number.isFinite(parseFloat(v)) ? parseFloat(v) : null);
+                                        const o = toNum(oldVal); const n = toNum(newVal);
+                                        if (o === null || n === null) { nextPriceMap[`${section}-${id}-${key}`] = 'neutral'; return; }
+                                        if (n > o) nextPriceMap[`${section}-${id}-${key}`] = 'up';
+                                        else if (n < o) nextPriceMap[`${section}-${id}-${key}`] = 'down';
+                                        else nextPriceMap[`${section}-${id}-${key}`] = 'neutral';
+                                    };
+                                    const calculateTrend = (section, newList, oldList) => {
+                                        const now = Date.now();
+                                        return newList.map(newItem => {
+                                            const oldItem = oldList.find(o => o.id === newItem.id);
+                                            if (!oldItem) return { ...newItem, trend: 'stable', trendExpiry: 0 };
+                                            let change = 0;
+                                            const keys = newItem.buy !== undefined ? ['buy', 'sell'] : ['bid', 'ask'];
+                                            keys.forEach(key => {
+                                                recordFieldChange(section, newItem.id || newItem.name, key, oldItem[key], newItem[key]);
+                                                const nv = parseFloat(newItem[key]); const ov = parseFloat(oldItem[key]);
+                                                if (change === 0 && !isNaN(nv) && !isNaN(ov) && nv !== ov) change = nv > ov ? 1 : -1;
+                                            });
+                                            let trend = oldItem.trend || 'stable'; let trendExpiry = oldItem.trendExpiry || 0;
+                                            if (change !== 0) { trend = change === 1 ? 'up' : 'down'; trendExpiry = now + 5000; }
+                                            else if (now > trendExpiry) { trend = 'stable'; trendExpiry = 0; }
+                                            return { ...newItem, trend, trendExpiry };
                                         });
-                                        let trend = oldItem.trend || 'stable'; let trendExpiry = oldItem.trendExpiry || 0;
-                                        if (change !== 0) { trend = change === 1 ? 'up' : 'down'; trendExpiry = now + 5000; }
-                                        else if (now > trendExpiry) { trend = 'stable'; trendExpiry = 0; }
-                                        return { ...newItem, trend, trendExpiry };
+                                    };
+                                    setRawRates(prev => {
+                                        const newFinal = {
+                                            spot: calculateTrend('spot', data.spot, prev.spot),
+                                            rtgs: calculateTrend('rtgs', data.rtgs, prev.rtgs)
+                                        };
+                                        localStorage.setItem('ag_cachedRates', JSON.stringify(newFinal));
+                                        return newFinal;
                                     });
-                                };
-                                setRawRates(prev => {
-                                    const newFinal = { spot: calculateTrend('spot', data.spot, prev.spot), rtgs: calculateTrend('rtgs', data.rtgs, prev.rtgs) };
-                                    localStorage.setItem('ag_cachedRates', JSON.stringify(newFinal));
-                                    return newFinal;
-                                });
-                                setPriceChangeMap(nextPriceMap);
-                                setError(null); setLoading(false);
-                                success = true;
-                                failureCount.current = 0;
+                                    setPriceChangeMap(nextPriceMap);
+                                    setError(null); setLoading(false);
+                                    success = true;
+                                    failureCount.current = 0;
+                                }
                             }
+                        } catch (e) {
+                            console.warn("Production fetch failed:", e);
                         }
-                    } catch (e) {
-                        console.warn("Production fetch failed:", e);
+                    }
+            }
+
+                // SYNC SETTINGS FROM MONGODB (User Requirement #1 & #3)
+                // This ensures all devices are in sync with admin changes
+                await syncSettingsWithMongoDB();
+
+                if (!success) throw new Error('Refresh failed');
+            } catch (e) {
+                failureCount.current++;
+                if (failureCount.current >= 10) { // Increased threshold for stability
+                    setError("Syncing...");
+                }
+            } finally {
+                activeFetchesCount.current--;
+            }
+        };
+
+        useEffect(() => {
+            let active = true;
+            let timeoutId = null;
+
+            const runFetch = async () => {
+                if (!active) return;
+                const startTime = Date.now();
+
+                try {
+                    await fetchAllRates();
+                } finally {
+                    if (active) {
+                        const elapsed = Date.now() - startTime;
+                        // Target 800ms pulse for consistent 1s feel
+                        const delay = Math.max(50, 800 - elapsed);
+                        timeoutId = setTimeout(runFetch, delay);
                     }
                 }
+            };
+
+            runFetch();
+            return () => {
+                active = false;
+                if (timeoutId) clearTimeout(timeoutId);
+            };
+        }, []);
+
+        const getPriceClass = (section, id, field) => {
+            const key = `${section}-${id}-${field}`;
+            const dir = priceChangeMap[key];
+            if (dir === 'up') return 'price-up';
+            if (dir === 'down') return 'price-down';
+
+            let name = '';
+            if (rawRates[section]) {
+                const item = rawRates[section].find(r => r.id === id || r.name === id);
+                if (item && item.name) name = item.name.toLowerCase();
             }
 
-            if (!success) throw new Error('Refresh failed');
-        } catch (e) {
-            failureCount.current++;
-            if (failureCount.current >= 10) { // Increased threshold for stability
-                setError("Syncing...");
-            }
-        } finally {
-            activeFetchesCount.current--;
-        }
+            if (name.includes('gold') || id === '3101' || id === '945') return 'gold-default';
+            if (name.includes('silver') || id === '3107' || id === '2966' || id === '2987') return 'silver-default';
+
+            return 'price-neutral';
+        };
+
+        const rates = React.useMemo(() => {
+            const adjust = (val, type) => {
+                const a = type === 'GOLD' ? adj.gold : adj.silver;
+                if (!a || typeof val !== 'number') return val;
+                const delta = a.mode === 'amount' ? a.value : (val * a.value) / 100;
+                return parseFloat((val + delta).toFixed(2));
+            };
+
+            // 1. Spot Rates
+            const spot = rawRates.spot.map(s => {
+                if (!showModified) return s;
+                const isGold = s.name.toUpperCase().includes('GOLD');
+                const isSilver = s.name.toUpperCase().includes('SILVER');
+                if (!isGold && !isSilver) return s;
+                return {
+                    ...s,
+                    bid: adjust(s.bid, isGold ? 'GOLD' : 'SILVER'),
+                    ask: adjust(s.ask, isGold ? 'GOLD' : 'SILVER'),
+                    high: adjust(s.high, isGold ? 'GOLD' : 'SILVER'),
+                    low: adjust(s.low, isGold ? 'GOLD' : 'SILVER')
+                };
+            });
+
+            // 2. RTGS Rates & Base Modifications
+            const rtgs = rawRates.rtgs.map(r => {
+                const isGold = r.name.toUpperCase().includes('GOLD');
+                const isSilver = r.name.toUpperCase().includes('SILVER');
+
+                // benchmark choice for sell modification
+                const sellMod = isGold ? adj.baseModifications?.gold999 : (isSilver ? adj.baseModifications?.silver999 : null);
+                // benchmark choice for buy modification
+                const buyOffset = isGold ? adj.gold : adj.silver;
+
+                const liveSell = parseFloat(r.sell) || 0;
+                let sell = r.sell;
+                let buy = r.buy;
+
+                if (showModified) {
+                    // Sell Calculation: Live + SellMod
+                    if (sellMod && sellMod.value !== 0) {
+                        const delta = sellMod.mode === 'amount' ? sellMod.value : (liveSell * sellMod.value) / 100;
+                        sell = parseFloat((liveSell + delta).toFixed(2));
+                    }
+
+                    // Buy Calculation: LiveSell + BuyMod (Consistent base for spread)
+                    if (buyOffset) {
+                        const delta = buyOffset.mode === 'amount' ? buyOffset.value : (liveSell * buyOffset.value) / 100;
+                        buy = parseFloat((liveSell + delta).toFixed(2));
+                    }
+                }
+
+                // Apply Stock Override if exists
+                const stock = adj.stockOverrides?.[r.id] !== undefined ? adj.stockOverrides[r.id] : r.stock;
+
+                return { ...r, buy, sell, stock, isModified: showModified && sellMod && sellMod.value !== 0 };
+            });
+
+            // 3. Gold Purities & Manual Sell Modifications
+            const goldBaseItem = rtgs.find(r => r.id === '945' || (r.name && r.name.toLowerCase().includes('gold 999')));
+            const baseSell999 = (goldBaseItem && typeof goldBaseItem.sell === 'number') ? goldBaseItem.sell : null;
+            const baseLow999 = (goldBaseItem && typeof goldBaseItem.low === 'number') ? goldBaseItem.low : baseSell999;
+            const baseHigh999 = (goldBaseItem && typeof goldBaseItem.high === 'number') ? goldBaseItem.high : baseSell999;
+
+            const purities = [
+                { label: 'Gold 24 Karat', key: '24K', factor: 1.0 },
+                { label: 'Gold 22 Karat', key: '22K', factor: 0.916 },
+                { label: 'Gold 18 Karat', key: '18K', factor: 0.75 },
+                { label: 'Gold 14 Karat', key: '14K', factor: 0.583 }
+            ].map(p => {
+                const rawGold999 = rawRates.rtgs.find(r => r.id === '945' || r.name?.toLowerCase().includes('gold 999'));
+                const live999Sell = parseFloat(rawGold999?.sell) || 0;
+                const trend = rawGold999?.trend || 'stable';
+
+                // Base Karat price from LIVE 999
+                const karatBase = Math.round(live999Sell * p.factor);
+
+                let sell, buy;
+
+                if (showModified) {
+                    // Sell = KaratBase + GoldSellMod (Flat)
+                    const sMod = adj.baseModifications.gold999;
+                    const sDelta = sMod.mode === 'amount' ? sMod.value : (live999Sell * sMod.value) / 100;
+                    sell = Math.round(karatBase + sDelta);
+
+                    // Buy = KaratBase + GoldBuyMod (Flat, ensuring consistent spread)
+                    const bMod = adj.gold;
+                    const bDelta = bMod.mode === 'amount' ? bMod.value : (live999Sell * bMod.value) / 100;
+                    buy = Math.round(karatBase + bDelta);
+                } else {
+                    sell = karatBase;
+                    buy = karatBase; // Or use raw buy if preferred, but user wants consistency
+                }
+
+                return {
+                    name: p.label,
+                    key: p.key,
+                    sell: live999Sell !== 0 ? sell : '-',
+                    buy: live999Sell !== 0 ? buy : '-',
+                    low: baseLow999 !== null ? Math.round(baseLow999 * p.factor) : '-',
+                    high: baseHigh999 !== null ? Math.round(baseHigh999 * p.factor) : '-',
+                    trend,
+                    isModified: showModified && adj.baseModifications.gold999.value !== 0
+                };
+            });
+
+            return { spot, rtgs, purities };
+        }, [rawRates, adj, showModified]);
+
+        return (
+            <RateContext.Provider value={{ rates, rawRates, loading, error, news, adj, showModified, ticker, videos, updateSettings, refreshRates: fetchAllRates, getPriceClass }}>
+                {children}
+            </RateContext.Provider>
+        );
     };
 
-    useEffect(() => {
-        let active = true;
-        let timeoutId = null;
-
-        const runFetch = async () => {
-            if (!active) return;
-            const startTime = Date.now();
-
-            try {
-                await fetchAllRates();
-            } finally {
-                if (active) {
-                    const elapsed = Date.now() - startTime;
-                    // Target 800ms pulse for consistent 1s feel
-                    const delay = Math.max(50, 800 - elapsed);
-                    timeoutId = setTimeout(runFetch, delay);
-                }
-            }
-        };
-
-        runFetch();
-        return () => {
-            active = false;
-            if (timeoutId) clearTimeout(timeoutId);
-        };
-    }, []);
-
-    const getPriceClass = (section, id, field) => {
-        const key = `${section}-${id}-${field}`;
-        const dir = priceChangeMap[key];
-        if (dir === 'up') return 'price-up';
-        if (dir === 'down') return 'price-down';
-
-        let name = '';
-        if (rawRates[section]) {
-            const item = rawRates[section].find(r => r.id === id || r.name === id);
-            if (item && item.name) name = item.name.toLowerCase();
-        }
-
-        if (name.includes('gold') || id === '3101' || id === '945') return 'gold-default';
-        if (name.includes('silver') || id === '3107' || id === '2966' || id === '2987') return 'silver-default';
-
-        return 'price-neutral';
-    };
-
-    const rates = React.useMemo(() => {
-        const adjust = (val, type) => {
-            const a = type === 'GOLD' ? adj.gold : adj.silver;
-            if (!a || typeof val !== 'number') return val;
-            const delta = a.mode === 'amount' ? a.value : (val * a.value) / 100;
-            return parseFloat((val + delta).toFixed(2));
-        };
-
-        // 1. Spot Rates
-        const spot = rawRates.spot.map(s => {
-            if (!showModified) return s;
-            const isGold = s.name.toUpperCase().includes('GOLD');
-            const isSilver = s.name.toUpperCase().includes('SILVER');
-            if (!isGold && !isSilver) return s;
-            return {
-                ...s,
-                bid: adjust(s.bid, isGold ? 'GOLD' : 'SILVER'),
-                ask: adjust(s.ask, isGold ? 'GOLD' : 'SILVER'),
-                high: adjust(s.high, isGold ? 'GOLD' : 'SILVER'),
-                low: adjust(s.low, isGold ? 'GOLD' : 'SILVER')
-            };
-        });
-
-        // 2. RTGS Rates & Base Modifications
-        const rtgs = rawRates.rtgs.map(r => {
-            const isGold = r.name.toUpperCase().includes('GOLD');
-            const isSilver = r.name.toUpperCase().includes('SILVER');
-
-            // benchmark choice for sell modification
-            const sellMod = isGold ? adj.baseModifications?.gold999 : (isSilver ? adj.baseModifications?.silver999 : null);
-            // benchmark choice for buy modification
-            const buyOffset = isGold ? adj.gold : adj.silver;
-
-            const liveSell = parseFloat(r.sell) || 0;
-            let sell = r.sell;
-            let buy = r.buy;
-
-            if (showModified) {
-                // Sell Calculation: Live + SellMod
-                if (sellMod && sellMod.value !== 0) {
-                    const delta = sellMod.mode === 'amount' ? sellMod.value : (liveSell * sellMod.value) / 100;
-                    sell = parseFloat((liveSell + delta).toFixed(2));
-                }
-
-                // Buy Calculation: LiveSell + BuyMod (Consistent base for spread)
-                if (buyOffset) {
-                    const delta = buyOffset.mode === 'amount' ? buyOffset.value : (liveSell * buyOffset.value) / 100;
-                    buy = parseFloat((liveSell + delta).toFixed(2));
-                }
-            }
-
-            // Apply Stock Override if exists
-            const stock = adj.stockOverrides?.[r.id] !== undefined ? adj.stockOverrides[r.id] : r.stock;
-
-            return { ...r, buy, sell, stock, isModified: showModified && sellMod && sellMod.value !== 0 };
-        });
-
-        // 3. Gold Purities & Manual Sell Modifications
-        const goldBaseItem = rtgs.find(r => r.id === '945' || (r.name && r.name.toLowerCase().includes('gold 999')));
-        const baseSell999 = (goldBaseItem && typeof goldBaseItem.sell === 'number') ? goldBaseItem.sell : null;
-        const baseLow999 = (goldBaseItem && typeof goldBaseItem.low === 'number') ? goldBaseItem.low : baseSell999;
-        const baseHigh999 = (goldBaseItem && typeof goldBaseItem.high === 'number') ? goldBaseItem.high : baseSell999;
-
-        const purities = [
-            { label: 'Gold 24 Karat', key: '24K', factor: 1.0 },
-            { label: 'Gold 22 Karat', key: '22K', factor: 0.916 },
-            { label: 'Gold 18 Karat', key: '18K', factor: 0.75 },
-            { label: 'Gold 14 Karat', key: '14K', factor: 0.583 }
-        ].map(p => {
-            const rawGold999 = rawRates.rtgs.find(r => r.id === '945' || r.name?.toLowerCase().includes('gold 999'));
-            const live999Sell = parseFloat(rawGold999?.sell) || 0;
-            const trend = rawGold999?.trend || 'stable';
-
-            // Base Karat price from LIVE 999
-            const karatBase = Math.round(live999Sell * p.factor);
-
-            let sell, buy;
-
-            if (showModified) {
-                // Sell = KaratBase + GoldSellMod (Flat)
-                const sMod = adj.baseModifications.gold999;
-                const sDelta = sMod.mode === 'amount' ? sMod.value : (live999Sell * sMod.value) / 100;
-                sell = Math.round(karatBase + sDelta);
-
-                // Buy = KaratBase + GoldBuyMod (Flat, ensuring consistent spread)
-                const bMod = adj.gold;
-                const bDelta = bMod.mode === 'amount' ? bMod.value : (live999Sell * bMod.value) / 100;
-                buy = Math.round(karatBase + bDelta);
-            } else {
-                sell = karatBase;
-                buy = karatBase; // Or use raw buy if preferred, but user wants consistency
-            }
-
-            return {
-                name: p.label,
-                key: p.key,
-                sell: live999Sell !== 0 ? sell : '-',
-                buy: live999Sell !== 0 ? buy : '-',
-                low: baseLow999 !== null ? Math.round(baseLow999 * p.factor) : '-',
-                high: baseHigh999 !== null ? Math.round(baseHigh999 * p.factor) : '-',
-                trend,
-                isModified: showModified && adj.baseModifications.gold999.value !== 0
-            };
-        });
-
-        return { spot, rtgs, purities };
-    }, [rawRates, adj, showModified]);
-
-    return (
-        <RateContext.Provider value={{ rates, rawRates, loading, error, news, adj, showModified, ticker, videos, updateSettings, refreshRates: fetchAllRates, getPriceClass }}>
-            {children}
-        </RateContext.Provider>
-    );
-};
-
-export const useRates = () => useContext(RateContext);
+    export const useRates = () => useContext(RateContext);

@@ -75,10 +75,14 @@ app.get('/api/rates/proxy', async (req, res) => {
 
 // 1. Get current settings
 app.get('/api/rates/settings', async (req, res) => {
+    // Disable API caching to prevent stale responses (User Requirement #4)
+    res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate, proxy-revalidate, s-maxage=0');
+    res.setHeader('Pragma', 'no-cache');
+    res.setHeader('Expires', '0');
+
     try {
         let settings = await RateSettings.findOne({ key: 'global_settings' });
         if (!settings) {
-            // Create default if not exists
             settings = await RateSettings.create({ key: 'global_settings' });
         }
         res.json(settings);
