@@ -404,8 +404,22 @@ export const RateProvider = ({ children }) => {
                             }
                         };
 
-                        // Race them all!
-                        const finalResult = await Promise.race(allSources.map(s => runSafeFetch(s)));
+                        // Use a custom 'any-success' race because Promise.race kills the whole thing if one fails
+                        const anySuccess = (promises) => {
+                            return new Promise((resolve, reject) => {
+                                let rejectedCount = 0;
+                                promises.forEach(p => {
+                                    p.then(resolve).catch(e => {
+                                        rejectedCount++;
+                                        if (rejectedCount === promises.length) {
+                                            reject(new Error("All sources failed"));
+                                        }
+                                    });
+                                });
+                            });
+                        };
+
+                        const finalResult = await anySuccess(allSources.map(s => runSafeFetch(s)));
 
                         if (finalResult && finalResult.data) {
                             const { data } = finalResult;
