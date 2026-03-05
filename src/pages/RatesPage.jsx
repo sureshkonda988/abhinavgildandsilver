@@ -49,36 +49,25 @@ const RatesPage = () => {
                                 </tr>
                             </thead>
                             <tbody className="divide-y divide-white/5">
-                                {[
-                                    { label: 'Gold 14 Karat', factor: 0.583 },
-                                    { label: 'Gold 18 Karat', factor: 0.75 },
-                                    { label: 'Gold 22 Karat', factor: 0.916 },
-                                    { label: 'Gold 24 Karat', factor: 1.0 }
-                                ].map((karat, idx) => {
-                                    const goldBaseRaw = rawRates.rtgs.find(r => r.id === '945' || (r.name && r.name.toLowerCase().includes('gold 999')));
+                                {(rates.purities || [
+                                    { name: 'Gold 14 Karat', factor: 0.583 },
+                                    { name: 'Gold 18 Karat', factor: 0.75 },
+                                    { name: 'Gold 22 Karat', key: '22K', factor: 0.916 },
+                                    { name: 'Gold 24 Karat', key: '24K', factor: 1.0 }
+                                ]).map((karat, idx) => {
+                                    const sellNum = karat.sell;
+                                    const buyNum = karat.buy;
+                                    const baseLow = karat.low;
+                                    const baseHigh = karat.high;
 
-                                    const baseSell = goldBaseRaw && typeof goldBaseRaw.sell === 'number' ? goldBaseRaw.sell : null;
-                                    const baseLow = (goldBaseRaw && typeof goldBaseRaw.low === 'number') ? goldBaseRaw.low : baseSell;
-                                    const baseHigh = (goldBaseRaw && typeof goldBaseRaw.high === 'number') ? goldBaseRaw.high : baseSell;
-
-                                    const sellNum = baseSell !== null ? Math.round(baseSell * karat.factor) : null;
-
-                                    let buyNum = sellNum;
-                                    if (sellNum !== null && showModified && adj && adj.gold) {
-                                        const delta = adj.gold.mode === 'amount'
-                                            ? adj.gold.value
-                                            : (sellNum * adj.gold.value) / 100;
-                                        buyNum = Math.round(sellNum + delta);
-                                    }
-
-                                    const sellVal = sellNum !== null ? fmt(sellNum) : '-';
-                                    const buyVal = buyNum !== null ? fmt(buyNum) : '-';
-                                    const lowVal = (baseLow && baseLow !== baseSell) ? fmt(Math.round(baseLow * karat.factor)) : '-';
-                                    const highVal = (baseHigh && baseHigh !== baseSell) ? fmt(Math.round(baseHigh * karat.factor)) : '-';
+                                    const sellVal = sellNum !== '-' && sellNum !== undefined ? fmt(sellNum) : '-';
+                                    const buyVal = buyNum !== '-' && buyNum !== undefined ? fmt(buyNum) : '-';
+                                    const lowVal = baseLow !== '-' && baseLow !== undefined ? fmt(baseLow) : '-';
+                                    const highVal = baseHigh !== '-' && baseHigh !== undefined ? fmt(baseHigh) : '-';
 
                                     return (
                                         <tr key={idx} className="hover:bg-white/5 transition-colors group">
-                                            <td className="px-4 py-6 text-sm md:text-lg font-bold text-white whitespace-nowrap">{karat.label}</td>
+                                            <td className="px-4 py-6 text-sm md:text-lg font-bold text-white whitespace-nowrap">{karat.name}</td>
                                             <td className="px-4 py-6 text-[11px] md:text-xl font-black text-white text-center font-poppins">
                                                 {buyVal !== '-' ? `₹${buyVal}` : '-'}
                                             </td>

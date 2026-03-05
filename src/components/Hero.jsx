@@ -60,7 +60,7 @@ const Hero = () => {
                                                     <tr key={idx} className="hover:bg-slate-50 transition-colors group whitespace-nowrap">
                                                         <td className="py-3 px-3 md:py-4 md:px-4 text-[10px] md:text-[13px] font-bold text-slate-900 font-poppins">{item.name}</td>
                                                         <td className="py-3 px-3 md:py-4 md:px-4 text-[11px] md:text-[13px] font-black text-slate-900 text-center font-poppins">₹{item.buy !== '-' ? fmt(item.buy) : '-'}</td>
-                                                        <td className="py-3 px-3 md:py-4 md:px-4 text-[11px] md:text-[13px] font-black text-magenta-600 text-center font-poppins group-hover:text-magenta-800 transition-colors">₹{fmt(rawItem.sell)}</td>
+                                                        <td className="py-3 px-3 md:py-4 md:px-4 text-[11px] md:text-[13px] font-black text-magenta-600 text-center font-poppins group-hover:text-magenta-800 transition-colors">₹{fmt(item.sell)}</td>
                                                         <td className="py-3 px-3 md:py-4 md:px-4 text-[10px] md:text-[12px] font-black text-red-600 text-center font-poppins">₹{rawItem.low !== '-' ? fmt(rawItem.low) : fmt(rawItem.sell)}</td>
                                                         <td className="py-3 px-3 md:py-4 md:px-4 text-[10px] md:text-[12px] font-black text-green-600 text-center font-poppins">₹{rawItem.high !== '-' ? fmt(rawItem.high) : fmt(rawItem.sell)}</td>
                                                         <td className="py-3 px-3 md:py-4 md:px-4 text-right">

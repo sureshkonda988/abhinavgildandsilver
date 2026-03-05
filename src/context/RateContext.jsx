@@ -56,27 +56,61 @@ export const RateProvider = ({ children }) => {
     // Proxy rotation state
     const currentProxyIndex = React.useRef(0);
 
+    const API_BASE = 'http://localhost:5000/api';
+
     // Robust initial state for adj
-    const getInitialAdj = () => {
-        try {
-            const saved = localStorage.getItem('ag_rateAdj');
-            if (saved) {
-                const parsed = JSON.parse(saved);
-                if (parsed.gold && parsed.silver) return parsed;
-            }
-        } catch (e) {
-            console.error("Failed to parse offsets:", e);
+    const getInitialAdj = () => ({
+        gold: { mode: 'amount', value: 0 },
+        silver: { mode: 'amount', value: 0 },
+        baseModifications: {
+            gold999: { mode: 'amount', value: 0 },
+            silver999: { mode: 'amount', value: 0 }
         }
-        return { gold: { mode: 'amount', value: 0 }, silver: { mode: 'amount', value: 0 } };
-    };
+    });
 
     const [adj, setAdj] = useState(getInitialAdj());
     const [showModified, setShowModified] = useState(JSON.parse(localStorage.getItem('ag_showModified') || 'false'));
 
-    const updateSettings = (newAdj, newShow) => {
+    // Fetch settings from MongoDB on mount
+    useEffect(() => {
+        const fetchSettings = async () => {
+            try {
+                const res = await fetch(`${API_BASE}/rates/settings`);
+                if (res.ok) {
+                    const data = await res.json();
+                    if (data) {
+                        setAdj({
+                            gold: data.goldOffset || { mode: 'amount', value: 0 },
+                            silver: data.silverOffset || { mode: 'amount', value: 0 },
+                            baseModifications: data.baseModifications || {
+                                gold999: { mode: 'amount', value: 0 },
+                                silver999: { mode: 'amount', value: 0 }
+                            }
+                        });
+                    }
+                }
+            } catch (error) {
+                console.error("Failed to fetch settings from MongoDB:", error);
+            }
+        };
+        fetchSettings();
+    }, []);
+
+    const updateSettings = async (newAdj, newShow) => {
         if (newAdj !== undefined) {
             setAdj(newAdj);
             localStorage.setItem('ag_rateAdj', JSON.stringify(newAdj));
+
+            // Sync to MongoDB
+            try {
+                await fetch(`${API_BASE}/rates/settings`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(newAdj)
+                });
+            } catch (e) {
+                console.error("Failed to sync modifications to MongoDB:", e);
+            }
         }
         if (newShow !== undefined) {
             setShowModified(newShow);
@@ -347,8 +381,6 @@ export const RateProvider = ({ children }) => {
     }, []);
 
     const rates = React.useMemo(() => {
-        if (!showModified) return rawRates;
-
         const adjust = (val, type) => {
             const a = type === 'GOLD' ? adj.gold : adj.silver;
             if (!a || typeof val !== 'number') return val;
@@ -356,34 +388,93 @@ export const RateProvider = ({ children }) => {
             return parseFloat((val + delta).toFixed(2));
         };
 
-        return {
-            spot: rawRates.spot.map(s => {
-                const isGold = s.name.toUpperCase().includes('GOLD');
-                const isSilver = s.name.toUpperCase().includes('SILVER');
-                if (!isGold && !isSilver) return s;
-                return {
-                    ...s,
-                    bid: adjust(s.bid, isGold ? 'GOLD' : 'SILVER'),
-                    ask: adjust(s.ask, isGold ? 'GOLD' : 'SILVER'),
-                    high: adjust(s.high, isGold ? 'GOLD' : 'SILVER'),
-                    low: adjust(s.low, isGold ? 'GOLD' : 'SILVER')
-                };
-            }),
-            rtgs: rawRates.rtgs.map(r => {
-                const isGold = r.name.toUpperCase().includes('GOLD');
-                const isSilver = r.name.toUpperCase().includes('SILVER');
-                const type = isGold ? 'GOLD' : (isSilver ? 'SILVER' : null);
+        // 1. Spot Rates
+        const spot = rawRates.spot.map(s => {
+            if (!showModified) return s;
+            const isGold = s.name.toUpperCase().includes('GOLD');
+            const isSilver = s.name.toUpperCase().includes('SILVER');
+            if (!isGold && !isSilver) return s;
+            return {
+                ...s,
+                bid: adjust(s.bid, isGold ? 'GOLD' : 'SILVER'),
+                ask: adjust(s.ask, isGold ? 'GOLD' : 'SILVER'),
+                high: adjust(s.high, isGold ? 'GOLD' : 'SILVER'),
+                low: adjust(s.low, isGold ? 'GOLD' : 'SILVER')
+            };
+        });
 
-                if (!type) return r;
+        // 2. RTGS Rates & Base Modifications
+        const rtgs = rawRates.rtgs.map(r => {
+            const isGold = r.name.toUpperCase().includes('GOLD');
+            const isSilver = r.name.toUpperCase().includes('SILVER');
 
-                // SELL stays original (raw market), BUY gets user-defined offset
-                let sell = r.sell;
-                let baseBuy = r.buy !== '-' ? r.buy : r.sell;
-                let buy = baseBuy !== '-' ? adjust(baseBuy, type) : '-';
+            // benchmark choice
+            const mod = isGold ? adj.baseModifications?.gold999 : (isSilver ? adj.baseModifications?.silver999 : null);
 
-                return { ...r, buy, sell };
-            })
-        };
+            let sell = r.sell;
+
+            if (showModified && mod && mod.value !== 0) {
+                const liveSell = parseFloat(r.sell) || 0;
+                const delta = mod.mode === 'amount' ? mod.value : (liveSell * mod.value) / 100;
+                sell = parseFloat((liveSell + delta).toFixed(2));
+            }
+
+            // Buy follows modified sell + adjustment always
+            const buyOffset = isGold ? adj.gold : adj.silver;
+            let buy = '-';
+            if (sell !== '-') {
+                const liveSell = parseFloat(sell) || 0;
+                const delta = buyOffset.mode === 'amount' ? buyOffset.value : (liveSell * buyOffset.value) / 100;
+                buy = parseFloat((liveSell + delta).toFixed(2));
+            }
+
+            return { ...r, buy, sell, isModified: showModified && mod && mod.value !== 0 };
+        });
+
+        // 3. Gold Purities & Manual Sell Modifications
+        const goldBaseItem = rtgs.find(r => r.id === '945' || (r.name && r.name.toLowerCase().includes('gold 999')));
+        const baseSell999 = (goldBaseItem && typeof goldBaseItem.sell === 'number') ? goldBaseItem.sell : null;
+        const baseLow999 = (goldBaseItem && typeof goldBaseItem.low === 'number') ? goldBaseItem.low : baseSell999;
+        const baseHigh999 = (goldBaseItem && typeof goldBaseItem.high === 'number') ? goldBaseItem.high : baseSell999;
+
+        const purities = [
+            { label: 'Gold 14 Karat', key: '14K', factor: 0.583 },
+            { label: 'Gold 18 Karat', key: '18K', factor: 0.75 },
+            { label: 'Gold 22 Karat', key: '22K', factor: 0.916 },
+            { label: 'Gold 24 Karat', key: '24K', factor: 1.0 }
+        ].map(p => {
+            const liveSellNoMod = (goldBaseItem && goldBaseItem.sell !== '-')
+                ? (showModified && adj.baseModifications.gold999.value !== 0
+                    ? parseFloat(rawRates.rtgs.find(r => r.id === '945' || r.name?.toLowerCase().includes('gold 999'))?.sell || 0)
+                    : goldBaseItem.sell)
+                : null;
+
+            const liveSell = baseSell999 !== null ? Math.round(baseSell999 * p.factor) : '-';
+
+            let sell, buy;
+            sell = liveSell;
+
+            // Buy should follow LIVE price + offset, not modified sell
+            if (sell !== '-') {
+                const targetBaseForBuy = liveSellNoMod !== null ? Math.round(liveSellNoMod * p.factor) : sell;
+                const delta = adj.gold.mode === 'amount' ? adj.gold.value : (targetBaseForBuy * adj.gold.value) / 100;
+                buy = Math.round(targetBaseForBuy + delta);
+            } else {
+                buy = '-';
+            }
+
+            return {
+                name: p.label,
+                key: p.key,
+                sell,
+                buy,
+                low: baseLow999 !== null ? Math.round(baseLow999 * p.factor) : '-',
+                high: baseHigh999 !== null ? Math.round(baseHigh999 * p.factor) : '-',
+                isModified: false
+            };
+        });
+
+        return { spot, rtgs, purities };
     }, [rawRates, adj, showModified]);
 
     return (

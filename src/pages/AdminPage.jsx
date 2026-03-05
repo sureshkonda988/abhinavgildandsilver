@@ -134,7 +134,7 @@ const AdminPage = () => {
                             <div className="grid gap-6 md:gap-8">
                                 <section className="glass p-4 md:p-8 rounded-[30px] md:rounded-[40px] shadow-luxury border-white/40 min-h-[400px]">
                                     <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-6 md:mb-10">
-                                        <h3 className="text-lg md:text-xl font-playfair font-black text-magenta-700 uppercase tracking-widest">Rate Adjustments</h3>
+                                        <h3 className="text-lg md:text-xl font-playfair font-black text-magenta-700 uppercase tracking-widest border-b border-magenta-100 pb-2">Base Rate Buy Modification</h3>
                                         <div className="flex gap-2 w-full md:w-auto">
                                             <button
                                                 onClick={() => toggleDisplayMode('live')}
@@ -159,16 +159,16 @@ const AdminPage = () => {
                                     ) : (
                                         <div className="grid md:grid-cols-2 gap-8">
                                             <AdjustmentCard
-                                                label="Gold Offset"
+                                                label="Gold Buy Modification"
                                                 item={adj?.gold || { mode: 'amount', value: 0 }}
                                                 liveRates={(rawRates.rtgs || []).filter(r => r.name.toLowerCase().includes('gold'))}
-                                                onChange={(val) => saveAdj({ ...adj, gold: val })}
+                                                onChange={(val) => updateSettings({ ...adj, gold: val })}
                                             />
                                             <AdjustmentCard
-                                                label="Silver Offset"
+                                                label="Silver Buy Modification"
                                                 item={adj?.silver || { mode: 'amount', value: 0 }}
                                                 liveRates={(rawRates.rtgs || []).filter(r => r.name.toLowerCase().includes('5 kgs'))}
-                                                onChange={(val) => saveAdj({ ...adj, silver: val })}
+                                                onChange={(val) => updateSettings({ ...adj, silver: val })}
                                             />
                                         </div>
                                     )}
@@ -179,6 +179,35 @@ const AdminPage = () => {
                                             Service Connectivity Error: {error}
                                         </div>
                                     )}
+
+                                    <div className="mt-12">
+                                        <h3 className="text-lg md:text-xl font-playfair font-black text-magenta-700 uppercase tracking-widest mb-6 border-b border-magenta-100 pb-2">Base Rate Sell Modification</h3>
+                                        <p className="text-[10px] font-bold text-slate-400 uppercase tracking-[0.1em] mb-8 max-w-2xl leading-relaxed">
+                                            Modify the base price for Gold 999 and Silver 999. Changing Gold 999 will automatically update the calculated sell prices for all Karats (14K, 18K, etc.).
+                                        </p>
+                                        <div className="grid sm:grid-cols-2 gap-4 mb-10">
+                                            <AdjustmentCard
+                                                label="Gold Sell Modification"
+                                                item={adj.baseModifications.gold999}
+                                                liveRates={rates.rtgs.filter(r => r.id === '945' || r.name?.toLowerCase().includes('gold 999'))}
+                                                onChange={(newItem) => {
+                                                    const newBase = { ...adj.baseModifications };
+                                                    newBase.gold999 = newItem;
+                                                    updateSettings({ ...adj, baseModifications: newBase });
+                                                }}
+                                            />
+                                            <AdjustmentCard
+                                                label="Silver Sell Modification"
+                                                item={adj.baseModifications.silver999}
+                                                liveRates={rates.rtgs.filter(r => r.id === '2987' || r.name?.toLowerCase().includes('silver 999 (5 kgs)'))}
+                                                onChange={(newItem) => {
+                                                    const newBase = { ...adj.baseModifications };
+                                                    newBase.silver999 = newItem;
+                                                    updateSettings({ ...adj, baseModifications: newBase });
+                                                }}
+                                            />
+                                        </div>
+                                    </div>
 
                                     <button
                                         onClick={refreshRates}
@@ -309,14 +338,15 @@ const TabBtn = ({ id, icon, label, active, onClick }) => (
 );
 
 const AdjustmentCard = ({ label, item, liveRates = [], onChange }) => {
-    const [localVal, setLocalVal] = useState(item.value.toString());
+    const initialVal = (item?.value !== undefined && item?.value !== null) ? item.value.toString() : '0';
+    const [localVal, setLocalVal] = useState(initialVal);
 
     useEffect(() => {
         // Sync local value with prop only if it's not currently being edited as a minus sign
-        if (localVal !== '-' && parseFloat(localVal) !== item.value) {
+        if (item?.value !== undefined && localVal !== '-' && parseFloat(localVal) !== item.value) {
             setLocalVal(item.value.toString());
         }
-    }, [item.value]);
+    }, [item?.value]);
 
     const handleTextChange = (v) => {
         // Allow only numbers and a single leading minus
@@ -403,5 +433,6 @@ const AdjustmentCard = ({ label, item, liveRates = [], onChange }) => {
         </div>
     );
 };
+
 
 export default AdminPage;
