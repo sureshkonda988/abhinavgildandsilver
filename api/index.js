@@ -23,7 +23,7 @@ mongoose.connect(process.env.MONGODB_URI)
 // --- Proxy Helper ---
 const fetchRaw = (targetUrl) => new Promise((resolve, reject) => {
     const lib = targetUrl.startsWith('https') ? https : http;
-    const req = lib.get(targetUrl, { timeout: 5000 }, (res) => {
+    const req = lib.get(targetUrl, { timeout: 3000 }, (res) => {
         let data = '';
         res.on('data', chunk => data += chunk);
         res.on('end', () => resolve(data));
@@ -40,7 +40,9 @@ app.get('/api/rates/proxy', async (req, res) => {
     try {
         const text = await fetchRaw(targetUrl);
         res.setHeader('Content-Type', 'text/plain');
-        res.setHeader('Cache-Control', 'no-cache');
+        res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate, proxy-revalidate');
+        res.setHeader('Pragma', 'no-cache');
+        res.setHeader('Expires', '0');
         res.send(text);
     } catch (error) {
         res.status(502).send('Proxy error: ' + error.message);

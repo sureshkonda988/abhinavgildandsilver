@@ -366,182 +366,95 @@ export const RateProvider = ({ children }) => {
                 const targetUrl = `${POTENTIAL_ENDPOINTS[0]}${POTENTIAL_IDS[0]}`;
                 const backupUrl = `http://13.201.9.242:7768/VOTSBroadcastStreaming/Services/xml/GetLiveRateByTemplateID/${POTENTIAL_IDS[0]}`;
 
-                // On production/Vercel, we can try our own backend proxy
+                // PRODUCTION PIPELINE: Race several options for extreme speed
                 if (!isLocal) {
                     try {
+                        const runSingleFetch = async (url, timeout) => {
+                            const res = await fetchWithTimeout(url, timeout);
+                            if (!res.ok) throw new Error('Not OK');
+                            let text = await res.text();
+                            if (text.includes('1015') || text.toLowerCase().includes('rate limit')) throw new Error('Blocked');
+                            if (text.trim().startsWith('{')) {
+                                try { const p = JSON.parse(text); text = p.contents || text; } catch (e) { }
+                            }
+                            if (!text || text.length < 50) throw new Error('Too short');
+                            const data = parseRateText(text);
+                            const hasValidRates = data.rtgs.some(r => r.buy !== '-' || r.sell !== '-') ||
+                                data.spot.some(s => s.bid !== '-' || s.ask !== '-');
+                            if (!hasValidRates) throw new Error('No valid data');
+                            return { data, text };
+                        };
+
+                        // Priority 1: Server Proxy
                         const serverProxyUrl = `/api/rates/proxy?url=${encodeURIComponent(backupUrl)}&_=${iterationTimestamp}`;
-                        const res = await fetchWithTimeout(serverProxyUrl, 4000);
-                        if (res.ok) {
-                            const text = await res.text();
-                            if (text && text.length > 20 && !text.includes('1015')) {
-                                const data = parseRateText(text);
-                                const hasRates = data.rtgs.some(r => r.buy !== '-' || r.sell !== '-') ||
-                                    data.spot.some(s => s.bid !== '-' || s.ask !== '-');
 
-                                if (hasRates && currentFetchId > lastProcessedTimestamp.current) {
-                                    lastProcessedTimestamp.current = currentFetchId;
-                                    const nextPriceMap = {};
+                        // We create an array of promises and race them
+                        const fetchPromises = [];
 
-                                    const recordFieldChange = (section, id, key, oldVal, newVal) => {
-                                        const toNum = (v) => (typeof v === 'number' ? v : Number.isFinite(parseFloat(v)) ? parseFloat(v) : null);
-                                        const o = toNum(oldVal); const n = toNum(newVal);
-                                        if (o === null || n === null) { nextPriceMap[`${section}-${id}-${key}`] = 'neutral'; return; }
-                                        if (n > o) nextPriceMap[`${section}-${id}-${key}`] = 'up';
-                                        else if (n < o) nextPriceMap[`${section}-${id}-${key}`] = 'down';
-                                        else nextPriceMap[`${section}-${id}-${key}`] = 'neutral';
-                                    };
+                        // Start server proxy immediately
+                        const serverPromise = runSingleFetch(serverProxyUrl, 2500).then(r => ({ ...r, source: 'server' }));
+                        fetchPromises.push(serverPromise);
 
-                                    const calculateTrend = (section, newList, oldList) => {
-                                        const now = Date.now();
-                                        return newList.map(newItem => {
-                                            const oldItem = oldList.find(o => o.id === newItem.id);
-                                            if (!oldItem) return { ...newItem, trend: 'stable', trendExpiry: 0 };
-                                            let change = 0;
-                                            const keys = newItem.buy !== undefined ? ['buy', 'sell'] : ['bid', 'ask'];
-                                            keys.forEach(key => {
-                                                recordFieldChange(section, newItem.id || newItem.name, key, oldItem[key], newItem[key]);
-                                                const nv = parseFloat(newItem[key]); const ov = parseFloat(oldItem[key]);
-                                                if (change === 0 && !isNaN(nv) && !isNaN(ov) && nv !== ov) change = nv > ov ? 1 : -1;
-                                            });
-                                            let trend = oldItem.trend || 'stable';
-                                            let trendExpiry = oldItem.trendExpiry || 0;
-                                            if (change !== 0) { trend = change === 1 ? 'up' : 'down'; trendExpiry = now + 5000; }
-                                            else if (now > trendExpiry) { trend = 'stable'; trendExpiry = 0; }
-                                            return { ...newItem, trend, trendExpiry };
+                        // If server proxy doesn't win in 1200ms, start CORS proxies as well
+                        const fallbackTimeout = new Promise(resolve => setTimeout(() => resolve('fallback'), 1200));
+                        const firstResult = await Promise.race([serverPromise, fallbackTimeout]);
+
+                        let finalResult = null;
+                        if (firstResult !== 'fallback') {
+                            finalResult = firstResult;
+                        } else {
+                            // Start CORS race
+                            const corsPromises = CORS_PROXIES.slice(0, 3).map((proxyFn, i) => {
+                                const proxiedUrl = proxyFn(`${backupUrl}${backupUrl.includes('?') ? '&' : '?'}_=${iterationTimestamp}`);
+                                return runSingleFetch(proxiedUrl, 3000).then(r => ({ ...r, source: `cors-${i}` }));
+                            });
+                            finalResult = await Promise.race([serverPromise, ...corsPromises]);
+                        }
+
+                        if (finalResult && finalResult.data) {
+                            const { data, source } = finalResult;
+                            if (currentFetchId > lastProcessedTimestamp.current) {
+                                lastProcessedTimestamp.current = currentFetchId;
+                                const nextPriceMap = {};
+                                const recordFieldChange = (section, id, key, oldVal, newVal) => {
+                                    const toNum = (v) => (typeof v === 'number' ? v : Number.isFinite(parseFloat(v)) ? parseFloat(v) : null);
+                                    const o = toNum(oldVal); const n = toNum(newVal);
+                                    if (o === null || n === null) { nextPriceMap[`${section}-${id}-${key}`] = 'neutral'; return; }
+                                    if (n > o) nextPriceMap[`${section}-${id}-${key}`] = 'up';
+                                    else if (n < o) nextPriceMap[`${section}-${id}-${key}`] = 'down';
+                                    else nextPriceMap[`${section}-${id}-${key}`] = 'neutral';
+                                };
+                                const calculateTrend = (section, newList, oldList) => {
+                                    const now = Date.now();
+                                    return newList.map(newItem => {
+                                        const oldItem = oldList.find(o => o.id === newItem.id);
+                                        if (!oldItem) return { ...newItem, trend: 'stable', trendExpiry: 0 };
+                                        let change = 0;
+                                        const keys = newItem.buy !== undefined ? ['buy', 'sell'] : ['bid', 'ask'];
+                                        keys.forEach(key => {
+                                            recordFieldChange(section, newItem.id || newItem.name, key, oldItem[key], newItem[key]);
+                                            const nv = parseFloat(newItem[key]); const ov = parseFloat(oldItem[key]);
+                                            if (change === 0 && !isNaN(nv) && !isNaN(ov) && nv !== ov) change = nv > ov ? 1 : -1;
                                         });
-                                    };
-
-                                    setRawRates(prev => {
-                                        const newFinal = {
-                                            spot: calculateTrend('spot', data.spot, prev.spot),
-                                            rtgs: calculateTrend('rtgs', data.rtgs, prev.rtgs)
-                                        };
-                                        localStorage.setItem('ag_cachedRates', JSON.stringify(newFinal));
-                                        return newFinal;
+                                        let trend = oldItem.trend || 'stable'; let trendExpiry = oldItem.trendExpiry || 0;
+                                        if (change !== 0) { trend = change === 1 ? 'up' : 'down'; trendExpiry = now + 5000; }
+                                        else if (now > trendExpiry) { trend = 'stable'; trendExpiry = 0; }
+                                        return { ...newItem, trend, trendExpiry };
                                     });
-                                    setPriceChangeMap(nextPriceMap);
-                                    setError(null); setLoading(false);
-                                    success = true;
-                                    failureCount.current = 0;
-                                }
+                                };
+                                setRawRates(prev => {
+                                    const newFinal = { spot: calculateTrend('spot', data.spot, prev.spot), rtgs: calculateTrend('rtgs', data.rtgs, prev.rtgs) };
+                                    localStorage.setItem('ag_cachedRates', JSON.stringify(newFinal));
+                                    return newFinal;
+                                });
+                                setPriceChangeMap(nextPriceMap);
+                                setError(null); setLoading(false);
+                                success = true;
+                                failureCount.current = 0;
                             }
                         }
-                    } catch (e) { }
-                }
-
-                // Try first 3 proxies for speed
-                const proxyIndices = [
-                    currentProxyIndex.current,
-                    (currentProxyIndex.current + 1) % CORS_PROXIES.length,
-                    (currentProxyIndex.current + 2) % CORS_PROXIES.length
-                ].filter((v, i, a) => a.indexOf(v) === i);
-
-                for (const idx of proxyIndices) {
-                    if (success) break;
-                    const proxyFn = CORS_PROXIES[idx];
-                    // Prioritize HTTP IP to avoid SSL handshake issues (525/520) seen on the domain
-                    const urlsToTry = [backupUrl, targetUrl];
-
-                    for (const u of urlsToTry) {
-                        if (success) break;
-                        try {
-                            // 5s timeout for individual requests in the pipeline
-                            const proxiedUrl = proxyFn(`${u}${u.includes('?') ? '&' : '?'}_=${iterationTimestamp}`);
-                            const res = await fetchWithTimeout(proxiedUrl, 5000);
-
-                            let text = await res.text();
-
-                            if (text.includes('1015') || text.toLowerCase().includes('rate limit')) continue;
-
-                            if (text.trim().startsWith('{')) {
-                                try {
-                                    const parsed = JSON.parse(text);
-                                    text = parsed.contents || text;
-                                } catch (e) { }
-                            }
-
-                            if (text && text.length > 20) {
-                                const data = parseRateText(text);
-                                const hasRates = data.rtgs.some(r => r.buy !== '-' || r.sell !== '-') ||
-                                    data.spot.some(s => s.bid !== '-' || s.ask !== '-');
-
-                                if (hasRates) {
-                                    // TIMESTAMP GUARD: Only update if this data is newer than what we last processed
-                                    if (currentFetchId > lastProcessedTimestamp.current) {
-                                        lastProcessedTimestamp.current = currentFetchId;
-
-                                        // Trend & global per-field price change calculation
-                                        setRawRates(prev => {
-                                            const nextPriceMap = {};
-
-                                            const recordFieldChange = (section, id, key, oldVal, newVal) => {
-                                                const toNum = (v) => (typeof v === 'number' ? v : Number.isFinite(parseFloat(v)) ? parseFloat(v) : null);
-                                                const o = toNum(oldVal);
-                                                const n = toNum(newVal);
-                                                if (o === null || n === null) {
-                                                    nextPriceMap[`${section}-${id}-${key}`] = 'neutral';
-                                                    return;
-                                                }
-                                                if (n > o) nextPriceMap[`${section}-${id}-${key}`] = 'up';
-                                                else if (n < o) nextPriceMap[`${section}-${id}-${key}`] = 'down';
-                                                else nextPriceMap[`${section}-${id}-${key}`] = 'neutral';
-                                            };
-
-                                            const calculateTrend = (section, newList, oldList) => {
-                                                const now = Date.now();
-                                                return newList.map(newItem => {
-                                                    const oldItem = oldList.find(o => o.id === newItem.id);
-                                                    if (!oldItem) return { ...newItem, trend: 'stable', trendExpiry: 0 };
-
-                                                    // Check both sides of the spread for more robust detection
-                                                    let change = 0;
-                                                    const keys = newItem.buy !== undefined ? ['buy', 'sell', 'low', 'high'] : ['bid', 'ask', 'low', 'high'];
-
-                                                    keys.forEach((key) => {
-                                                        recordFieldChange(section, newItem.id || newItem.name, key, oldItem[key], newItem[key]);
-                                                        const newVal = parseFloat(newItem[key]);
-                                                        const oldVal = parseFloat(oldItem[key]);
-                                                        if (change === 0 && !isNaN(newVal) && !isNaN(oldVal) && newVal !== oldVal) {
-                                                            change = newVal > oldVal ? 1 : -1;
-                                                        }
-                                                    });
-
-                                                    let trend = oldItem.trend || 'stable';
-                                                    let trendExpiry = oldItem.trendExpiry || 0;
-
-                                                    if (change !== 0) {
-                                                        const t = change === 1 ? 'up' : 'down';
-                                                        console.log(`[MARKET MOVE] ${newItem.name} is now ${t}`);
-                                                        trend = t;
-                                                        trendExpiry = now + 5000;
-                                                    } else if (now > trendExpiry) {
-                                                        trend = 'stable';
-                                                        trendExpiry = 0;
-                                                    }
-
-                                                    return { ...newItem, trend, trendExpiry };
-                                                });
-                                            };
-
-                                            const newSpot = calculateTrend('spot', data.spot, prev.spot);
-                                            const newRtgs = calculateTrend('rtgs', data.rtgs, prev.rtgs);
-
-                                            const finalData = { spot: newSpot, rtgs: newRtgs };
-                                            localStorage.setItem('ag_cachedRates', JSON.stringify(finalData));
-                                            setPriceChangeMap(nextPriceMap);
-                                            return finalData;
-                                        });
-
-                                        currentProxyIndex.current = idx;
-                                        setError(null);
-                                        setLoading(false);
-                                    }
-                                    success = true;
-                                    failureCount.current = 0;
-                                    break;
-                                }
-                            }
-                        } catch (e) { }
+                    } catch (e) {
+                        console.warn("Production fetch failed:", e);
                     }
                 }
             }
