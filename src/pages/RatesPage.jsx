@@ -16,9 +16,9 @@ const RatesPage = () => {
             animate={{ opacity: 1 }}
             className="pb-32 px-6 pt-4 max-w-7xl mx-auto"
         >
-            <h1 className="text-3xl md:text-5xl font-playfair font-black text-white mb-10 text-center uppercase tracking-tighter drop-shadow-luxury px-4">Live Retail Market Rates</h1>
+            <h1 className="text-3xl md:text-5xl font-poppins font-black text-white mb-10 text-center uppercase tracking-tighter drop-shadow-luxury px-4">Live Retail Market Rates</h1>
 
-            {(loading && !rawRates.rtgs.some(r => r.sell !== '-')) && (
+            {(loading && !rates.rtgs.some(r => r.sell !== '-')) && (
                 <div className="flex justify-center mb-8 animate-pulse text-gold-400 font-bold uppercase tracking-widest text-xs">
                     Connecting to live market...
                 </div>
@@ -49,12 +49,7 @@ const RatesPage = () => {
                                 </tr>
                             </thead>
                             <tbody className="divide-y divide-white/5">
-                                {(rates.purities || [
-                                    { name: 'Gold 14 Karat', factor: 0.583 },
-                                    { name: 'Gold 18 Karat', factor: 0.75 },
-                                    { name: 'Gold 22 Karat', key: '22K', factor: 0.916 },
-                                    { name: 'Gold 24 Karat', key: '24K', factor: 1.0 }
-                                ]).map((karat, idx) => {
+                                {rates.purities.map((karat, idx) => {
                                     const sellNum = karat.sell;
                                     const buyNum = karat.buy;
                                     const baseLow = karat.low;
@@ -79,6 +74,50 @@ const RatesPage = () => {
                                             </td>
                                             <td className="px-4 py-6 text-sm md:text-xl font-black text-green-400 text-right font-poppins">
                                                 {highVal !== '-' ? `₹${highVal}` : '-'}
+                                            </td>
+                                        </tr>
+                                    );
+                                })}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                {/* Silver Rates Table */}
+                <div className="flex flex-col gap-6">
+                    <div className="gradient-luxury p-4 rounded-t-2xl shadow-lg flex justify-between items-center">
+                        <h2 className="text-white font-poppins font-bold text-lg uppercase tracking-widest">Silver Rates</h2>
+                        <span className="text-white/40 text-[10px] font-black uppercase tracking-widest bg-white/5 px-3 py-1 rounded-full">RTGS / Base</span>
+                    </div>
+                    <div className="glass rounded-b-2xl overflow-hidden shadow-luxury">
+                        <table className="w-full text-left">
+                            <thead className="bg-white/10 border-b border-white/10">
+                                <tr>
+                                    <th className="px-4 py-5 text-[10px] md:text-[12px] font-black text-white/80 uppercase tracking-widest whitespace-nowrap">Item</th>
+                                    <th className="px-4 py-5 text-[10px] md:text-[12px] font-black text-white/80 uppercase tracking-widest text-center whitespace-nowrap">Buy</th>
+                                    <th className="px-4 py-5 text-[10px] md:text-[12px] font-black text-white/80 uppercase tracking-widest text-center whitespace-nowrap">Sell</th>
+                                    <th className="px-4 py-5 text-[10px] md:text-[12px] font-black text-red-400/80 uppercase tracking-widest text-center whitespace-nowrap">Low</th>
+                                    <th className="px-4 py-5 text-[10px] md:text-[12px] font-black text-green-400/80 uppercase tracking-widest text-right whitespace-nowrap">High</th>
+                                </tr>
+                            </thead>
+                            <tbody className="divide-y divide-white/5">
+                                {rates.rtgs.filter(r => r.name.toUpperCase().includes('SILVER')).map((item, idx) => {
+                                    const rawItem = rawRates.rtgs.find(r => r.id === item.id || (r.name && r.name === item.name)) || item;
+
+                                    return (
+                                        <tr key={idx} className="hover:bg-white/5 transition-colors group">
+                                            <td className="px-4 py-6 text-sm md:text-lg font-bold text-white whitespace-nowrap">{item.name}</td>
+                                            <td className="px-4 py-6 text-[11px] md:text-xl font-black text-white text-center font-poppins">
+                                                ₹{item.buy !== '-' ? fmt(item.buy) : '-'}
+                                            </td>
+                                            <td className="px-4 py-6 text-lg md:text-2xl font-black text-gold-400 text-center font-poppins group-hover:scale-105 transition-transform">
+                                                ₹{item.sell !== '-' ? fmt(item.sell) : '-'}
+                                            </td>
+                                            <td className="px-4 py-6 text-sm md:text-xl font-black text-red-400 text-center font-poppins">
+                                                ₹{rawItem.low !== '-' ? fmt(rawItem.low) : '-'}
+                                            </td>
+                                            <td className="px-4 py-6 text-sm md:text-xl font-black text-green-400 text-right font-poppins">
+                                                ₹{rawItem.high !== '-' ? fmt(rawItem.high) : '-'}
                                             </td>
                                         </tr>
                                     );
