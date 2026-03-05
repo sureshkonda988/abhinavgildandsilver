@@ -104,7 +104,6 @@ export const RateProvider = ({ children }) => {
     }, []);
 
     const updateSettings = async (payload) => {
-        // payload can contain newAdj, newShow, newTicker, newVideos
         if (payload.adj !== undefined) {
             setAdj(payload.adj);
             // localStorage is still kept as a backup if needed, but primary is MongoDB
@@ -385,31 +384,16 @@ export const RateProvider = ({ children }) => {
                             return { data, text };
                         };
 
-                        // Priority 1: Server Proxy
                         const serverProxyUrl = `/api/rates/proxy?url=${encodeURIComponent(backupUrl)}&_=${iterationTimestamp}`;
-
-                        // We create an array of promises and race them
-                        const fetchPromises = [];
-
-                        // Start server proxy immediately
+                        // Priority: Race EVERYTHING immediately for maximum speed
                         const serverPromise = runSingleFetch(serverProxyUrl, 2500).then(r => ({ ...r, source: 'server' }));
-                        fetchPromises.push(serverPromise);
 
-                        // If server proxy doesn't win in 1200ms, start CORS proxies as well
-                        const fallbackTimeout = new Promise(resolve => setTimeout(() => resolve('fallback'), 1200));
-                        const firstResult = await Promise.race([serverPromise, fallbackTimeout]);
+                        const corsPromises = CORS_PROXIES.slice(0, 3).map((proxyFn, i) => {
+                            const proxiedUrl = proxyFn(`${backupUrl}${backupUrl.includes('?') ? '&' : '?'}_=${iterationTimestamp}`);
+                            return runSingleFetch(proxiedUrl, 2500).then(r => ({ ...r, source: `cors-${i}` }));
+                        });
 
-                        let finalResult = null;
-                        if (firstResult !== 'fallback') {
-                            finalResult = firstResult;
-                        } else {
-                            // Start CORS race
-                            const corsPromises = CORS_PROXIES.slice(0, 3).map((proxyFn, i) => {
-                                const proxiedUrl = proxyFn(`${backupUrl}${backupUrl.includes('?') ? '&' : '?'}_=${iterationTimestamp}`);
-                                return runSingleFetch(proxiedUrl, 3000).then(r => ({ ...r, source: `cors-${i}` }));
-                            });
-                            finalResult = await Promise.race([serverPromise, ...corsPromises]);
-                        }
+                        const finalResult = await Promise.race([serverPromise, ...corsPromises]);
 
                         if (finalResult && finalResult.data) {
                             const { data, source } = finalResult;
@@ -483,7 +467,8 @@ export const RateProvider = ({ children }) => {
             } finally {
                 if (active) {
                     const elapsed = Date.now() - startTime;
-                    const delay = Math.max(100, 1000 - elapsed);
+                    // Target 800ms pulse for consistent 1s feel
+                    const delay = Math.max(50, 800 - elapsed);
                     timeoutId = setTimeout(runFetch, delay);
                 }
             }

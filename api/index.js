@@ -22,14 +22,24 @@ mongoose.connect(process.env.MONGODB_URI)
 
 // --- Proxy Helper ---
 const fetchRaw = (targetUrl) => new Promise((resolve, reject) => {
-    const lib = targetUrl.startsWith('https') ? https : http;
-    const req = lib.get(targetUrl, { timeout: 3000 }, (res) => {
-        let data = '';
-        res.on('data', chunk => data += chunk);
-        res.on('end', () => resolve(data));
-    });
-    req.on('error', reject);
-    req.on('timeout', () => { req.destroy(); reject(new Error('Timeout')); });
+    try {
+        const lib = targetUrl.startsWith('https') ? https : http;
+        const req = lib.get(targetUrl, { timeout: 4000 }, (res) => {
+            if (res.statusCode < 200 || res.statusCode >= 300) {
+                return reject(new Error(`Status: ${res.statusCode}`));
+            }
+            let data = '';
+            res.on('data', chunk => data += chunk);
+            res.on('end', () => resolve(data));
+        });
+        req.on('error', (err) => reject(new Error(`Conn Error: ${err.message}`)));
+        req.on('timeout', () => {
+            req.destroy();
+            reject(new Error('Timeout'));
+        });
+    } catch (e) {
+        reject(e);
+    }
 });
 
 // Routes
@@ -37,14 +47,28 @@ const fetchRaw = (targetUrl) => new Promise((resolve, reject) => {
 app.get('/api/rates/proxy', async (req, res) => {
     const targetUrl = req.query.url;
     if (!targetUrl) return res.status(400).send('No URL provided');
+
+    // Add aggressive caching prevention
+    res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate, proxy-revalidate, s-maxage=0');
+    res.setHeader('Pragma', 'no-cache');
+    res.setHeader('Expires', '0');
+
     try {
         const text = await fetchRaw(targetUrl);
         res.setHeader('Content-Type', 'text/plain');
-        res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate, proxy-revalidate');
-        res.setHeader('Pragma', 'no-cache');
-        res.setHeader('Expires', '0');
         res.send(text);
     } catch (error) {
+        // AUTOMATIC FALLBACK: If IP-based fetch fails on the server, try the hostname endpoint
+        if (targetUrl.includes('13.201.9.242')) {
+            try {
+                const fallbackUrl = targetUrl.replace('http://13.201.9.242', 'https://bcast.rbgoldspot.com');
+                const text = await fetchRaw(fallbackUrl);
+                res.setHeader('Content-Type', 'text/plain');
+                return res.send(text);
+            } catch (fallbackError) {
+                return res.status(502).send('Proxy error: ' + fallbackError.message);
+            }
+        }
         res.status(502).send('Proxy error: ' + error.message);
     }
 });
