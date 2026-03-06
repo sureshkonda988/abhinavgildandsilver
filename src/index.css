@@ -63,6 +63,14 @@
     background: linear-gradient(135deg, #fff7e6 0%, #f9f5ef 50%, #fdeff4 100%);
   }
 
+  .gradient-luxury {
+    background: linear-gradient(135deg, #C2187A 0%, #8E0E5A 100%);
+  }
+
+  .shadow-gold-glow {
+    box-shadow: 0 0 30px rgba(255, 215, 0, 0.3);
+  }
+
   .animate-float {
     animation: float 6s ease-in-out infinite;
   }
