@@ -1,3 +1,4 @@
+import React, { useEffect } from 'react';
 import { useRates } from '../context/RateContext';
 
 const Ticker = () => {
