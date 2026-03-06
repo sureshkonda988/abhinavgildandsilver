@@ -7,6 +7,7 @@ import https from 'https';
 import http from 'http';
 
 import LiveRate from './models/LiveRate.js';
+import Video from './models/Video.js';
 
 dotenv.config();
 
@@ -151,6 +152,42 @@ app.post('/api/rates/settings', async (req, res) => {
         res.json(settings);
     } catch (error) {
         res.status(500).json({ message: 'Error updating settings', error: error.message });
+    }
+});
+
+// --- Separate Video Library Routes ---
+
+// 1. Get all videos
+app.get('/api/videos', async (req, res) => {
+    res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate, proxy-revalidate, s-maxage=0');
+    res.setHeader('Pragma', 'no-cache');
+    res.setHeader('Expires', '0');
+
+    try {
+        let videoData = await Video.findOne({ key: 'video_library' });
+        if (!videoData) {
+            videoData = await Video.create({ key: 'video_library', list: [] });
+        }
+        res.json(videoData.list);
+    } catch (error) {
+        res.status(500).json({ message: 'Error fetching videos', error: error.message });
+    }
+});
+
+// 2. Update video library
+app.post('/api/videos', async (req, res) => {
+    try {
+        const { list } = req.body;
+
+        const videoData = await Video.findOneAndUpdate(
+            { key: 'video_library' },
+            { list },
+            { upsert: true, new: true }
+        );
+
+        res.json(videoData.list);
+    } catch (error) {
+        res.status(500).json({ message: 'Error saving videos', error: error.message });
     }
 });
 

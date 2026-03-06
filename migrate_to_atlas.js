@@ -51,6 +51,20 @@ async function migrate() {
         }
         console.log("✅ LiveRates Migrated");
 
+        // 5. Migrate Video Library
+        console.log("📦 Migrating Video Library...");
+        const LocalVideo = localConn.model('Video', (await import('./api/models/Video.js')).default.schema);
+        const AtlasVideo = atlasConn.model('Video', (await import('./api/models/Video.js')).default.schema);
+
+        const videoDocs = await LocalVideo.find({});
+        console.log(`Found ${videoDocs.length} video library records.`);
+        for (const doc of videoDocs) {
+            const data = doc.toObject();
+            delete data._id;
+            await AtlasVideo.findOneAndUpdate({ key: data.key }, data, { upsert: true });
+        }
+        console.log("✅ Video Library Migrated");
+
         console.log("🎉 Migration Finished Successfully!");
 
         await localConn.close();

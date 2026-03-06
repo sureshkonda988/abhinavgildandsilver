@@ -102,7 +102,33 @@ export const RateProvider = ({ children }) => {
     // Initial fetch on mount
     useEffect(() => {
         syncSettingsWithMongoDB();
+        syncVideosWithMongoDB();
     }, []);
+
+    const syncVideosWithMongoDB = async () => {
+        try {
+            const res = await fetch(`${API_BASE}/videos?_=${Date.now()}`);
+            if (res.ok) {
+                const list = await res.json();
+                if (Array.isArray(list)) setVideos(list);
+            }
+        } catch (e) {
+            console.error("Failed to sync videos:", e);
+        }
+    };
+
+    const updateVideos = async (newList) => {
+        setVideos(newList);
+        try {
+            await fetch(`${API_BASE}/videos`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ list: newList })
+            });
+        } catch (e) {
+            console.error("Failed to save videos:", e);
+        }
+    };
 
     const updateSettings = async (payload) => {
         // 1. Update local React state immediately for snappy UI
@@ -113,10 +139,8 @@ export const RateProvider = ({ children }) => {
             setShowModified(payload.showModified);
         }
         if (payload.ticker !== undefined) setTicker(payload.ticker);
-        if (payload.videos !== undefined) setVideos(payload.videos);
 
         // 2. Prepare the full payload for MongoDB sync
-        // Using current state values if they aren't in the payload
         try {
             const body = {
                 gold: payload.adj?.gold || adj.gold,
@@ -124,7 +148,6 @@ export const RateProvider = ({ children }) => {
                 baseModifications: payload.adj?.baseModifications || adj.baseModifications,
                 stockOverrides: payload.adj?.stockOverrides || adj.stockOverrides,
                 ticker: payload.ticker !== undefined ? payload.ticker : ticker,
-                videos: payload.videos !== undefined ? payload.videos : videos,
                 showModified: payload.showModified !== undefined ? payload.showModified : showModified
             };
 
@@ -595,7 +618,7 @@ export const RateProvider = ({ children }) => {
     }, [rawRates, adj, showModified]);
 
     return (
-        <RateContext.Provider value={{ rates, rawRates, loading, error, news, adj, showModified, ticker, videos, updateSettings, refreshRates: fetchAllRates, getPriceClass }}>
+        <RateContext.Provider value={{ rates, rawRates, loading, error, news, adj, showModified, ticker, videos, updateSettings, updateVideos, refreshRates: fetchAllRates, getPriceClass }}>
             {children}
         </RateContext.Provider>
     );

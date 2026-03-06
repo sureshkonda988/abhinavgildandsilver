@@ -25,10 +25,6 @@ const rateSettingsSchema = new mongoose.Schema({
         type: String,
         default: 'Welcome to Abhinav Gold & Silver - Quality Purity Guaranteed'
     },
-    videos: [{
-        videoId: String,
-        title: String
-    }],
     adminPassword: {
         type: String,
         default: 'admin123'

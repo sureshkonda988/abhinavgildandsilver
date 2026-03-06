@@ -76,7 +76,7 @@ const AdminPage = () => {
             videoId: getYouTubeId(v.videoId)
         })).filter(v => v.videoId);
 
-        updateSettings({ videos: processed });
+        updateVideos(processed);
         setVideos(processed);
         setIsDirty(prev => ({ ...prev, videos: false }));
         alert('Videos updated and saved to database!');
