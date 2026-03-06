@@ -81,11 +81,31 @@ app.get('/api/rates/live', async (req, res) => {
     res.setHeader('Expires', '0');
 
     try {
-        const rate = await LiveRate.findOne({ key: 'current_rates' });
+        let rate = await LiveRate.findOne({ key: 'current_rates' });
+        const now = new Date();
+        const isStale = !rate || (now - new Date(rate.timestamp)) > 1500; // Stale if > 1.5s
+
+        if (isStale) {
+            // Lazy Fetch: Trigger fetch immediately if data is stale
+            try {
+                const text = await fetchRaw(RB_GOLD_URL);
+                if (text && text.length > 50) {
+                    rate = await LiveRate.findOneAndUpdate(
+                        { key: 'current_rates' },
+                        { rawText: text, timestamp: now },
+                        { upsert: true, new: true }
+                    );
+                }
+            } catch (fetchErr) {
+                console.error("Lazy Fetch Error:", fetchErr.message);
+                // Fallback to whatever we have if fetch fails
+            }
+        }
+
         if (!rate) return res.status(404).send('No rates found in database');
         res.json({ text: rate.rawText, timestamp: rate.timestamp });
     } catch (error) {
-        res.status(500).json({ message: 'Error fetching live rates from DB', error: error.message });
+        res.status(500).json({ message: 'Error fetching live rates', error: error.message });
     }
 });
 
