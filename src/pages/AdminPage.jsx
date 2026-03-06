@@ -4,7 +4,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { Lock, LogOut, TrendingUp, Settings, Video, MessageSquare, Play, Trash2, Save, RefreshCw, CheckCircle2, AlertCircle } from 'lucide-react';
 
 const AdminPage = () => {
-    const { rates, rawRates, adj, showModified, updateSettings, refreshRates, loading, error, ticker: contextTicker, videos: contextVideos } = useRates();
+    const { rates, rawRates, adj, showModified, updateSettings, updateVideos, refreshRates, loading, error, ticker: contextTicker, videos: contextVideos } = useRates();
     const [isLoggedIn, setIsLoggedIn] = useState(false);
     const [username, setUsername] = useState('');
     const [password, setPassword] = useState('');
