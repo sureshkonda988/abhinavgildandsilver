@@ -35,8 +35,8 @@ const Hero = () => {
                 >
                     {/* Spot Bar remains in App.jsx header overlay */}
 
-                    {/* Inventory Headings aligned with price boxes */}
-                    <div className="grid grid-cols-[1.4fr_1fr_1fr_0.8fr] gap-2 md:gap-6 px-3 md:px-6 mb-[-10px] md:mb-[-16px] items-center w-full">
+                    {/* Inventory Headings - Adjusted ratios for more price space */}
+                    <div className="grid grid-cols-[1.1fr_1.2fr_1.2fr_0.6fr] gap-2 md:gap-6 px-3 md:px-6 mb-[-10px] md:mb-[-16px] items-center w-full">
                         {/* Placeholder column matching item name width */}
                         <div></div>
                         {/* BUY Column */}
@@ -73,7 +73,7 @@ const Hero = () => {
                                     whileHover={{ y: -3, boxShadow: "0 14px 30px -10px rgba(0,0,0,0.12)" }}
                                     className="bg-white/10 backdrop-blur-sm rounded-[16px] md:rounded-[20px] p-2.5 md:p-6 shadow-premium transition-all duration-500 border border-white/20 relative group"
                                 >
-                                    <div className="grid grid-cols-[1.4fr_1fr_1fr_0.8fr] gap-2 md:gap-6 items-center w-full relative">
+                                    <div className="grid grid-cols-[1.1fr_1.2fr_1.2fr_0.6fr] gap-2 md:gap-6 items-center w-full relative">
                                         {/* Item Label */}
                                         <div className="flex flex-col justify-center min-w-0 pr-1">
                                             <span className="text-[12px] md:text-2xl font-black text-slate-900 font-poppins uppercase tracking-tight leading-tight group-hover:text-magenta-700 transition-colors duration-300 truncate">
@@ -98,12 +98,12 @@ const Hero = () => {
                                                             scale: pClass === 'price-up' || pClass === 'price-down' ? 1.04 : 1
                                                         }}
                                                         style={{ borderColor: bColor }}
-                                                        className="w-full max-w-[90px] md:max-w-[200px] h-[45px] md:h-[90px] bg-transparent border-2 md:border-[3px] rounded-[10px] md:rounded-[28px] flex items-center justify-center shadow-md overflow-hidden transition-colors duration-200"
+                                                        className="w-full max-w-[120px] md:max-w-[200px] h-[45px] md:h-[90px] bg-transparent border-2 md:border-[3px] rounded-[10px] md:rounded-[28px] flex items-center justify-center shadow-md overflow-hidden transition-colors duration-200 px-1"
                                                     >
                                                         <motion.span
                                                             key={`buy-${item.buy}-${pClass}`}
                                                             animate={{ scale: [1, 1.08, 1] }}
-                                                            className={`text-[16px] md:text-3xl font-extrabold font-poppins tracking-tight md:tracking-wider ${pClass}`}
+                                                            className={`text-[13px] md:text-3xl font-extrabold font-poppins tracking-tighter md:tracking-wider ${pClass}`}
                                                         >
                                                             {item.buy !== '-' ? `₹${fmt(item.buy)}` : '—'}
                                                         </motion.span>
@@ -124,12 +124,12 @@ const Hero = () => {
                                                             scale: pClass === 'price-up' || pClass === 'price-down' ? 1.04 : 1
                                                         }}
                                                         style={{ borderColor: bColor }}
-                                                        className="w-full max-w-[90px] md:max-w-[200px] h-[38px] md:h-[90px] bg-transparent border-2 md:border-[3px] rounded-[10px] md:rounded-[28px] flex items-center justify-center shadow-md overflow-hidden transition-colors duration-200"
+                                                        className="w-full max-w-[120px] md:max-w-[200px] h-[45px] md:h-[90px] bg-transparent border-2 md:border-[3px] rounded-[10px] md:rounded-[28px] flex items-center justify-center shadow-md overflow-hidden transition-colors duration-200 px-1"
                                                     >
                                                         <motion.span
                                                             key={`sell-${item.sell}-${pClass}`}
                                                             animate={{ scale: [1, 1.08, 1] }}
-                                                            className={`text-[12px] md:text-3xl font-extrabold font-poppins tracking-tight md:tracking-wider ${pClass}`}
+                                                            className={`text-[13px] md:text-3xl font-extrabold font-poppins tracking-tighter md:tracking-wider ${pClass}`}
                                                         >
                                                             {item.sell !== '-' ? `₹${fmt(item.sell)}` : '—'}
                                                         </motion.span>
