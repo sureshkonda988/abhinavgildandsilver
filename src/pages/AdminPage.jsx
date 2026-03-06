@@ -169,14 +169,14 @@ const AdminPage = () => {
                                                 item={adj?.gold || { mode: 'amount', value: 0 }}
                                                 liveRates={(rawRates.rtgs || []).filter(r => r.name.toLowerCase().includes('gold'))}
                                                 targetField="buy"
-                                                onChange={(val) => updateSettings({ ...adj, gold: val })}
+                                                onChange={(val) => updateSettings({ adj: { ...adj, gold: val } })}
                                             />
                                             <AdjustmentCard
                                                 label="Silver Buy Modification"
                                                 item={adj?.silver || { mode: 'amount', value: 0 }}
                                                 liveRates={(rawRates.rtgs || []).filter(r => r.name.toLowerCase().includes('5 kgs'))}
                                                 targetField="buy"
-                                                onChange={(val) => updateSettings({ ...adj, silver: val })}
+                                                onChange={(val) => updateSettings({ adj: { ...adj, silver: val } })}
                                             />
                                         </div>
                                     )}
