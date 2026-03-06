@@ -29,15 +29,6 @@ const INITIAL_RTGS_CONFIG = [
 ];
 
 const getPlaceholders = () => {
-    try {
-        const cached = localStorage.getItem('ag_cachedRates');
-        if (cached) {
-            const parsed = JSON.parse(cached);
-            if (parsed.spot && parsed.rtgs) return parsed;
-        }
-    } catch (e) {
-        console.error("Failed to parse cached rates:", e);
-    }
     return {
         spot: INITIAL_SPOT_CONFIG.map(it => ({ ...it, bid: '-', ask: '-', high: '-', low: '-', stock: false })),
         rtgs: INITIAL_RTGS_CONFIG.map(it => ({ ...it, buy: '-', sell: '-', stock: false }))
@@ -71,7 +62,7 @@ export const RateProvider = ({ children }) => {
     });
 
     const [adj, setAdj] = useState(getInitialAdj());
-    const [showModified, setShowModified] = useState(JSON.parse(localStorage.getItem('ag_showModified') || 'false'));
+    const [showModified, setShowModified] = useState(false);
     const [priceChangeMap, setPriceChangeMap] = useState({});
     const [ticker, setTicker] = useState('Welcome to Abhinav Gold & Silver - Quality Purity Guaranteed');
     const [videos, setVideos] = useState([{ videoId: 'dQw4w9WgXcQ', title: 'Brand Film' }]);
@@ -117,11 +108,9 @@ export const RateProvider = ({ children }) => {
         // 1. Update local React state immediately for snappy UI
         if (payload.adj !== undefined) {
             setAdj(payload.adj);
-            localStorage.setItem('ag_rateAdj', JSON.stringify(payload.adj));
         }
         if (payload.showModified !== undefined) {
             setShowModified(payload.showModified);
-            localStorage.setItem('ag_showModified', JSON.stringify(payload.showModified));
         }
         if (payload.ticker !== undefined) setTicker(payload.ticker);
         if (payload.videos !== undefined) setVideos(payload.videos);
@@ -360,7 +349,6 @@ export const RateProvider = ({ children }) => {
                                         spot: calculateTrend('spot', data.spot, prev.spot),
                                         rtgs: calculateTrend('rtgs', data.rtgs, prev.rtgs)
                                     };
-                                    localStorage.setItem('ag_cachedRates', JSON.stringify(newFinal));
                                     return newFinal;
                                 });
                                 setPriceChangeMap(nextPriceMap);
@@ -419,7 +407,6 @@ export const RateProvider = ({ children }) => {
                                         spot: calculateTrend('spot', data.spot, prev.spot),
                                         rtgs: calculateTrend('rtgs', data.rtgs, prev.rtgs)
                                     };
-                                    localStorage.setItem('ag_cachedRates', JSON.stringify(newFinal));
                                     return newFinal;
                                 });
                                 setPriceChangeMap(nextPriceMap);
