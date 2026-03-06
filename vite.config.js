@@ -22,7 +22,7 @@ export default defineConfig({
         rewrite: (path) => path.replace(/^\/api-news/, ''),
       },
       '/api': {
-        target: 'http://localhost:5000',
+        target: 'https://www.abhinavgoldandsilver.com',
         changeOrigin: true,
       }
     }

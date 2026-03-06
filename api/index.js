@@ -6,6 +6,8 @@ import RateSettings from './models/RateSettings.js';
 import https from 'https';
 import http from 'http';
 
+import LiveRate from './models/LiveRate.js';
+
 dotenv.config();
 
 const app = express();
@@ -17,8 +19,37 @@ app.use(express.json());
 
 // MongoDB Connection
 mongoose.connect(process.env.MONGODB_URI)
-    .then(() => console.log('Connected to MongoDB'))
+    .then(() => {
+        console.log('Connected to MongoDB');
+        startRatePolling();
+    })
     .catch(err => console.error('MongoDB connection error:', err));
+
+// --- Rate Polling Service ---
+const RB_GOLD_URL = 'https://bcast.rbgoldspot.com:7768/VOTSBroadcastStreaming/Services/xml/GetLiveRateByTemplateID/rbgold';
+
+async function startRatePolling() {
+    console.log("Starting server-side rate polling loop...");
+
+    const poll = async () => {
+        try {
+            const text = await fetchRaw(RB_GOLD_URL);
+            if (text && text.length > 50) {
+                await LiveRate.findOneAndUpdate(
+                    { key: 'current_rates' },
+                    { rawText: text, timestamp: new Date() },
+                    { upsert: true, new: true }
+                );
+            }
+        } catch (e) {
+            console.error("Poll Error:", e.message);
+        }
+        // Poll every 1 second
+        setTimeout(poll, 1000);
+    };
+
+    poll();
+}
 
 // --- Proxy Helper ---
 const fetchRaw = (targetUrl) => new Promise((resolve, reject) => {
@@ -43,6 +74,21 @@ const fetchRaw = (targetUrl) => new Promise((resolve, reject) => {
 });
 
 // Routes
+// New: Get persisted live rates from MongoDB
+app.get('/api/rates/live', async (req, res) => {
+    res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate, proxy-revalidate, s-maxage=0');
+    res.setHeader('Pragma', 'no-cache');
+    res.setHeader('Expires', '0');
+
+    try {
+        const rate = await LiveRate.findOne({ key: 'current_rates' });
+        if (!rate) return res.status(404).send('No rates found in database');
+        res.json({ text: rate.rawText, timestamp: rate.timestamp });
+    } catch (error) {
+        res.status(500).json({ message: 'Error fetching live rates from DB', error: error.message });
+    }
+});
+
 // 0. Server-side rate proxy (no CORS, no rate limits)
 app.get('/api/rates/proxy', async (req, res) => {
     const targetUrl = req.query.url;

@@ -52,6 +52,7 @@ export const RateProvider = ({ children }) => {
     const lastNewsFetch = React.useRef(0);
     const lastFetchStartTime = React.useRef(0);
     const failureCount = React.useRef(0);
+    const lastSettingsFetch = React.useRef(0);
 
     // Proxy rotation state
     const currentProxyIndex = React.useRef(0);
@@ -80,7 +81,10 @@ export const RateProvider = ({ children }) => {
         try {
             // Disable browser cache for this request explicitly
             const res = await fetch(`${API_BASE}/rates/settings?_=${Date.now()}`, {
-                headers: { 'Cache-Control': 'no-cache', 'Pragma': 'no-cache' }
+                headers: {
+                    'Cache-Control': 'no-cache',
+                    'Pragma': 'no-cache'
+                }
             });
             if (res.ok) {
                 const data = await res.json();
@@ -94,6 +98,7 @@ export const RateProvider = ({ children }) => {
                         },
                         stockOverrides: data.stockOverrides || {}
                     });
+                    if (data.showModified !== undefined) setShowModified(data.showModified);
                     if (data.ticker) setTicker(data.ticker);
                     if (data.videos) setVideos(data.videos);
                 }
@@ -109,9 +114,9 @@ export const RateProvider = ({ children }) => {
     }, []);
 
     const updateSettings = async (payload) => {
+        // 1. Update local React state immediately for snappy UI
         if (payload.adj !== undefined) {
             setAdj(payload.adj);
-            // localStorage is still kept as a backup if needed, but primary is MongoDB
             localStorage.setItem('ag_rateAdj', JSON.stringify(payload.adj));
         }
         if (payload.showModified !== undefined) {
@@ -121,18 +126,18 @@ export const RateProvider = ({ children }) => {
         if (payload.ticker !== undefined) setTicker(payload.ticker);
         if (payload.videos !== undefined) setVideos(payload.videos);
 
-        // Sync to MongoDB
+        // 2. Prepare the full payload for MongoDB sync
+        // Using current state values if they aren't in the payload
         try {
             const body = {
-                ...payload.adj,
-                ticker: payload.ticker,
-                videos: payload.videos
+                goldOffset: payload.adj?.gold || adj.gold,
+                silverOffset: payload.adj?.silver || adj.silver,
+                baseModifications: payload.adj?.baseModifications || adj.baseModifications,
+                stockOverrides: payload.adj?.stockOverrides || adj.stockOverrides,
+                ticker: payload.ticker !== undefined ? payload.ticker : ticker,
+                videos: payload.videos !== undefined ? payload.videos : videos,
+                showModified: payload.showModified !== undefined ? payload.showModified : showModified
             };
-            if (payload.adj) {
-                // Map gold/silver to backend names
-                body.goldOffset = payload.adj.gold;
-                body.silverOffset = payload.adj.silver;
-            }
 
             await fetch(`${API_BASE}/rates/settings`, {
                 method: 'POST',
@@ -148,7 +153,11 @@ export const RateProvider = ({ children }) => {
         const controller = new AbortController();
         const id = setTimeout(() => controller.abort(), ms);
         try {
-            const res = await fetch(url, { signal: controller.signal });
+            // Force no-store to prevent any layer of browser/CDN caching from serving stale rates
+            const res = await fetch(url, {
+                signal: controller.signal,
+                cache: 'no-store'
+            });
             clearTimeout(id);
             return res;
         } catch (e) {
@@ -367,62 +376,15 @@ export const RateProvider = ({ children }) => {
             }
 
             if (!success) {
-                const targetUrl = `${POTENTIAL_ENDPOINTS[0]}${POTENTIAL_IDS[0]}`;
-                const backupUrl = `http://13.201.9.242:7768/VOTSBroadcastStreaming/Services/xml/GetLiveRateByTemplateID/${POTENTIAL_IDS[0]}`;
-
-                // PRODUCTION PIPELINE: Race several options for extreme speed
-                if (!isLocal) {
-                    try {
-
-
-                        const serverProxyUrl = `/api/rates/proxy?url=${encodeURIComponent(backupUrl)}&_=${iterationTimestamp}`;
-
-                        const allSources = [
-                            { url: serverProxyUrl, type: 'backend', timeout: 2500 },
-                            { url: CORS_PROXIES[0](`${backupUrl}&_=${iterationTimestamp}`), type: 'cors', timeout: 3000 },
-                            { url: CORS_PROXIES[1](`${backupUrl}&_=${iterationTimestamp}`), type: 'cors', timeout: 3000 },
-                            { url: CORS_PROXIES[2](`${backupUrl}&_=${iterationTimestamp}`), type: 'cors', timeout: 3000 }
-                        ];
-
-                        const runSafeFetch = async (source) => {
-                            try {
-                                const res = await fetchWithTimeout(source.url, source.timeout);
-                                if (!res.ok) throw new Error(`Not OK ${res.status}`);
-                                let text = await res.text();
-                                if (text.includes('1015') || text.toLowerCase().includes('rate limit')) throw new Error('Blocked');
-                                if (text.trim().startsWith('{')) {
-                                    try { const p = JSON.parse(text); text = p.contents || text; } catch (e) { }
-                                }
-                                if (!text || text.length < 50) throw new Error('Invalid Data');
-                                const data = parseRateText(text);
-                                const hasData = data.rtgs.some(r => r.buy !== '-' || r.sell !== '-') ||
-                                    data.spot.some(s => s.bid !== '-' || s.ask !== '-');
-                                if (!hasData) throw new Error('No Rates');
-                                return { data, source: source.type };
-                            } catch (e) {
-                                throw e;
-                            }
-                        };
-
-                        // Use a custom 'any-success' race because Promise.race kills the whole thing if one fails
-                        const anySuccess = (promises) => {
-                            return new Promise((resolve, reject) => {
-                                let rejectedCount = 0;
-                                promises.forEach(p => {
-                                    p.then(resolve).catch(e => {
-                                        rejectedCount++;
-                                        if (rejectedCount === promises.length) {
-                                            reject(new Error("All sources failed"));
-                                        }
-                                    });
-                                });
-                            });
-                        };
-
-                        const finalResult = await anySuccess(allSources.map(s => runSafeFetch(s)));
-
-                        if (finalResult && finalResult.data) {
-                            const { data } = finalResult;
+                // PRODUCTION PIPELINE: Fetch from our own MongoDB persistence layer
+                // This ensures all devices see the same rate at the same time
+                try {
+                    const res = await fetchWithTimeout(`${API_BASE}/rates/live?_=${iterationTimestamp}`, 3000);
+                    if (res.ok) {
+                        const json = await res.json();
+                        const text = json.text;
+                        if (text && text.length > 50) {
+                            const data = parseRateText(text);
                             if (currentFetchId > lastProcessedTimestamp.current) {
                                 lastProcessedTimestamp.current = currentFetchId;
                                 const nextPriceMap = {};
@@ -466,15 +428,20 @@ export const RateProvider = ({ children }) => {
                                 failureCount.current = 0;
                             }
                         }
-                    } catch (e) {
-                        console.warn("Production fetch failed:", e);
                     }
+                } catch (e) {
+                    console.warn("MongoDB rate fetch failed:", e);
                 }
             }
 
             // SYNC SETTINGS FROM MONGODB (User Requirement #1 & #3)
             // This ensures all devices are in sync with admin changes
-            await syncSettingsWithMongoDB();
+            // DECOUPLED to avoid blocking the fast rate loop
+            const now = Date.now();
+            if (now - lastSettingsFetch.current > 3000) {
+                lastSettingsFetch.current = now;
+                syncSettingsWithMongoDB().catch(e => console.error("Background settings sync failed", e));
+            }
 
             if (!success) throw new Error('Refresh failed');
         } catch (e) {

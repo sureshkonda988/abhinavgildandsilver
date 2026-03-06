@@ -34,7 +34,8 @@ const rateSettingsSchema = new mongoose.Schema({
         default: 'admin123'
     },
     goldOffset: { mode: String, value: Number },
-    silverOffset: { mode: String, value: Number }
+    silverOffset: { mode: String, value: Number },
+    showModified: { type: Boolean, default: false }
 }, { timestamps: true });
 
 const RateSettings = mongoose.model('RateSettings', rateSettingsSchema);
