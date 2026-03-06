@@ -36,9 +36,13 @@ const Hero = () => {
                     {/* Spot Bar remains in App.jsx header overlay */}
 
                     {/* Inventory Headings - Adjusted ratios for more price space */}
-                    <div className="grid grid-cols-[1.1fr_1.2fr_1.2fr_0.6fr] gap-2 md:gap-6 px-3 md:px-6 mb-[-10px] md:mb-[-16px] items-center w-full">
-                        {/* Placeholder column matching item name width */}
-                        <div></div>
+                    <div className="grid grid-cols-[1.1fr_1.2fr_1.2fr_0.6fr] gap-2 md:gap-6 px-2.5 md:px-6 mb-[-10px] md:mb-[-20px] items-center w-full">
+                        {/* Products name width */}
+                        <div className="flex justify-start">
+                            <span className="text-[11px] md:text-2xl font-black text-slate-900 uppercase tracking-widest md:tracking-[0.3em] font-poppins">
+                                PRODUCTS
+                            </span>
+                        </div>
                         {/* BUY Column */}
                         <div className="flex justify-center w-full">
                             <span className="text-[11px] md:text-2xl font-black text-slate-900 uppercase tracking-widest md:tracking-[0.3em] font-poppins">
@@ -51,8 +55,12 @@ const Hero = () => {
                                 SELL
                             </span>
                         </div>
-                        {/* Placeholder column matching stock widths */}
-                        <div></div>
+                        {/* Status Heading */}
+                        <div className="flex justify-center">
+                            <span className="text-[11px] md:text-2xl font-black text-slate-900 uppercase tracking-widest md:tracking-[0.3em] font-poppins">
+                                STATUS
+                            </span>
+                        </div>
                     </div>
 
                     {/* Inventory Rows */}
