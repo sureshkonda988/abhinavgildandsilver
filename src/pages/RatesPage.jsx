@@ -39,7 +39,7 @@ const RatesPage = () => {
         <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
-            className="pb-16 px-4 pt-2 max-w-7xl mx-auto md:-mt-[490px] md:w-[48%] md:ml-auto md:mr-0 md:pr-2"
+            className="pb-16 px-4 pt-4 max-w-7xl mx-auto md:-mt-[430px] md:w-[48%] md:ml-auto md:mr-0 md:pr-2"
         >
             <h1 className="text-2xl font-poppins font-black text-white mb-2 text-center uppercase tracking-tighter drop-shadow-luxury px-2">
                 Live Retail Rates with GST

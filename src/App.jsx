@@ -108,8 +108,10 @@ const AppLayout = () => {
             )}
           </section>
 
-          {/* Global Scrolling Ticker - Snapped to header section */}
-          <Ticker />
+          {/* Global Scrolling Ticker - Snapped to header section - Mobile Only */}
+          <div className="md:hidden">
+            <Ticker />
+          </div>
         </div>
       )}
 
@@ -125,6 +127,13 @@ const AppLayout = () => {
 
       {/* Bottom Footer Navigation — hidden on Admin, Mobile Only */}
       {!isAdminPage && <BottomNav />}
+
+      {/* Desktop Ticker — Above Footer, Desktop Only */}
+      {!isAdminPage && (
+        <div className="hidden md:block">
+          <Ticker />
+        </div>
+      )}
 
       {/* Desktop Footer — hidden on Admin, Desktop Only */}
       {!isAdminPage && <Footer />}
