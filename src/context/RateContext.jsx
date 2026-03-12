@@ -572,10 +572,10 @@ export const RateProvider = ({ children }) => {
         const baseHigh999 = (goldBaseItem && typeof goldBaseItem.high === 'number') ? goldBaseItem.high : baseSell999;
 
         const purities = [
-            { label: 'Gold 24 Karat', key: '24K', factor: 1.0 },
-            { label: 'Gold 22 Karat', key: '22K', factor: 0.916 },
-            { label: 'Gold 18 Karat', key: '18K', factor: 0.75 },
-            { label: 'Gold 14 Karat', key: '14K', factor: 0.583 }
+            { label: 'Gold 24 kt', key: '24K', factor: 1.0 },
+            { label: 'Gold 22 kt', key: '22K', factor: 0.916 },
+            { label: 'Gold 18 kt', key: '18K', factor: 0.75 },
+            { label: 'Gold 14 kt', key: '14K', factor: 0.583 }
         ].map(p => {
             const rawGold999 = rawRates.rtgs.find(r => r.id === '945' || r.name?.toLowerCase().includes('gold 999'));
             const live999Sell = parseFloat(rawGold999?.sell) || 0;

@@ -26,7 +26,7 @@ const AppLayout = () => {
       className="min-h-screen Selection:bg-magenta-100 Selection:text-magenta-900 relative bg-[#fafafb]"
       style={!isAdminPage ? {
         backgroundImage: isHomePage
-          ? 'url("/Untitled design (4).jpg")'
+          ? 'none'
           : location.pathname === '/alerts'
             ? 'url("/fe4171046d7ee1ab9220734db89e8859.jpg")'
             : location.pathname === '/videos'
@@ -77,7 +77,7 @@ const AppLayout = () => {
                   initial={{ opacity: 1 }}
                   animate={{ opacity: 1 }}
                   transition={{ duration: 0.5 }}
-                  src="/Untitled design (29).png"
+                  src="/Untitled design (30).png"
                   alt="Abhinav Gold & Silver Header Desktop"
                   className="w-full h-auto hidden md:block object-contain object-center block"
                 />

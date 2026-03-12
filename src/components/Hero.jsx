@@ -11,7 +11,7 @@ const Hero = () => {
 
     const fmt = (val) => {
         if (typeof val !== 'number') return '-';
-        return val.toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+        return val.toLocaleString('en-IN', { minimumFractionDigits: 0, maximumFractionDigits: 0 });
     };
 
     return (
@@ -19,7 +19,8 @@ const Hero = () => {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ duration: 1 }}
-            className="w-full inventory-section bg-gradient-gold-luxury min-h-[60vh] relative overflow-hidden pt-6 md:pt-0"
+            className="w-full inventory-section min-h-[60vh] relative overflow-hidden pt-6 md:pt-0 bg-cover bg-center bg-no-repeat"
+            style={{ backgroundImage: 'url("/bb.jpg")' }}
         >
             {/* Ambient Background Accents */}
             <div className="absolute top-0 left-0 w-full h-full opacity-30 pointer-events-none"
@@ -38,17 +39,17 @@ const Hero = () => {
                     {/* Inventory Headings - Adjusted ratios for more price space */}
                     <div className="w-full border border-transparent px-2.5 md:px-6 mb-[-10px] md:mb-[-40px]">
                         <div className="grid grid-cols-[1.1fr_1.2fr_1.2fr_0.6fr] gap-2 md:gap-6 items-center w-full">
-                            <div className="text-left font-black text-slate-900 text-[11px] md:text-2xl uppercase tracking-widest md:tracking-[0.3em] font-poppins md:-ml-8">
-                                PRODUCTS
+                            <div className="text-left md:-ml-8">
+                                <span className="inline-flex items-center justify-center px-4 py-2 rounded-xl bg-transparent border-2 border-slate-900/20 text-slate-900 font-playfair font-black text-[10px] md:text-sm tracking-[0.2em] shadow-sm backdrop-blur-sm">PRODUCTS</span>
                             </div>
-                            <div className="text-center font-black text-slate-900 text-[11px] md:text-2xl uppercase tracking-widest md:tracking-[0.3em] font-poppins md:-ml-44">
-                                BUY
+                             <div className="text-center md:-ml-32">
+                                <span className="inline-flex items-center justify-center px-6 py-2 rounded-xl bg-transparent border-2 border-slate-900/20 text-slate-900 font-playfair font-black text-[10px] md:text-sm tracking-[0.2em] shadow-sm backdrop-blur-sm">BUY</span>
                             </div>
-                            <div className="text-center font-black text-slate-900 text-[11px] md:text-2xl uppercase tracking-widest md:tracking-[0.3em] font-poppins md:-ml-52">
-                                SELL
+                            <div className="text-center md:-ml-40">
+                                <span className="inline-flex items-center justify-center px-6 py-2 rounded-xl bg-transparent border-2 border-slate-900/20 text-slate-900 font-playfair font-black text-[10px] md:text-sm tracking-[0.2em] shadow-sm backdrop-blur-sm">SELL</span>
                             </div>
-                            <div className="text-center font-black text-slate-900 text-[11px] md:text-2xl uppercase tracking-widest md:tracking-[0.3em] font-poppins">
-                                STATUS
+                            <div className="text-center">
+                                <span className="inline-flex items-center justify-center px-4 py-2 rounded-xl bg-transparent border-2 border-slate-900/20 text-slate-900 font-playfair font-black text-[10px] md:text-sm tracking-[0.2em] shadow-sm backdrop-blur-sm">STATUS</span>
                             </div>
                         </div>
                     </div>
@@ -101,9 +102,9 @@ const Hero = () => {
                                                         <motion.span
                                                             key={`buy-${item.buy}-${pClass}`}
                                                             animate={{ scale: [1, 1.08, 1] }}
-                                                            className={`font-black font-poppins tracking-tighter md:tracking-wider ${pClass} max-md:text-[13px]`}
+                                                            className={`font-black font-poppins tracking-tighter md:tracking-wider ${pClass} text-[22px] md:text-[27px]`}
                                                         >
-                                                            {item.buy !== '-' ? `₹${fmt(item.buy)}` : '—'}
+                                                            {item.buy !== '-' ? <><span style={{ fontFamily: 'Inter, system-ui, sans-serif' }}>₹</span>{fmt(item.buy)}</> : '—'}
                                                         </motion.span>
                                                     </motion.div>
                                                 );
@@ -111,7 +112,7 @@ const Hero = () => {
                                         </div>
 
                                         {/* SELL Box Container */}
-                                        <div className="flex justify-center w-full">
+                                        <div className="flex justify-center w-full md:translate-x-4">
                                             {(() => {
                                                 const pClass = getPriceClass('rtgs', item.id, 'sell');
                                                 const bColor = pClass === 'price-up' ? '#00c853' : pClass === 'price-down' ? '#ff1744' : pClass === 'gold-default' ? '#FFD700' : pClass === 'silver-default' ? '#E5E5E5' : '#0f172a';
@@ -127,9 +128,9 @@ const Hero = () => {
                                                         <motion.span
                                                             key={`sell-${item.sell}-${pClass}`}
                                                             animate={{ scale: [1, 1.08, 1] }}
-                                                            className={`font-black font-poppins tracking-tighter md:tracking-wider ${pClass} max-md:text-[13px]`}
+                                                            className={`font-black font-poppins tracking-tighter md:tracking-wider ${pClass} text-[22px] md:text-[27px]`}
                                                         >
-                                                            {item.sell !== '-' ? `₹${fmt(item.sell)}` : '—'}
+                                                            {item.sell !== '-' ? <><span style={{ fontFamily: 'Inter, system-ui, sans-serif' }}>₹</span>{fmt(item.sell)}</> : '—'}
                                                         </motion.span>
                                                     </motion.div>
                                                 );
@@ -137,7 +138,7 @@ const Hero = () => {
                                         </div>
 
                                         {/* Stock Status Pill */}
-                                        <div className="flex justify-center w-full">
+                                        <div className="flex justify-center w-full md:translate-x-4">
                                             <span className={`px-1 md:px-5 py-1 md:py-2 rounded-full text-[8px] md:text-[11px] font-black uppercase tracking-tighter md:tracking-widest transition-all duration-300 shadow-sm w-full text-center ${item.stock ? 'bg-gradient-to-r from-[#e6f9ec] to-[#f0fff4] text-[#1c7c3c]' : 'bg-red-50 text-red-600'}`}>
                                                 {item.stock ? 'IN STOCK' : 'OUT'}
                                             </span>

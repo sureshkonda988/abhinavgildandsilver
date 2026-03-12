@@ -103,15 +103,24 @@
     align-items: center;
     justify-content: center;
     padding: 12px 20px;
-    min-width: 220px;
+    min-width: 260px;
     border-radius: 20px;
+    font-family: var(--font-poppins);
     font-weight: 800;
-    font-size: clamp(18px, 2vw, 30px);
+    font-size: clamp(25px, 4vw, 27px);
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
     transition: all 0.3s ease;
     box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+  }
+
+  .rate-box-table {
+    @apply inline-flex items-center justify-center px-6 py-2 rounded-lg border border-white/10 glass-dark font-poppins font-bold text-[22px] md:text-[27px] min-w-[140px] md:min-w-[220px] tracking-tighter shadow-sm transition-all duration-300;
+  }
+
+  .header-box-premium {
+    @apply inline-flex items-center justify-center px-4 py-2 rounded-xl bg-slate-900/40 border border-white/20 text-white font-playfair font-black text-[10px] md:text-sm tracking-[0.2em] shadow-lg backdrop-blur-md;
   }
 }
 
