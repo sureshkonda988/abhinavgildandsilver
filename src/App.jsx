@@ -41,14 +41,35 @@ const AppLayout = () => {
       {/* Global Header Section - Appears on every page except Admin */}
       {!isAdminPage && (
         <section className="relative w-full overflow-hidden bg-transparent">
-          <motion.img
-            initial={{ opacity: 1 }}
-            animate={{ opacity: 1 }}
-            transition={{ duration: 0.5 }}
-            src={isHomePage ? "/Untitled design (19).png" : "/Untitled design (21).png"}
-            alt="Abhinav Gold & Silver Header"
-            className="w-full h-auto min-h-[120px] md:h-auto object-contain md:object-cover object-center block"
-          />
+          {isHomePage ? (
+            <>
+              <motion.img
+                initial={{ opacity: 1 }}
+                animate={{ opacity: 1 }}
+                transition={{ duration: 0.5 }}
+                src="/Untitled design (19).png"
+                alt="Abhinav Gold & Silver Header Mobile"
+                className="w-full h-auto min-h-[120px] md:hidden object-contain object-center block"
+              />
+              <motion.img
+                initial={{ opacity: 1 }}
+                animate={{ opacity: 1 }}
+                transition={{ duration: 0.5 }}
+                src="/Untitled design (25).png"
+                alt="Abhinav Gold & Silver Header Desktop"
+                className="w-full h-auto hidden md:block object-contain object-center block"
+              />
+            </>
+          ) : (
+            <motion.img
+              initial={{ opacity: 1 }}
+              animate={{ opacity: 1 }}
+              transition={{ duration: 0.5 }}
+              src="/Untitled design (21).png"
+              alt="Abhinav Gold & Silver Header"
+              className="w-full h-auto min-h-[120px] md:h-auto object-contain object-center block"
+            />
+          )}
 
           {/* Overlaid Quick Icons - Mobile Only Right Side */}
           {isHomePage && (

@@ -26,13 +26,17 @@ const Navbar = () => {
         <motion.nav
             initial={{ y: -100 }}
             animate={{ y: 0 }}
-            className="sticky top-0 z-50 w-full bg-slate-950 border-b border-white/10 shadow-luxury px-2 md:px-6 py-1 md:py-2 hidden md:flex items-center justify-between min-h-[50px] md:min-h-[64px]"
+            className="sticky top-0 z-50 w-full bg-slate-950 border-b border-white/10 shadow-luxury px-2 md:px-6 py-0 md:py-0.5 hidden md:flex items-center justify-between min-h-[36px] md:min-h-[44px]"
         >
             {/* Left Section: Logo - Compact for Mobile */}
             <div className="flex items-center">
                 <Link to="/" className="flex items-center gap-1.5 md:gap-3 group cursor-pointer">
-                    <div className="w-8 h-8 md:w-10 md:h-10 flex items-center justify-center shrink-0 overflow-visible">
-                        <img src="/logofd.png" alt="Abhinav Logo" className="w-14 h-14 md:w-20 md:h-20 object-contain" />
+                    <div className="w-8 h-8 md:w-12 md:h-12 flex items-center justify-center shrink-0 relative">
+                        <img 
+                            src="/logofd.png" 
+                            alt="Abhinav Logo" 
+                            className="w-12 h-12 md:w-20 md:h-20 object-contain absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 drop-shadow-xl" 
+                        />
                     </div>
                     <div className="flex flex-col">
                         <span className="text-magenta-600 font-playfair font-black text-[14px] md:text-xl tracking-tight leading-none uppercase">ABHINAV</span>

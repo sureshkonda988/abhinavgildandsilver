@@ -11,7 +11,7 @@ const Ticker = () => {
 
     return (
         <div
-            className="relative w-full overflow-hidden flex items-center h-10 md:h-12 bg-[#90034a] z-30"
+            className="relative w-full overflow-hidden flex items-center h-8 md:h-10 bg-[#90034a] z-30"
             style={{
                 backgroundImage: "url('/1000029434.jpg.jpeg')",
                 backgroundPosition: 'center',

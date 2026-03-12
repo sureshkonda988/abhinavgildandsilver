@@ -19,14 +19,14 @@ const Hero = () => {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ duration: 1 }}
-            className="w-full inventory-section bg-gradient-gold-luxury min-h-[60vh] relative overflow-hidden pt-6 md:pt-10"
+            className="w-full inventory-section bg-gradient-gold-luxury min-h-[60vh] relative overflow-hidden pt-2 md:pt-4"
         >
             {/* Ambient Background Accents */}
             <div className="absolute top-0 left-0 w-full h-full opacity-30 pointer-events-none"
                 style={{ background: 'radial-gradient(circle at 10% 20%, #fff, transparent 80%)' }} />
 
             {/* Rates Section */}
-            <section className="max-w-6xl mx-auto px-4 md:px-6 w-full mt-6 md:mt-10 relative z-10 mb-10 md:mb-16">
+            <section className="max-w-6xl mx-auto px-4 md:px-6 w-full mt-2 md:mt-4 relative z-10 mb-10 md:mb-16">
                 <motion.div
                     initial={{ opacity: 0, y: 50 }}
                     animate={{ opacity: 1, y: 0 }}
@@ -36,30 +36,20 @@ const Hero = () => {
                     {/* Spot Bar remains in App.jsx header overlay */}
 
                     {/* Inventory Headings - Adjusted ratios for more price space */}
-                    <div className="grid grid-cols-[1.1fr_1.2fr_1.2fr_0.6fr] gap-2 md:gap-6 px-2.5 md:px-6 mb-[-10px] md:mb-[-20px] items-center w-full">
-                        {/* Products name width */}
-                        <div className="flex justify-start">
-                            <span className="text-[11px] md:text-2xl font-black text-slate-900 uppercase tracking-widest md:tracking-[0.3em] font-poppins">
+                    <div className="w-full border border-transparent px-2.5 md:px-6 mb-[-10px] md:mb-[-20px]">
+                        <div className="grid grid-cols-[1.1fr_1.2fr_1.2fr_0.6fr] gap-2 md:gap-6 items-center w-full">
+                            <div className="text-left font-black text-slate-900 text-[11px] md:text-2xl uppercase tracking-widest md:tracking-[0.3em] font-poppins md:-ml-8">
                                 PRODUCTS
-                            </span>
-                        </div>
-                        {/* BUY Column */}
-                        <div className="flex justify-center w-full">
-                            <span className="text-[11px] md:text-2xl font-black text-slate-900 uppercase tracking-widest md:tracking-[0.3em] font-poppins">
+                            </div>
+                            <div className="text-center font-black text-slate-900 text-[11px] md:text-2xl uppercase tracking-widest md:tracking-[0.3em] font-poppins md:-ml-44">
                                 BUY
-                            </span>
-                        </div>
-                        {/* SELL Column */}
-                        <div className="flex justify-center w-full">
-                            <span className="text-[11px] md:text-2xl font-black text-slate-900 uppercase tracking-widest md:tracking-[0.3em] font-poppins">
+                            </div>
+                            <div className="text-center font-black text-slate-900 text-[11px] md:text-2xl uppercase tracking-widest md:tracking-[0.3em] font-poppins md:-ml-52">
                                 SELL
-                            </span>
-                        </div>
-                        {/* Status Heading */}
-                        <div className="flex justify-center">
-                            <span className="text-[11px] md:text-2xl font-black text-slate-900 uppercase tracking-widest md:tracking-[0.3em] font-poppins">
+                            </div>
+                            <div className="text-center font-black text-slate-900 text-[11px] md:text-2xl uppercase tracking-widest md:tracking-[0.3em] font-poppins">
                                 STATUS
-                            </span>
+                            </div>
                         </div>
                     </div>
 
@@ -93,7 +83,7 @@ const Hero = () => {
                                                 </span>
                                             )}
                                         </div>
-
+ 
                                         {/* BUY Box Container */}
                                         <div className="flex justify-center w-full">
                                             {(() => {
