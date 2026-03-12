@@ -24,7 +24,7 @@ const AppLayout = () => {
       className="min-h-screen Selection:bg-magenta-100 Selection:text-magenta-900 relative bg-[#fafafb]"
       style={!isAdminPage ? {
         backgroundImage: isHomePage
-          ? 'url("/Untitled design (22).png")'
+          ? 'url("/Untitled design (2).jpg")'
           : location.pathname === '/alerts'
             ? 'url("/fe4171046d7ee1ab9220734db89e8859.jpg")'
             : location.pathname === '/videos'
