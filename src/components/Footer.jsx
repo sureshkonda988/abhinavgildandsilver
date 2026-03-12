@@ -13,7 +13,7 @@ const Footer = () => {
             <div className="absolute bottom-0 right-1/4 w-96 h-96 bg-gold-900/10 blur-[120px] rounded-full translate-y-1/2" />
 
             <div className="max-w-7xl mx-auto px-6 relative z-10">
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-12 mb-16">
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-10 mb-16">
                     {/* Brand Section */}
                     <div className="flex flex-col gap-6">
                         <Link to="/" className="flex items-center gap-3">
@@ -63,14 +63,40 @@ const Footer = () => {
                             <ContactItem icon={<MapPin size={18} />} title="Main Branch" value="Jeweler Street, Hyderabad, India" />
                         </div>
                     </div>
+
+                    {/* QR Codes */}
+                    <div>
+                        <h4 className="text-white font-playfair font-bold text-lg mb-6 uppercase tracking-widest">Scan & Connect</h4>
+                        <div className="flex flex-col gap-4">
+                            <div className="flex flex-col items-center gap-2 bg-white/5 rounded-xl p-3 border border-white/5 hover:border-gold-400/30 transition-colors group">
+                                <img src="/qr-code (1).png" alt="Scan for Location" className="w-20 h-20 object-contain rounded-lg group-hover:scale-105 transition-transform" />
+                                <p className="text-white font-poppins font-black text-[9px] uppercase tracking-widest">📍 Location</p>
+                            </div>
+                            <div className="flex flex-col items-center gap-2 bg-white/5 rounded-xl p-3 border border-white/5 hover:border-gold-400/30 transition-colors group">
+                                <img src="/qr-code.png" alt="Scan for Bank Details" className="w-20 h-20 object-contain rounded-lg group-hover:scale-105 transition-transform" />
+                                <p className="text-white font-poppins font-black text-[9px] uppercase tracking-widest">🏦 Bank Details</p>
+                            </div>
+                        </div>
+                    </div>
                 </div>
 
                 {/* Bottom Bar */}
-                <div className="pt-8 border-t border-white/10 flex flex-col md:flex-row justify-between items-center gap-4 text-[10px] md:text-xs font-poppins font-bold uppercase tracking-widest text-slate-500">
-                    <p>© {currentYear} Abhinav Gold & Silver. All Rights Reserved.</p>
-                    <div className="flex gap-6">
-                        <a href="#" className="hover:text-gold-400 transition-colors">Privacy Policy</a>
-                        <a href="#" className="hover:text-gold-400 transition-colors">Terms of Service</a>
+                <div className="pt-8 border-t border-white/10 flex flex-col md:flex-row justify-between items-center gap-6 text-[10px] md:text-xs font-poppins font-bold uppercase tracking-widest text-slate-500">
+                    <div className="flex flex-col gap-1 items-center md:items-start text-center md:text-left">
+                        <p>© {currentYear} Abhinav Gold & Silver. All Rights Reserved.</p>
+                        <p className="text-[9px] text-slate-600 lowercase font-normal italic">Trusted by thousands for purity and excellence in bullion trading since 1995.</p>
+                    </div>
+
+                    <div className="flex items-center gap-8">
+                        <div className="flex gap-4">
+                            <Link to="/privacy" className="hover:text-gold-400 transition-colors">Privacy Policy</Link>
+                            <Link to="/terms" className="hover:text-gold-400 transition-colors">Terms of Service</Link>
+                        </div>
+                        <div className="h-4 w-px bg-white/10 hidden md:block" />
+                        <a href="https://stackvil.com" target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 group hover:opacity-80 transition-opacity">
+                            <span className="text-[9px] text-slate-600">Designed by</span>
+                            <img src="/stackvil logo.jpg" alt="Stackvil" className="h-5 grayscale hover:grayscale-0 transition-all rounded-sm" />
+                        </a>
                     </div>
                 </div>
             </div>

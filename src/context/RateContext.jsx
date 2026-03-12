@@ -23,9 +23,9 @@ const INITIAL_SPOT_CONFIG = [
 ];
 
 const INITIAL_RTGS_CONFIG = [
-    { id: '945', name: 'Gold 999' },
+    { id: '945', name: 'Gold 999 (10 grams)' },
     { id: '2966', name: 'Silver 999 (30 Kgs)' },
-    { id: '2987', name: 'Silver 999 (5 Kgs)' }
+    { id: '2987', name: 'Silver 999 (10 Kgs)' }
 ];
 
 const getPlaceholders = () => {
@@ -247,7 +247,7 @@ export const RateProvider = ({ children }) => {
         const rtgs = INITIAL_RTGS_CONFIG.map(conf => {
             const it = dataMap[conf.id] || (conf.name && dataMap[conf.name.toLowerCase()]);
             if (!it) return { ...conf, buy: '-', sell: '-', stock: false };
-            return { id: it.id, name: it.name, buy: it.bid, sell: it.ask, stock: it.stock, low: it.low, high: it.high };
+            return { id: it.id, name: conf.name, buy: it.bid, sell: it.ask, stock: it.stock, low: it.low, high: it.high };
         });
 
         console.log("[DEBUG] Parsed RTGS (Inventory):", rtgs.filter(r => r.sell !== '-').length, "items found.");
