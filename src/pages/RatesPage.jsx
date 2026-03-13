@@ -74,10 +74,10 @@ const RatesPage = () => {
                             <thead className="bg-white/10 border-b border-white/10">
                                 <tr>
                                     <th className="px-2 md:px-4 py-3 text-[10px] md:text-xs font-black text-white/80 uppercase tracking-widest text-left w-1/4">Gold Purity</th>
-                                    <th className="px-2 md:px-4 py-3 text-[10px] md:text-xs font-black text-white/80 uppercase tracking-widest text-center w-1/4 pr-4">Sell</th>
+                                    <th className="px-2 md:px-4 py-3 text-[10px] md:text-xs font-black text-white/80 uppercase tracking-widest text-center w-1/4 pr-4">Price</th>
                                     {/* Vertical divider applied via CSS border on the left of this th/td */}
                                     <th className="px-2 md:px-4 py-3 text-[10px] md:text-xs font-black text-white/80 uppercase tracking-widest text-left border-l border-white/10 w-1/4">Silver</th>
-                                    <th className="px-2 md:px-4 py-3 text-[10px] md:text-xs font-black text-white/80 uppercase tracking-widest text-center w-1/4">Sell</th>
+                                    <th className="px-2 md:px-4 py-3 text-[10px] md:text-xs font-black text-white/80 uppercase tracking-widest text-center w-1/4">Price</th>
                                 </tr>
                             </thead>
                             <tbody className="divide-y divide-white/5">
