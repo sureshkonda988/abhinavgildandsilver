@@ -23,20 +23,23 @@ const AppLayout = () => {
 
   return (
     <main
-      className="min-h-screen Selection:bg-magenta-100 Selection:text-magenta-900 relative bg-[#fafafb]"
-      style={!isAdminPage ? {
-        backgroundImage: isHomePage
-          ? 'none'
-          : location.pathname === '/alerts'
-            ? 'url("/fe4171046d7ee1ab9220734db89e8859.jpg")'
-            : location.pathname === '/videos'
-              ? 'url("/Untitled design (10).png")'
-              : 'url("/Untitled design (14).png")',
-        backgroundAttachment: 'fixed',
-        backgroundPosition: 'center',
-        backgroundRepeat: 'no-repeat',
-        backgroundSize: 'cover'
-      } : {}}
+      className="min-h-screen Selection:bg-magenta-100 Selection:text-magenta-900 relative"
+      style={{
+        backgroundColor: isHomePage ? '#FFB1E1' : '#fafafb',
+        ...(!isAdminPage ? {
+          backgroundImage: isHomePage
+            ? 'none'
+            : location.pathname === '/alerts'
+              ? 'url("/fe4171046d7ee1ab9220734db89e8859.jpg")'
+              : location.pathname === '/videos'
+                ? 'url("/Untitled design (10).png")'
+                : 'url("/Untitled design (14).png")',
+          backgroundAttachment: 'fixed',
+          backgroundPosition: 'center',
+          backgroundRepeat: 'no-repeat',
+          backgroundSize: 'cover'
+        } : {})
+      }}
     >
       <Navbar />
 

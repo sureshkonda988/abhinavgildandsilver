@@ -1,5 +1,6 @@
 import React from 'react';
 import { motion } from 'framer-motion';
+import { Check, X } from 'lucide-react';
 import { useRates } from '../context/RateContext';
 import SpotRatesCard from './SpotRatesCard';
 import SpotBar from './SpotBar';
@@ -19,15 +20,14 @@ const Hero = () => {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ duration: 1 }}
-            className="w-full inventory-section min-h-[60vh] relative overflow-hidden pt-6 md:pt-0 bg-cover bg-center bg-no-repeat"
-            style={{ backgroundImage: 'url("/bb.jpg")' }}
+            className="w-full inventory-section min-h-[60vh] relative overflow-hidden pt-6 md:pt-0"
         >
             {/* Ambient Background Accents */}
             <div className="absolute top-0 left-0 w-full h-full opacity-30 pointer-events-none"
                 style={{ background: 'radial-gradient(circle at 10% 20%, #fff, transparent 80%)' }} />
 
             {/* Rates Section */}
-            <section className="max-w-6xl mx-auto px-4 md:px-6 w-full mt-6 md:mt-2 relative z-10 mb-10 md:mb-16">
+            <section className="max-w-2xl mx-auto px-4 md:px-6 w-full mt-6 md:mt-2 relative z-10 mb-10 md:mb-16">
                 <motion.div
                     initial={{ opacity: 0, y: 50 }}
                     animate={{ opacity: 1, y: 0 }}
@@ -37,19 +37,19 @@ const Hero = () => {
                     {/* Spot Bar remains in App.jsx header overlay */}
 
                     {/* Inventory Headings - Adjusted ratios for more price space */}
-                    <div className="w-full border border-transparent px-2.5 md:px-6 mb-[-10px] md:mb-[-40px]">
-                        <div className="grid grid-cols-[1.1fr_1.2fr_1.2fr_0.6fr] gap-2 md:gap-6 items-center w-full">
-                            <div className="text-left md:-ml-8">
-                                <span className="inline-flex items-center justify-center px-4 py-2 rounded-xl bg-transparent border-2 border-slate-900/20 text-slate-900 font-playfair font-black text-[10px] md:text-sm tracking-[0.2em] shadow-sm backdrop-blur-sm">PRODUCTS</span>
+                    <div className="w-full border border-transparent px-2.5 md:px-0 mb-[-10px] md:mb-[-40px]">
+                        <div className="grid grid-cols-[1.5fr_1.2fr_1.2fr_0.8fr] gap-2 md:gap-4 items-center w-full">
+                            <div className="text-left">
+                                <span className="inline-flex items-center justify-center px-4 py-2 rounded-xl bg-transparent border-2 border-slate-900/20 text-slate-900 font-playfair font-black text-[10px] md:text-sm tracking-[0.1em] shadow-sm backdrop-blur-sm">PRODUCTS</span>
                             </div>
-                             <div className="text-center md:-ml-32">
-                                <span className="inline-flex items-center justify-center px-6 py-2 rounded-xl bg-transparent border-2 border-slate-900/20 text-slate-900 font-playfair font-black text-[10px] md:text-sm tracking-[0.2em] shadow-sm backdrop-blur-sm">BUY</span>
-                            </div>
-                            <div className="text-center md:-ml-40">
-                                <span className="inline-flex items-center justify-center px-6 py-2 rounded-xl bg-transparent border-2 border-slate-900/20 text-slate-900 font-playfair font-black text-[10px] md:text-sm tracking-[0.2em] shadow-sm backdrop-blur-sm">SELL</span>
+                             <div className="text-center">
+                                <span className="inline-flex items-center justify-center px-4 py-2 rounded-xl bg-transparent border-2 border-slate-900/20 text-slate-900 font-playfair font-black text-[10px] md:text-sm tracking-[0.1em] shadow-sm backdrop-blur-sm">BUY</span>
                             </div>
                             <div className="text-center">
-                                <span className="inline-flex items-center justify-center px-4 py-2 rounded-xl bg-transparent border-2 border-slate-900/20 text-slate-900 font-playfair font-black text-[10px] md:text-sm tracking-[0.2em] shadow-sm backdrop-blur-sm">STATUS</span>
+                                <span className="inline-flex items-center justify-center px-4 py-2 rounded-xl bg-transparent border-2 border-slate-900/20 text-slate-900 font-playfair font-black text-[10px] md:text-sm tracking-[0.1em] shadow-sm backdrop-blur-sm">SELL</span>
+                            </div>
+                            <div className="text-center">
+                                <span className="inline-flex items-center justify-center px-4 py-2 rounded-xl bg-transparent border-2 border-slate-900/20 text-slate-900 font-playfair font-black text-[10px] md:text-sm tracking-[0.1em] shadow-sm backdrop-blur-sm">STATUS</span>
                             </div>
                         </div>
                     </div>
@@ -72,14 +72,14 @@ const Hero = () => {
                                     whileHover={{ y: -3, boxShadow: "0 14px 30px -10px rgba(0,0,0,0.12)" }}
                                     className="bg-white/10 backdrop-blur-sm rounded-[16px] md:rounded-[20px] p-2.5 md:p-6 shadow-premium transition-all duration-500 border border-white/20 relative group"
                                 >
-                                    <div className="grid grid-cols-[1.1fr_1.2fr_1.2fr_0.6fr] gap-2 md:gap-6 items-center w-full relative">
+                                    <div className="grid grid-cols-[1.5fr_1.2fr_1.2fr_0.8fr] gap-2 md:gap-4 items-center w-full relative">
                                         {/* Item Label */}
                                         <div className="flex flex-col justify-center min-w-0 pr-1">
-                                            <span className="text-[12px] md:text-2xl font-black text-slate-900 font-poppins uppercase tracking-tight leading-tight group-hover:text-magenta-700 transition-colors duration-300 truncate">
+                                            <span className="text-[12px] md:text-xl font-black text-slate-900 font-poppins uppercase tracking-tight leading-tight group-hover:text-magenta-700 transition-colors duration-300">
                                                 {item.name.split('(')[0]}
                                             </span>
                                             {item.name.includes('(') && (
-                                                <span className="text-[8px] md:text-sm font-bold text-slate-400 font-poppins mt-0.5 whitespace-nowrap italic opacity-80 truncate">
+                                                <span className="text-[9px] md:text-sm font-extrabold text-[#0f172a] font-poppins mt-0.5 whitespace-nowrap italic">
                                                     ({item.name.split('(')[1]}
                                                 </span>
                                             )}
@@ -137,11 +137,10 @@ const Hero = () => {
                                             })()}
                                         </div>
 
-                                        {/* Stock Status Pill */}
                                         <div className="flex justify-center w-full md:translate-x-4">
-                                            <span className={`px-1 md:px-5 py-1 md:py-2 rounded-full text-[8px] md:text-[11px] font-black uppercase tracking-tighter md:tracking-widest transition-all duration-300 shadow-sm w-full text-center ${item.stock ? 'bg-gradient-to-r from-[#e6f9ec] to-[#f0fff4] text-[#1c7c3c]' : 'bg-red-50 text-red-600'}`}>
-                                                {item.stock ? 'IN STOCK' : 'OUT'}
-                                            </span>
+                                            <div className={`flex items-center justify-center w-8 h-8 md:w-10 md:h-10 rounded-full transition-all duration-300 shadow-sm ${item.stock ? 'bg-[#e6f9ec] text-[#1c7c3c] border border-[#1c7c3c]/20' : 'bg-red-50 text-red-600 border border-red-200'}`}>
+                                                {item.stock ? <Check size={18} strokeWidth={3} /> : <X size={18} strokeWidth={3} />}
+                                            </div>
                                         </div>
                                     </div>
                                 </motion.div>
