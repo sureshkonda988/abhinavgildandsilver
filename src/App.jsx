@@ -15,11 +15,83 @@ import VideosPage from './pages/VideosPage';
 import AdminPage from './pages/AdminPage';
 import PrivacyPolicy from './pages/PrivacyPolicy';
 import TermsOfService from './pages/TermsOfService';
+import { Loader2 } from 'lucide-react';
+
+const Preloader = () => (
+  <div className="fixed inset-0 z-[100] flex flex-col items-center justify-center bg-[#FFB1E1]">
+    <motion.div
+      initial={{ opacity: 0, scale: 0.8 }}
+      animate={{ opacity: 1, scale: 1 }}
+      transition={{ duration: 0.5 }}
+      className="flex flex-col items-center gap-6"
+    >
+      <div className="relative">
+        <Loader2 className="w-12 h-12 text-slate-900 animate-spin" />
+        <div className="absolute inset-0 flex items-center justify-center">
+          <div className="w-6 h-6 bg-slate-900 rounded-full animate-pulse" />
+        </div>
+      </div>
+      <div className="flex flex-col items-center">
+        <h2 className="text-2xl font-playfair font-black tracking-[0.2em] text-slate-900 uppercase">Abhinav</h2>
+        <p className="text-[10px] font-poppins tracking-[0.3em] text-slate-900/60 uppercase mt-1">Gold & Silver</p>
+      </div>
+    </motion.div>
+  </div>
+);
+
+const useImagePreloader = (imageList) => {
+  const [imagesPreloaded, setImagesPreloaded] = React.useState(false);
+
+  React.useEffect(() => {
+    let isMounted = true;
+    const promises = imageList.map((src) => {
+      return new Promise((resolve, reject) => {
+        const img = new Image();
+        img.src = src;
+        img.onload = resolve;
+        img.onerror = resolve; // Continue even if one fails
+      });
+    });
+
+    Promise.all(promises).then(() => {
+      if (isMounted) setImagesPreloaded(true);
+    });
+
+    return () => { isMounted = false; };
+  }, [imageList]);
+
+  return imagesPreloaded;
+};
 
 const AppLayout = () => {
   const location = useLocation();
   const isHomePage = location.pathname === '/';
   const isAdminPage = location.pathname === '/admin';
+
+  // Critical images to preload based on viewport
+  const criticalImages = React.useMemo(() => {
+    const images = [];
+    if (isHomePage) {
+      images.push('/Untitled design (19).png');
+      images.push('/Untitled design (25).png');
+    }
+    return images;
+  }, [isHomePage]);
+
+  const imagesReady = useImagePreloader(criticalImages);
+  const [isLoading, setIsLoading] = React.useState(true);
+
+  React.useEffect(() => {
+    if (imagesReady) {
+      // Small delay for smooth transition
+      const timer = setTimeout(() => setIsLoading(false), 800);
+      return () => clearTimeout(timer);
+    }
+  }, [imagesReady]);
+
+  if (isLoading && !isAdminPage) {
+    return <Preloader />;
+  }
 
   return (
     <main
