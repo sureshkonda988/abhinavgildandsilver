@@ -53,7 +53,7 @@ const SpotBar = () => {
                                 <motion.span
                                     key={`val-${item.value}-${item.key.section}-${item.key.id}`}
                                     animate={{ scale: [1, 1.1, 1] }}
-                                    className={`text-[12px] md:text-2xl font-bold font-poppins tracking-tighter md:tracking-tight ${pClass}`}
+                                    className={`text-[12px] md:text-2xl font-bold font-poppins tracking-tighter md:tracking-tight text-slate-900`}
                                 >
                                     {item.value}
                                 </motion.span>

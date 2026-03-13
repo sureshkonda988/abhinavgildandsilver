@@ -1,7 +1,7 @@
 import React from 'react';
 import { BrowserRouter as Router, Routes, Route, useLocation } from 'react-router-dom';
 import { RateProvider } from './context/RateContext';
-import Navbar from './components/Navbar';
+import Navigation from './components/Navigation';
 import BottomNav from './components/BottomNav';
 import Footer from './components/Footer';
 import { motion } from 'framer-motion';
@@ -109,11 +109,12 @@ const AppLayout = () => {
         } : {})
       }}
     >
-      <Navbar />
+      
 
       {/* Header and Ticker Grouped to prevent gaps */}
       {!isAdminPage && (
-        <div className="flex flex-col">
+        <div className="flex flex-col relative w-full overflow-hidden bg-transparent">
+          <Navigation />
           <section className="relative w-full overflow-hidden bg-transparent">
             {isHomePage ? (
               <>
@@ -152,22 +153,6 @@ const AppLayout = () => {
                   alt="Abhinav Gold & Silver Header Desktop"
                   className="w-full h-auto hidden md:block object-contain object-center block"
                 />
-              </div>
-            )}
-
-            {/* Overlaid Quick Icons - Mobile Only Right Side */}
-            {isHomePage && (
-              <div className="absolute top-[2%] right-10 z-20 flex md:hidden items-center gap-1.5">
-                <a
-                  href="https://wa.me/919848012345"
-                  target="_blank"
-                  className="p-1.5 bg-green-500/90 text-white rounded-lg hover:bg-green-600 transition-all shadow-md flex items-center justify-center"
-                >
-                  <MessageCircle size={18} />
-                </a>
-                <button className="p-1.5 bg-[#FFD700]/90 text-slate-900 rounded-lg hover:bg-[#FFD700] transition-all shadow-md flex items-center justify-center">
-                  <Bell size={18} />
-                </button>
               </div>
             )}
 
