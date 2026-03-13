@@ -17,12 +17,25 @@ const Footer = () => {
                     <div className="flex flex-col gap-6">
                         <h4 className="text-white font-playfair font-bold text-lg mb-2 uppercase tracking-widest text-center lg:text-left">Bank QR</h4>
                         <div className="flex flex-col items-center lg:items-start gap-4">
-                            <div className="bg-white p-2.5 rounded-[22px] shadow-luxury border-2 border-gold-400/30 group relative overflow-hidden w-max">
+                            <a 
+                                href="https://wa.me/919848012345" 
+                                target="_blank" 
+                                rel="noopener noreferrer"
+                                className="bg-white p-2.5 rounded-[22px] shadow-luxury border-2 border-gold-400/30 group relative overflow-hidden w-max block hover:border-gold-400 transition-all"
+                            >
                                 <img src="/qr-code.png" alt="Scan QR Bank" className="w-24 h-24 object-contain transition-transform duration-500 group-hover:scale-110" />
                                 <div className="absolute inset-0 bg-gold-400/10 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none" />
-                            </div>
-                            <div className="flex flex-col lg:items-start items-center">
-                                <span className="text-white font-poppins font-black text-[9px] uppercase tracking-[0.2em] mb-1">Bank Details</span>
+                            </a>
+                            <div className="flex flex-col lg:items-start items-center gap-2">
+                                <span className="text-white font-poppins font-black text-[9px] uppercase tracking-[0.2em]">Bank Details</span>
+                                <a 
+                                    href="https://wa.me/919848012345" 
+                                    target="_blank" 
+                                    rel="noopener noreferrer"
+                                    className="text-[8px] bg-gold-400/10 text-gold-400 px-3 py-1 rounded-full border border-gold-400/20 hover:bg-gold-400 hover:text-slate-900 transition-all font-bold uppercase tracking-widest"
+                                >
+                                    Open Link
+                                </a>
                             </div>
                         </div>
                     </div>
@@ -73,12 +86,25 @@ const Footer = () => {
                     <div className="flex flex-col gap-6 lg:items-end">
                         <h4 className="text-white font-playfair font-bold text-lg mb-2 uppercase tracking-widest text-center lg:text-right">Location QR</h4>
                         <div className="flex flex-col items-center lg:items-end gap-4">
-                            <div className="bg-white p-2.5 rounded-[22px] shadow-luxury border-2 border-gold-400/30 group relative overflow-hidden w-max">
+                            <a 
+                                href="https://maps.google.com/?q=Jeweler+Street,Hyderabad,India" 
+                                target="_blank" 
+                                rel="noopener noreferrer"
+                                className="bg-white p-2.5 rounded-[22px] shadow-luxury border-2 border-gold-400/30 group relative overflow-hidden w-max block hover:border-gold-400 transition-all"
+                            >
                                 <img src="/qr-code (1).png" alt="Scan QR Location" className="w-24 h-24 object-contain transition-transform duration-500 group-hover:scale-110" />
                                 <div className="absolute inset-0 bg-gold-400/10 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none" />
-                            </div>
-                            <div className="flex flex-col lg:items-end items-center">
-                                <span className="text-white font-poppins font-black text-[9px] uppercase tracking-[0.2em] mb-1">📍 Location</span>
+                            </a>
+                            <div className="flex flex-col lg:items-end items-center gap-2">
+                                <span className="text-white font-poppins font-black text-[9px] uppercase tracking-[0.2em]">📍 Location</span>
+                                <a 
+                                    href="https://maps.google.com/?q=Jeweler+Street,Hyderabad,India" 
+                                    target="_blank" 
+                                    rel="noopener noreferrer"
+                                    className="text-[8px] bg-gold-400/10 text-gold-400 px-3 py-1 rounded-full border border-gold-400/20 hover:bg-gold-400 hover:text-slate-900 transition-all font-bold uppercase tracking-widest"
+                                >
+                                    Open Link
+                                </a>
                             </div>
                         </div>
                     </div>
