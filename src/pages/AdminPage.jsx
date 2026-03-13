@@ -4,7 +4,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { Lock, LogOut, TrendingUp, Settings, Video, MessageSquare, Play, Trash2, Save, RefreshCw, CheckCircle2, AlertCircle } from 'lucide-react';
 
 const AdminPage = () => {
-    const { rates, rawRates, adj, showModified, updateSettings, updateVideos, refreshRates, loading, error, ticker: contextTicker, videos: contextVideos } = useRates();
+    const { rates, rawRates, adj, showModified, settingsLoaded, videosLoaded, updateSettings, updateVideos, refreshRates, loading, error, ticker: contextTicker, videos: contextVideos } = useRates();
     const [isLoggedIn, setIsLoggedIn] = useState(false);
     const [username, setUsername] = useState('');
     const [password, setPassword] = useState('');
@@ -16,18 +16,18 @@ const AdminPage = () => {
     const [isInitialized, setIsInitialized] = useState({ ticker: false, videos: false });
 
     useEffect(() => {
-        if (contextTicker && !isInitialized.ticker) {
+        if (settingsLoaded && !isInitialized.ticker) {
             setTicker(contextTicker);
             setIsInitialized(prev => ({ ...prev, ticker: true }));
         }
-    }, [contextTicker, isInitialized.ticker]);
+    }, [contextTicker, settingsLoaded, isInitialized.ticker]);
 
     useEffect(() => {
-        if (contextVideos && contextVideos.length > 0 && !isInitialized.videos) {
-            setVideos(contextVideos);
+        if (videosLoaded && !isInitialized.videos) {
+            setVideos(contextVideos || []);
             setIsInitialized(prev => ({ ...prev, videos: true }));
         }
-    }, [contextVideos, isInitialized.videos]);
+    }, [contextVideos, videosLoaded, isInitialized.videos]);
 
     const handleLogin = () => {
         const storedPw = 'admin123'; // Logic for backend auth can be added later

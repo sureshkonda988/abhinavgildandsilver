@@ -63,9 +63,11 @@ export const RateProvider = ({ children }) => {
 
     const [adj, setAdj] = useState(getInitialAdj());
     const [showModified, setShowModified] = useState(false);
+    const [settingsLoaded, setSettingsLoaded] = useState(false);
     const [priceChangeMap, setPriceChangeMap] = useState({});
     const [ticker, setTicker] = useState('Welcome to Abhinav Gold & Silver - Quality Purity Guaranteed');
-    const [videos, setVideos] = useState([{ videoId: 'dQw4w9WgXcQ', title: 'Brand Film' }]);
+    const [videos, setVideos] = useState([]);
+    const [videosLoaded, setVideosLoaded] = useState(false);
 
     // Use a ref for settings synchronization to avoid infinite loops if needed
     const syncSettingsWithMongoDB = async () => {
@@ -91,6 +93,7 @@ export const RateProvider = ({ children }) => {
                     });
                     if (data.showModified !== undefined) setShowModified(data.showModified);
                     if (data.ticker) setTicker(data.ticker);
+                    setSettingsLoaded(true);
                 }
             }
         } catch (error) {
@@ -109,7 +112,10 @@ export const RateProvider = ({ children }) => {
             const res = await fetch(`${API_BASE}/videos?_=${Date.now()}`);
             if (res.ok) {
                 const list = await res.json();
-                if (Array.isArray(list)) setVideos(list);
+                if (Array.isArray(list)) {
+                    setVideos(list);
+                    setVideosLoaded(true);
+                }
             }
         } catch (e) {
             console.error("Failed to sync videos:", e);
@@ -617,7 +623,7 @@ export const RateProvider = ({ children }) => {
     }, [rawRates, adj, showModified]);
 
     return (
-        <RateContext.Provider value={{ rates, rawRates, loading, error, news, adj, showModified, ticker, videos, updateSettings, updateVideos, refreshRates: fetchAllRates, getPriceClass }}>
+        <RateContext.Provider value={{ rates, rawRates, loading, error, news, adj, showModified, settingsLoaded, ticker, videos, videosLoaded, updateSettings, updateVideos, refreshRates: fetchAllRates, getPriceClass }}>
             {children}
         </RateContext.Provider>
     );
