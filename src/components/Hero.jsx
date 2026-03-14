@@ -45,17 +45,17 @@ const Hero = () => {
                                     <span className="inline-flex items-center justify-center px-4 py-1.5 rounded-xl bg-transparent border-2 border-slate-900/20 text-slate-900 font-playfair font-black text-[10px] md:text-sm tracking-[0.1em] shadow-sm backdrop-blur-sm">PRODUCTS</span>
                                 </div>
                                 <div className="flex justify-center">
-                                    <span className="inline-flex items-center justify-center px-4 py-1.5 rounded-xl bg-transparent border-2 border-slate-900/20 text-slate-900 font-playfair font-black text-[10px] md:text-sm tracking-[0.1em] shadow-sm backdrop-blur-sm md:-translate-x-4">BUY</span>
+                                    <span className="inline-flex items-center justify-center px-4 py-1.5 rounded-xl bg-transparent border-2 border-slate-900/20 text-slate-900 font-playfair font-black text-[10px] md:text-sm tracking-[0.1em] shadow-sm backdrop-blur-sm md:-translate-x-10">BUY</span>
                                 </div>
                                 <div className="flex justify-center">
-                                    <span className="inline-flex items-center justify-center px-4 py-1.5 rounded-xl bg-transparent border-2 border-slate-900/20 text-slate-900 font-playfair font-black text-[10px] md:text-sm tracking-[0.1em] shadow-sm backdrop-blur-sm">SELL</span>
+                                    <span className="inline-flex items-center justify-center px-4 py-1.5 rounded-xl bg-transparent border-2 border-slate-900/20 text-slate-900 font-playfair font-black text-[10px] md:text-sm tracking-[0.1em] shadow-sm backdrop-blur-sm md:-translate-x-6">SELL</span>
                                 </div>
                                 <div className="flex justify-center">
                                     <span className="inline-flex items-center justify-center px-4 py-1.5 rounded-xl bg-transparent border-2 border-slate-900/20 text-slate-900 font-playfair font-black text-[10px] md:text-sm tracking-[0.1em] shadow-sm backdrop-blur-sm">STATUS</span>
                                 </div>
                             </div>
                         </div>
-                        {rates.rtgs.map((item, idx) => {
+                        {rates.rtgs.filter(item => !(item.name.toLowerCase().includes('silver') && item.name.toLowerCase().includes('10 kgs'))).map((item, idx) => {
                             const rawItem = rawRates.rtgs.find(r => r.id === item.id || (r.name && r.name === item.name)) || item;
                             const isGold = item.name.toLowerCase().includes('gold') || item.id === '945';
                             const isSilver = item.name.toLowerCase().includes('silver') || item.id === '2966' || item.id === '2987';
@@ -68,8 +68,11 @@ const Hero = () => {
                                     initial={{ opacity: 0, x: -30 }}
                                     animate={{ opacity: 1, x: 0 }}
                                     transition={{ delay: idx * 0.12 }}
-                                    whileHover={{ y: -3, boxShadow: "0 14px 30px -10px rgba(0,0,0,0.12)" }}
-                                    className="bg-white/10 backdrop-blur-sm rounded-[16px] py-5 px-3 md:py-3 md:px-5 shadow-premium transition-all duration-500 border border-white/20 relative group"
+                                    whileHover={{ 
+                                        y: window.innerWidth >= 1024 ? 0 : -3, 
+                                        boxShadow: window.innerWidth >= 1024 ? "none" : "0 14px 30px -10px rgba(0,0,0,0.12)" 
+                                    }}
+                                    className="bg-white/10 backdrop-blur-sm rounded-[16px] py-5 px-3 md:bg-transparent md:backdrop-blur-none md:rounded-none md:py-2 md:px-0 md:shadow-none md:border-none relative group"
                                 >
                                     <div className="grid grid-cols-[1.5fr_1fr_1fr_60px] md:grid-cols-[2fr_1fr_1fr_80px] gap-2 md:gap-4 items-center w-full relative">
                                         {/* Item Label */}
@@ -96,12 +99,12 @@ const Hero = () => {
                                                             scale: pClass === 'price-up' || pClass === 'price-down' ? 1.04 : 1
                                                         }}
                                                         style={{ borderColor: bColor, borderWidth: isGold ? '3px' : '2px' }}
-                                                        className="w-full transition-all duration-300 max-w-[110px] md:max-w-[160px] py-3 md:py-2 px-1 bg-transparent rounded-[14px] md:rounded-[18px] flex items-center justify-center shadow-md overflow-hidden"
+                                                        className="w-full transition-all duration-300 max-w-[110px] md:max-w-[170px] py-3 md:py-2 px-2 md:px-4 bg-transparent rounded-[14px] md:rounded-[18px] flex items-center justify-center shadow-md"
                                                     >
                                                         <motion.span
                                                             key={`buy-${item.buy}-${pClass}`}
                                                             animate={{ scale: [1, 1.08, 1] }}
-                                                            className={`font-black font-poppins text-center tracking-tighter md:tracking-wider text-slate-900 text-[14px] md:text-[22px] leading-none md:-translate-x-4`}
+                                                            className={`font-black font-poppins text-center tracking-tighter md:tracking-normal text-slate-900 text-[14px] md:text-[22px] leading-none`}
                                                         >
                                                             {item.buy !== '-' ? <><span style={{ fontFamily: 'Inter, system-ui, sans-serif' }}>₹</span>{fmt(item.buy)}</> : '—'}
                                                         </motion.span>
@@ -122,12 +125,12 @@ const Hero = () => {
                                                             scale: pClass === 'price-up' || pClass === 'price-down' ? 1.04 : 1
                                                         }}
                                                         style={{ borderColor: bColor, borderWidth: isGold ? '3px' : '2px' }}
-                                                        className="w-full transition-all duration-300 max-w-[110px] md:max-w-[160px] py-3 md:py-2 px-1 bg-transparent rounded-[14px] md:rounded-[18px] flex items-center justify-center shadow-md overflow-hidden"
+                                                        className="w-full transition-all duration-300 max-w-[110px] md:max-w-[170px] py-3 md:py-2 px-2 md:px-4 bg-transparent rounded-[14px] md:rounded-[18px] flex items-center justify-center shadow-md"
                                                     >
                                                         <motion.span
                                                             key={`sell-${item.sell}-${pClass}`}
                                                             animate={{ scale: [1, 1.08, 1] }}
-                                                            className={`font-black font-poppins text-center tracking-tighter md:tracking-wider text-slate-900 text-[14px] md:text-[22px] leading-none`}
+                                                            className={`font-black font-poppins text-center tracking-tighter md:tracking-normal text-slate-900 text-[14px] md:text-[22px] leading-none`}
                                                         >
                                                             {item.sell !== '-' ? <><span style={{ fontFamily: 'Inter, system-ui, sans-serif' }}>₹</span>{fmt(item.sell)}</> : '—'}
                                                         </motion.span>
@@ -145,9 +148,31 @@ const Hero = () => {
                                 </motion.div>
                             );
                         })}
+                        {/* Decorative Bottom Border from Mockup */}
+                        <div className="hidden md:block w-full h-1 bg-gradient-to-r from-transparent via-magenta-500/60 to-transparent mt-4 rounded-full" />
                     </div>
                 </motion.div>
             </section>
+
+            {/* Decorative Side Image - Desktop Only - Right side */}
+            <motion.img
+                initial={{ opacity: 0, x: 100 }}
+                animate={{ opacity: 1, x: 0 }}
+                transition={{ duration: 1.2, ease: "easeOut", delay: 0.5 }}
+                src="/Untitled design (37).png"
+                alt="Decorative Right"
+                className="hidden md:block absolute right-[2%] top-[28%] -translate-y-1/2 w-[22%] max-w-[350px] object-contain opacity-90 pointer-events-none z-0"
+            />
+
+            {/* Decorative Side Image - Desktop Only - Left side (Mirror) */}
+            <motion.img
+                initial={{ opacity: 0, x: -100 }}
+                animate={{ opacity: 1, x: 0 }}
+                transition={{ duration: 1.2, ease: "easeOut", delay: 0.5 }}
+                src="/Untitled design (38).png"
+                alt="Decorative Left"
+                className="hidden md:block absolute left-[2%] top-[28%] -translate-y-1/2 w-[22%] max-w-[350px] object-contain opacity-90 pointer-events-none z-0"
+            />
 
         </motion.div>
     );

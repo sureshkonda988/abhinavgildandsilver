@@ -52,25 +52,25 @@ const RatesPage = () => {
 
             <div className="flex flex-col gap-3">
                 <div className="flex flex-col md:flex-col-reverse gap-6">
-                    <h1 className="text-xl font-poppins font-black text-white/80 mt-2 mb-1 text-center md:text-right md:-translate-x-32 uppercase tracking-tighter drop-shadow-luxury px-2 md:order-2">
+                    <h1 className="text-xl font-poppins font-black text-white/80 mt-2 md:mt-10 mb-1 text-center md:text-right md:-translate-x-32 uppercase tracking-tighter drop-shadow-luxury px-2 md:order-2">
                         Live Retail Rates with GST
                     </h1>
                     
                     {/* Separate Tables Grid */}
-                    <div className="flex flex-col md:flex-row justify-center md:justify-end gap-4 md:order-1 items-start">
+                    <div className="flex flex-col gap-4 md:order-1">
                         
                         {/* Gold Rates Table */}
-                        <div className="flex flex-col w-[95%] min-w-[210px] md:max-w-[270px] max-w-[450px] mx-auto md:mx-0">
-                            <div className="gradient-luxury px-3 py-2 md:px-2.5 md:py-2 rounded-t-xl shadow-lg flex justify-between items-center">
-                                <h2 className="text-white font-poppins font-bold text-[12px] md:text-[11px] uppercase tracking-widest">Gold Rates</h2>
-                                <span className="text-white/40 text-[9px] md:text-[7px] font-black uppercase tracking-widest bg-white/5 px-1.5 py-0.5 rounded-full">GST INCL</span>
+                        <div className="flex flex-col w-[95%] min-w-[210px] md:max-w-[550px] max-w-[450px] mx-auto md:mx-0 md:self-end md:-mt-8">
+                            <div className="gradient-luxury px-3 py-2 md:px-4 md:py-1.5 rounded-t-xl shadow-lg flex justify-between items-center">
+                                <h2 className="text-white font-poppins font-bold text-[12px] md:text-[14px] uppercase tracking-widest">Gold Rates</h2>
+                                <span className="text-white/40 text-[9px] md:text-[10px] font-black uppercase tracking-widest bg-white/5 px-2 py-1 rounded-full">GST INCL</span>
                             </div>
                             <div className="glass rounded-b-xl overflow-hidden shadow-luxury">
                                 <table className="w-full text-left">
                                     <thead className="bg-white/10 border-b border-white/10">
                                         <tr>
-                                            <th className="px-3 py-2 md:px-3 md:py-1.5 text-[10px] md:text-[9px] font-black text-white/80 uppercase tracking-widest">Purity</th>
-                                            <th className="px-3 py-2 md:px-3 md:py-1.5 text-[10px] md:text-[9px] font-black text-white/80 uppercase tracking-widest text-right">Price</th>
+                                            <th className="px-3 py-2 md:px-4 md:py-1 text-[10px] md:text-[12px] font-black text-white/80 uppercase tracking-widest">Purity</th>
+                                            <th className="px-3 py-2 md:px-4 md:py-1 text-[10px] md:text-[12px] font-black text-white/80 uppercase tracking-widest text-right">Price</th>
                                         </tr>
                                     </thead>
                                     <tbody className="divide-y divide-white/5">
@@ -78,14 +78,14 @@ const RatesPage = () => {
                                             const gSellVal = gold?.sell !== '-' && gold?.sell !== undefined ? fmt(gold.sell) : '-';
                                             return (
                                                 <tr key={idx} className="hover:bg-white/5 transition-colors group">
-                                                    <td className="px-3 py-2.5 md:px-3 md:py-2 text-[13px] md:text-[13px] font-bold text-white whitespace-nowrap">
+                                                    <td className="px-3 py-2.5 md:px-4 md:py-1 text-[13px] md:text-[18px] font-bold text-white whitespace-nowrap">
                                                         {gold.name}
                                                     </td>
-                                                    <td className="px-3 py-2.5 md:px-3 md:py-2 text-right whitespace-nowrap">
+                                                    <td className="px-3 py-2.5 md:px-4 md:py-1 text-right whitespace-nowrap">
                                                         <motion.span
                                                             key={gSellVal}
                                                             animate={{ scale: [1, 1.05, 1] }}
-                                                            className={`font-bold text-[14px] md:text-[15px] ${getKaratClass(gold.key, 'sell')}`}
+                                                            className={`font-bold text-[14px] md:text-[22px] ${getKaratClass(gold.key, 'sell')}`}
                                                         >
                                                             <span className="font-sans">₹</span>{gSellVal}
                                                         </motion.span>
@@ -99,7 +99,7 @@ const RatesPage = () => {
                         </div>
 
                         {/* Silver Rates Table */}
-                        <div className="flex flex-col w-[95%] min-w-[210px] md:max-w-[270px] max-w-[450px] mx-auto md:mx-0">
+                        <div className="flex flex-col w-[95%] min-w-[210px] md:max-w-[270px] max-w-[450px] mx-auto md:mx-0 md:self-start md:translate-x-80">
                             <div className="gradient-luxury px-3 py-2 md:px-2.5 md:py-2 rounded-t-xl shadow-lg flex justify-between items-center">
                                 <h2 className="text-white font-poppins font-bold text-[12px] md:text-[11px] uppercase tracking-widest">Silver Rates</h2>
                                 <span className="text-white/40 text-[9px] md:text-[7px] font-black uppercase tracking-widest bg-white/5 px-1.5 py-0.5 rounded-full">GST INCL</span>

@@ -68,8 +68,12 @@ const AppLayout = () => {
   const criticalImages = React.useMemo(() => {
     const images = ['/Untitled design (31).png'];
     if (isHomePage) {
-      images.push('/Untitled design (19).png');
+      images.push('/Untitled design (23).jpg');
+      images.push('/des ho he.png');
+      images.push('/Untitled design (10).jpg');
       images.push('/Untitled design (25).png');
+      images.push('/Untitled design (37).png');
+      images.push('/Untitled design (38).png');
     } else if (location.pathname === '/rates') {
       images.push('/Untitled design (30).png');
     }
@@ -98,9 +102,9 @@ const AppLayout = () => {
         backgroundColor: isHomePage ? '#FFB1E1' : '#fafafb',
         ...(!isAdminPage ? {
           backgroundImage: isHomePage
-            ? 'none'
+            ? 'url("/Untitled design (10).jpg")'
             : location.pathname === '/alerts'
-              ? 'url("/Untitled design (6).jpg")'
+              ? 'url("/WhatsApp Image 2026-03-12 at 2.19.24 PM.jpeg")'
               : location.pathname === '/videos'
                 ? 'url("/Untitled design (10).png")'
                 : 'url("/Untitled design (14).png")',
@@ -124,17 +128,17 @@ const AppLayout = () => {
                   initial={{ opacity: 1 }}
                   animate={{ opacity: 1 }}
                   transition={{ duration: 0.5 }}
-                  src="/Untitled design (19).png"
+                  src="/Untitled design (23).jpg"
                   alt="Abhinav Gold & Silver Header Mobile"
-                  className="w-full h-auto min-h-[120px] md:hidden object-contain object-center block"
+                  className="w-full h-auto md:hidden object-contain object-center block"
                 />
                 <motion.img
                   initial={{ opacity: 1 }}
                   animate={{ opacity: 1 }}
                   transition={{ duration: 0.5 }}
-                  src="/Untitled design (25).png"
+                  src="/des ho he.png"
                   alt="Abhinav Gold & Silver Header Desktop"
-                  className="w-full h-auto hidden md:block object-contain object-center block"
+                  className="w-full h-auto hidden md:block object-cover object-center block"
                 />
               </>
             ) : (
@@ -190,7 +194,7 @@ const AppLayout = () => {
 
       {/* Desktop Ticker — Above Footer, Desktop Only */}
       {!isAdminPage && (
-      <div className={`hidden md:block ${location.pathname === '/rates' ? 'md:-mt-20' : ''}`}>
+      <div className={`hidden md:block ${location.pathname === '/rates' ? 'md:-mt-48' : isHomePage ? 'md:-mt-36' : ''}`}>
         <Ticker />
       </div>
       )}
