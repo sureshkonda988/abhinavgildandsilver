@@ -103,7 +103,13 @@ const AppLayout = () => {
       style={{
         backgroundColor: isHomePage ? '#FFB1E1' : '#fafafb',
         ...(!isAdminPage ? {
-          backgroundImage: 'url("/Untitled design (14).png")',
+          backgroundImage: isHomePage
+            ? 'url("/Untitled design (10).jpg")'
+            : location.pathname === '/alerts'
+              ? 'url("/WhatsApp Image 2026-03-12 at 2.19.24 PM.jpeg")'
+              : location.pathname === '/videos'
+                ? 'url("/Untitled design (10).png")'
+                : 'url("/Untitled design (14).png")',
           backgroundAttachment: 'fixed',
           backgroundPosition: 'center',
           backgroundRepeat: 'no-repeat',
