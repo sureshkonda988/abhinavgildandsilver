@@ -70,7 +70,7 @@ export const RateProvider = ({ children }) => {
     const [videosLoaded, setVideosLoaded] = useState(false);
     const [music, setMusic] = useState({ homeMusic: { videoId: '', title: '' }, ratesMusic: { videoId: '', title: '' } });
     const [musicLoaded, setMusicLoaded] = useState(false);
-    const [isMusicEnabled, setIsMusicEnabled] = useState(false);
+    const [isMusicEnabled, setIsMusicEnabled] = useState(true);
 
     const toggleMusic = () => setIsMusicEnabled(!isMusicEnabled);
 

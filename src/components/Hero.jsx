@@ -22,17 +22,7 @@ const Hero = () => {
             transition={{ duration: 1 }}
             className="w-full inventory-section min-h-[60vh] relative overflow-hidden pt-6 md:pt-0"
         >
-            {/* Music Toggle - Home Page */}
-            <div className="absolute top-4 right-4 z-50">
-                <button
-                    onClick={toggleMusic}
-                    className={`p-3 rounded-full shadow-lg transition-all border-2 ${isMusicEnabled ? 'bg-magenta-600 border-magenta-400 text-white animate-pulse' : 'bg-white/80 border-slate-200 text-slate-600'} ${!(music.homeMusic?.sourceType === 'local' ? music.homeMusic?.fileUrl : music.homeMusic?.videoId) ? 'opacity-50' : 'hover:scale-110'}`}
-                    title={!(music.homeMusic?.sourceType === 'local' ? music.homeMusic?.fileUrl : music.homeMusic?.videoId) ? "No music set for Home page" : (isMusicEnabled ? "Turn Off Music" : "Turn On Music")}
-                >
-                    <Music size={20} />
-                </button>
-                {!(music.homeMusic?.sourceType === 'local' ? music.homeMusic?.fileUrl : music.homeMusic?.videoId) && <span className="absolute top-full right-0 mt-2 text-[8px] text-slate-500 whitespace-nowrap bg-white/90 px-2 py-1 rounded shadow-sm">No music set</span>}
-            </div>
+
             {/* Ambient Background Accents */}
             <div className="absolute top-0 left-0 w-full h-full opacity-30 pointer-events-none"
                 style={{ background: 'radial-gradient(circle at 10% 20%, #fff, transparent 80%)' }} />
@@ -172,6 +162,18 @@ const Hero = () => {
                     </div>
                 </motion.div>
             </section>
+
+            {/* Music Toggle - Mobile Only (below tables) */}
+            <div className="flex md:hidden justify-center pb-4 -mt-4">
+                <button
+                    onClick={toggleMusic}
+                    className={`flex items-center gap-2 px-5 py-2.5 rounded-full shadow-lg transition-all border-2 font-poppins font-bold text-xs uppercase tracking-widest ${isMusicEnabled ? 'bg-magenta-600 border-magenta-400 text-white animate-pulse' : 'bg-white/80 border-slate-200 text-slate-700'} ${!(music.homeMusic?.sourceType === 'local' ? music.homeMusic?.fileUrl : music.homeMusic?.videoId) ? 'opacity-50 cursor-not-allowed' : 'hover:scale-105'}`}
+                    title={isMusicEnabled ? 'Turn Off Music' : 'Turn On Music'}
+                >
+                    <Music size={16} />
+                    {isMusicEnabled ? 'Music On' : 'Music Off'}
+                </button>
+            </div>
 
             {/* Decorative Side Image - Desktop Only - Right side */}
             <motion.img

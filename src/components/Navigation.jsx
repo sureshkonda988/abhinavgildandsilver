@@ -1,12 +1,16 @@
 import React from 'react';
-import { MessageCircle, Bell } from 'lucide-react';
+import { MessageCircle, Bell, Music } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { Link, useLocation } from 'react-router-dom';
 import { useRates } from '../context/RateContext';
 
 const Navigation = () => {
-    const { rates } = useRates();
+    const { rates, isMusicEnabled, toggleMusic, music } = useRates();
     const location = useLocation();
+    const isRatesPage = location.pathname === '/rates';
+    const isHomePage = location.pathname === '/';
+    const showMusicBtn = isRatesPage || isHomePage;
+    const currentMusic = isRatesPage ? music.ratesMusic : music.homeMusic;
 
     const navItems = [
         { name: 'Home', path: '/' },
@@ -63,8 +67,20 @@ const Navigation = () => {
 
                         {/* Right Actions */}
                         <div className="flex items-center gap-6">
-
-
+                            {/* Music Toggle - Home & Rates Desktop */}
+                            {showMusicBtn && (
+                                <button
+                                    onClick={toggleMusic}
+                                    className={`w-9 h-9 rounded-xl flex items-center justify-center shadow-lg border-0 transition-all hover:scale-110 ${
+                                        isMusicEnabled ? 'bg-gold-500 text-white animate-pulse' : 'bg-slate-700 text-slate-300'
+                                    } ${
+                                        !(currentMusic?.sourceType === 'local' ? currentMusic?.fileUrl : currentMusic?.videoId) ? 'opacity-50 cursor-not-allowed' : ''
+                                    }`}
+                                    title={!(currentMusic?.sourceType === 'local' ? currentMusic?.fileUrl : currentMusic?.videoId) ? 'No music set' : (isMusicEnabled ? 'Turn Off Music' : 'Turn On Music')}
+                                >
+                                    <Music size={18} strokeWidth={2.5} />
+                                </button>
+                            )}
                             <div className="flex items-center gap-3">
                                 <a
                                     href="https://wa.me/919848012345"
