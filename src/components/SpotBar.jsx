@@ -38,12 +38,12 @@ const SpotBar = () => {
                             <motion.div
                                 animate={{ scale: pClass === 'price-up' || pClass === 'price-down' ? 1.02 : 1 }}
                                 style={{ backgroundColor: bColor }}
-                                className="border border-black/10 rounded-lg md:rounded-xl px-0.5 md:px-1 py-0.5 md:py-1 flex flex-col items-center min-w-[65px] md:min-w-[110px] shadow-lg group relative overflow-hidden"
+                                className="border border-black/10 rounded-lg md:rounded-xl px-0.5 md:px-1 py-0 md:py-1 flex flex-col items-center min-w-[65px] md:min-w-[110px] shadow-lg group relative overflow-hidden"
                             >
                                 <span className="text-[6px] md:text-[9px] font-bold text-white/60 uppercase tracking-tight font-poppins">{item.label}</span>
                                 <div className="flex items-center gap-0.5 md:gap-1 my-0 md:my-0.5">
-                                    <span style={{ fontFamily: 'Inter, system-ui, sans-serif' }} className="text-[8px] md:text-sm font-bold text-white/40">₹</span>
-                                    <motion.span key={`val-${item.value}-${item.id}`} animate={{ scale: [1, 1.05, 1] }} className="text-[10px] md:text-xl font-black font-poppins text-white">{item.value}</motion.span>
+                                    <span style={{ fontFamily: 'Inter, system-ui, sans-serif' }} className="text-[7px] md:text-sm font-bold text-white/40">₹</span>
+                                    <motion.span key={`val-${item.value}-${item.id}`} animate={{ scale: [1, 1.05, 1] }} className="text-[9px] md:text-xl font-black font-poppins text-white">{item.value}</motion.span>
                                 </div>
                                 <div className="flex items-center gap-0.5 md:gap-2 text-[5px] md:text-[8px] font-bold text-white/50 font-mono whitespace-nowrap">
                                     <span>H : {item.h}</span><span className="opacity-30">|</span><span>L : {item.l}</span>
@@ -66,12 +66,12 @@ const SpotBar = () => {
                                 key={idx}
                                 animate={{ scale: pClass === 'price-up' || pClass === 'price-down' ? 1.02 : 1 }}
                                 style={{ backgroundColor: bColor }}
-                                className="border border-black/10 rounded-lg md:rounded-xl px-0.5 md:px-1 py-0.5 md:py-1 flex flex-col items-center min-w-[65px] md:min-w-[110px] shadow-lg group relative overflow-hidden"
+                                className="border border-black/10 rounded-lg md:rounded-xl px-0.5 md:px-2 py-1 md:py-2 flex flex-col items-center min-w-[80px] md:min-w-[130px] shadow-lg group relative overflow-hidden"
                             >
                                 <span className={`text-[6px] md:text-[9px] font-bold ${isDarkText ? 'text-black/60' : 'text-white/60'} uppercase tracking-tight font-poppins`}>{item.label}</span>
                                 <div className="flex items-center gap-0.5 md:gap-1 my-0 md:my-0.5">
-                                    <span className={`text-[8px] md:text-sm font-bold ${isDarkText ? 'text-black/40' : 'text-white/40'}`}>{item.symbol}</span>
-                                    <motion.span key={`val-${item.value}-${item.id}`} animate={{ scale: [1, 1.05, 1] }} className={`text-[10px] md:text-xl font-black font-poppins ${isDarkText ? 'text-black' : 'text-white'}`}>{item.value}</motion.span>
+                                    <span className={`text-[7px] md:text-sm font-bold ${isDarkText ? 'text-black/40' : 'text-white/40'}`}>{item.symbol}</span>
+                                    <motion.span key={`val-${item.value}-${item.id}`} animate={{ scale: [1, 1.05, 1] }} className={`text-[9px] md:text-xl font-black font-poppins ${isDarkText ? 'text-black' : 'text-white'}`}>{item.value}</motion.span>
                                 </div>
                                 <div className={`flex items-center gap-0.5 md:gap-2 text-[5px] md:text-[8px] font-bold ${isDarkText ? 'text-black/50' : 'text-white/50'} font-mono whitespace-nowrap`}>
                                     <span>H : {item.h}</span><span className="opacity-30">|</span><span>L : {item.l}</span>
