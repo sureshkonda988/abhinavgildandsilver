@@ -175,7 +175,7 @@ const AppLayout = () => {
 
 
           {/* Global Scrolling Ticker - Snapped to header section - Mobile Only */}
-          <div className={`md:hidden z-10 w-full relative ${location.pathname === '/rates' ? 'mt-4' : 'mt-6'}`}>
+          <div className={`md:hidden z-10 w-full relative ${location.pathname === '/rates' ? 'mt-0' : 'mt-6'}`}>
             <Ticker />
           </div>
         </div>
