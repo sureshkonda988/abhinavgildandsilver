@@ -95,27 +95,8 @@ const Navigation = () => {
                         </div>
                     </nav>
 
-                    {/* Mobile View (<1024px) */}
-                    <div className="flex lg:hidden items-center justify-between pointer-events-none px-4 py-4">
-                        <div /> {/* Spacer for symmetry if needed, or keep empty if right actions are the only ones */}
-
-                        {/* Right Actions (Mobile Only Show Home Page if desired, but user asked for consistency) */}
-                        {location.pathname === '/' && (
-                            <div className="flex items-center gap-3 pointer-events-auto">
-                                <a
-                                    href="https://wa.me/919848012345"
-                                    target="_blank"
-                                    rel="noopener noreferrer"
-                                    className="w-10 h-10 bg-[#1eb858] text-white rounded-xl flex items-center justify-center shadow-lg"
-                                >
-                                    <MessageCircle size={20} strokeWidth={2.5} />
-                                </a>
-                                <button className="w-10 h-10 bg-[#f4cb4c] text-slate-900 rounded-xl flex items-center justify-center shadow-lg">
-                                    <Bell size={20} strokeWidth={2.5} />
-                                </button>
-                            </div>
-                        )}
-                    </div>
+                    {/* Mobile View - Buttons removed per user request */}
+                    <div className="lg:hidden pointer-events-none px-4 py-4" />
                 </div>
             </div>
 

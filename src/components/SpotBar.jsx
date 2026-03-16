@@ -15,53 +15,73 @@ const SpotBar = () => {
     const inr = rates.spot?.[2] || { bid: '-', ask: '-', name: 'USD/INR' };
 
     const items = [
-        { label: 'GOLD', value: fmt(gold.ask), symbol: '$', trend: gold.trend, key: { section: 'spot', id: gold.id, field: 'ask' } },
-        { label: 'SILVER', value: fmt(silver.ask), symbol: '$', trend: silver.trend, key: { section: 'spot', id: silver.id, field: 'ask' } },
-        { label: 'USD/INR', value: fmt(inr.ask), symbol: '₹', trend: inr.trend, key: { section: 'spot', id: inr.id, field: 'ask' } }
+        { label: 'USD-INR (₹)', value: fmt(inr.ask), h: fmt(inr.high), l: fmt(inr.low), symbol: '₹', id: inr.id },
+        { label: 'GOLD ($)', value: fmt(gold.ask), h: fmt(gold.high), l: fmt(gold.low), symbol: '$', id: gold.id },
+        { label: 'SILVER ($)', value: fmt(silver.ask), h: fmt(silver.high), l: fmt(silver.low), symbol: '$', id: silver.id }
     ];
 
     if (!rates) return null;
 
     return (
-        <div className="flex items-center justify-end gap-1 md:gap-2 px-0 md:px-2 py-1 md:py-3">
-            {items.map((item, index) => (
-                <motion.div
-                    key={index}
-                    className="flex flex-col items-center gap-1 md:gap-1.5"
-                >
-                    {/* Label */}
-                    <span className="text-[10px] md:text-base font-bold text-slate-500 uppercase tracking-wider md:tracking-[0.2em] font-poppins opacity-80 text-center">
-                        {item.label}
-                    </span>
-
-                    {/* Value Box */}
+        <div className="flex flex-wrap md:flex-nowrap items-center justify-end gap-1 md:gap-1 px-1 md:px-4 md:pr-14 py-1 md:py-3">
+            {/* Mobile Layout: USD-INR centered above Gold & Silver cluster */}
+            <div className="flex flex-col items-center md:flex-row md:items-center gap-1 md:gap-1">
+                {/* Top Row: USD-INR */}
+                <div className="md:w-auto">
                     {(() => {
-                        const pClass = getPriceClass(item.key.section, item.key.id, item.key.field);
-                        const bColor = pClass === 'price-up' ? '#00c853' : pClass === 'price-down' ? '#ff1744' : pClass === 'gold-default' ? '#FFD700' : pClass === 'silver-default' ? '#E5E5E5' : '#0f172a';
+                        const item = items[0];
+                        const pClass = getPriceClass('spot', item.id, 'ask');
+                        const bColor = pClass === 'price-up' ? '#00c853' : pClass === 'price-down' ? '#ff1744' : '#0f172a';
+                        const isDarkText = false;
 
                         return (
                             <motion.div
-                                animate={{
-                                    scale: pClass === 'price-up' || pClass === 'price-down' ? 1.04 : 1
-                                }}
-                                style={{ backgroundColor: bColor, borderColor: '#000000' }}
-                                className="border-[3px] md:border-[4px] rounded-[8px] md:rounded-[20px] px-1 md:px-3 py-1.5 md:py-3 flex items-center w-full justify-center group shadow-premium transition-colors duration-200"
+                                animate={{ scale: pClass === 'price-up' || pClass === 'price-down' ? 1.02 : 1 }}
+                                style={{ backgroundColor: bColor }}
+                                className="border border-black/10 rounded-lg md:rounded-xl px-0.5 md:px-1 py-0.5 md:py-1 flex flex-col items-center min-w-[65px] md:min-w-[110px] shadow-lg group relative overflow-hidden"
                             >
-                                <span className={`text-xs md:text-2xl font-normal mr-1 md:mr-2 ${bColor === '#FFD700' || bColor === '#E5E5E5' ? 'text-slate-900/40' : 'text-white/40'}`}>
-                                    {item.symbol === '₹' ? <span style={{ fontFamily: 'Inter, system-ui, sans-serif' }}>₹</span> : item.symbol}
-                                </span>
-                                <motion.span
-                                    key={`val-${item.value}-${item.key.section}-${item.key.id}`}
-                                    animate={{ scale: [1, 1.1, 1] }}
-                                    className={`text-base md:text-4xl font-bold font-poppins tracking-tighter md:tracking-tight ${bColor === '#FFD700' || bColor === '#E5E5E5' ? 'text-slate-900' : 'text-white'}`}
-                                >
-                                    {item.value}
-                                </motion.span>
+                                <span className="text-[6px] md:text-[9px] font-bold text-white/60 uppercase tracking-tight font-poppins">{item.label}</span>
+                                <div className="flex items-center gap-0.5 md:gap-1 my-0 md:my-0.5">
+                                    <span style={{ fontFamily: 'Inter, system-ui, sans-serif' }} className="text-[8px] md:text-sm font-bold text-white/40">₹</span>
+                                    <motion.span key={`val-${item.value}-${item.id}`} animate={{ scale: [1, 1.05, 1] }} className="text-[10px] md:text-xl font-black font-poppins text-white">{item.value}</motion.span>
+                                </div>
+                                <div className="flex items-center gap-0.5 md:gap-2 text-[5px] md:text-[8px] font-bold text-white/50 font-mono whitespace-nowrap">
+                                    <span>H : {item.h}</span><span className="opacity-30">|</span><span>L : {item.l}</span>
+                                </div>
+                                {(pClass === 'price-up' || pClass === 'price-down') && <div className="absolute top-0 right-0 w-1 md:w-2 h-full bg-white opacity-20" />}
                             </motion.div>
                         );
                     })()}
-                </motion.div>
-            ))}
+                </div>
+
+                {/* Bottom Row: Gold & Silver */}
+                <div className="flex gap-1 md:gap-1">
+                    {[items[1], items[2]].map((item, idx) => {
+                        const pClass = getPriceClass('spot', item.id, 'ask');
+                        const bColor = pClass === 'price-up' ? '#00c853' : pClass === 'price-down' ? '#ff1744' : item.label.includes('GOLD') ? '#FFD700' : '#E5E5E5';
+                        const isDarkText = bColor === '#FFD700' || bColor === '#E5E5E5';
+
+                        return (
+                            <motion.div
+                                key={idx}
+                                animate={{ scale: pClass === 'price-up' || pClass === 'price-down' ? 1.02 : 1 }}
+                                style={{ backgroundColor: bColor }}
+                                className="border border-black/10 rounded-lg md:rounded-xl px-0.5 md:px-1 py-0.5 md:py-1 flex flex-col items-center min-w-[65px] md:min-w-[110px] shadow-lg group relative overflow-hidden"
+                            >
+                                <span className={`text-[6px] md:text-[9px] font-bold ${isDarkText ? 'text-black/60' : 'text-white/60'} uppercase tracking-tight font-poppins`}>{item.label}</span>
+                                <div className="flex items-center gap-0.5 md:gap-1 my-0 md:my-0.5">
+                                    <span className={`text-[8px] md:text-sm font-bold ${isDarkText ? 'text-black/40' : 'text-white/40'}`}>{item.symbol}</span>
+                                    <motion.span key={`val-${item.value}-${item.id}`} animate={{ scale: [1, 1.05, 1] }} className={`text-[10px] md:text-xl font-black font-poppins ${isDarkText ? 'text-black' : 'text-white'}`}>{item.value}</motion.span>
+                                </div>
+                                <div className={`flex items-center gap-0.5 md:gap-2 text-[5px] md:text-[8px] font-bold ${isDarkText ? 'text-black/50' : 'text-white/50'} font-mono whitespace-nowrap`}>
+                                    <span>H : {item.h}</span><span className="opacity-30">|</span><span>L : {item.l}</span>
+                                </div>
+                                {(pClass === 'price-up' || pClass === 'price-down') && <div className="absolute top-0 right-0 w-1 md:w-2 h-full bg-white opacity-20" />}
+                            </motion.div>
+                        );
+                    })}
+                </div>
+            </div>
         </div>
     );
 };
