@@ -24,11 +24,11 @@ const RatesPage = () => {
     const silverRows = [
         {
             name: 'Silver 10g',
-            sell: silverBase !== null ? Math.round((silverBase / 3000) * 10 * 100) / 100 : '-',
+            sell: silverBase !== null ? Math.round((silverBase / 100) * 100) / 100 : '-',
         },
         {
             name: 'Silver 1 Kg',
-            sell: silverBase !== null ? Math.round(silverBase / 3 * 100) / 100 : '-',
+            sell: silverBase !== null ? Math.round(silverBase * 100) / 100 : '-',
         },
     ];
 
