@@ -1,10 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { useRates } from '../context/RateContext';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Lock, LogOut, TrendingUp, Settings, Video, MessageSquare, Play, Trash2, Save, RefreshCw, CheckCircle2, AlertCircle } from 'lucide-react';
+import { Lock, LogOut, TrendingUp, Settings, Video, MessageSquare, Play, Trash2, Save, RefreshCw, CheckCircle2, AlertCircle, Music, Upload, Youtube, HardDrive } from 'lucide-react';
 
 const AdminPage = () => {
-    const { rates, rawRates, adj, showModified, settingsLoaded, videosLoaded, updateSettings, updateVideos, refreshRates, loading, error, ticker: contextTicker, videos: contextVideos } = useRates();
+    const { rates, rawRates, adj, showModified, settingsLoaded, videosLoaded, musicLoaded, updateSettings, updateVideos, updateMusic, refreshRates, loading, error, ticker: contextTicker, videos: contextVideos, music: contextMusic } = useRates();
     const [isLoggedIn, setIsLoggedIn] = useState(false);
     const [username, setUsername] = useState('');
     const [password, setPassword] = useState('');
@@ -13,7 +13,11 @@ const AdminPage = () => {
     // Local state for editing, initialized from context
     const [ticker, setTicker] = useState('');
     const [videos, setVideos] = useState([]);
-    const [isInitialized, setIsInitialized] = useState({ ticker: false, videos: false });
+    const [musicState, setMusicState] = useState({ 
+        homeMusic: { sourceType: 'youtube', videoId: '', fileUrl: '', title: '' }, 
+        ratesMusic: { sourceType: 'youtube', videoId: '', fileUrl: '', title: '' } 
+    });
+    const [isInitialized, setIsInitialized] = useState({ ticker: false, videos: false, music: false });
 
     useEffect(() => {
         if (settingsLoaded && !isInitialized.ticker) {
@@ -28,6 +32,16 @@ const AdminPage = () => {
             setIsInitialized(prev => ({ ...prev, videos: true }));
         }
     }, [contextVideos, videosLoaded, isInitialized.videos]);
+
+    useEffect(() => {
+        if (musicLoaded && !isInitialized.music) {
+            setMusicState(contextMusic || { 
+                homeMusic: { sourceType: 'youtube', videoId: '', fileUrl: '', title: '' }, 
+                ratesMusic: { sourceType: 'youtube', videoId: '', fileUrl: '', title: '' } 
+            });
+            setIsInitialized(prev => ({ ...prev, music: true }));
+        }
+    }, [contextMusic, musicLoaded, isInitialized.music]);
 
     const handleLogin = () => {
         const storedPw = 'admin123'; // Logic for backend auth can be added later
@@ -46,9 +60,13 @@ const AdminPage = () => {
         updateSettings({ showModified: mode === 'modified' });
     };
 
-    const saveTicker = () => {
-        updateSettings({ ticker });
-        alert('Ticker updated and saved to database!');
+    const saveTicker = async () => {
+        const success = await updateSettings({ ticker });
+        if (success) {
+            alert('Ticker updated and saved to database!');
+        } else {
+            alert('Failed to save ticker to database. Please check your connection.');
+        }
     };
 
     const addVideo = () => {
@@ -69,15 +87,79 @@ const AdminPage = () => {
         return (match && match[1].length === 11) ? match[1] : '';
     };
 
-    const saveVideos = () => {
+    const saveVideos = async () => {
         const processed = videos.map(v => ({
             ...v,
             videoId: getYouTubeId(v.videoId)
         })).filter(v => v.videoId);
 
-        updateVideos(processed);
-        setVideos(processed);
-        alert('Videos updated and saved to database!');
+        const success = await updateVideos(processed);
+        if (success) {
+            setVideos(processed);
+            alert('Videos updated and saved to database!');
+        } else {
+            alert('Failed to save videos. Please check your connection.');
+        }
+    };
+
+    const saveMusic = async () => {
+        const processed = {
+            homeMusic: {
+                ...musicState.homeMusic,
+                videoId: musicState.homeMusic.sourceType === 'youtube' ? getYouTubeId(musicState.homeMusic.videoId) : ''
+            },
+            ratesMusic: {
+                ...musicState.ratesMusic,
+                videoId: musicState.ratesMusic.sourceType === 'youtube' ? getYouTubeId(musicState.ratesMusic.videoId) : ''
+            }
+        };
+
+        const success = await updateMusic(processed);
+        if (success) {
+            setMusicState(processed);
+            alert('Music settings updated and saved to database!');
+        } else {
+            alert('Failed to save music settings. Please ensure your local server is running.');
+        }
+    };
+
+    const handleMusicFileUpload = async (e, type) => {
+        const file = e.target.files[0];
+        if (!file) return;
+
+        // Client-side size check (100MB)
+        if (file.size > 100 * 1024 * 1024) {
+            alert('File is too large! Please upload a file smaller than 100MB.');
+            return;
+        }
+
+        const formData = new FormData();
+        formData.append('music', file);
+
+        try {
+            const res = await fetch('/api/music/upload', {
+                method: 'POST',
+                body: formData
+            });
+            const data = await res.json();
+            
+            if (!res.ok) {
+                throw new Error(data.message || 'Upload failed');
+            }
+            
+            setMusicState({
+                ...musicState,
+                [type]: {
+                    ...musicState[type],
+                    fileUrl: data.fileUrl,
+                    title: file.name.split('.')[0]
+                }
+            });
+            alert(`${type === 'homeMusic' ? 'Home' : 'Rates'} music uploaded successfully! Don't forget to click Save below.`);
+        } catch (err) {
+            console.error("Music Upload Error:", err);
+            alert('Error uploading music: ' + err.message);
+        }
     };
 
     if (!isLoggedIn) {
@@ -138,6 +220,7 @@ const AdminPage = () => {
                     <TabBtn id="rates" icon={<TrendingUp size={18} />} label="Rates" active={activeTab === 'rates'} onClick={setActiveTab} />
                     <TabBtn id="news" icon={<MessageSquare size={18} />} label="News" active={activeTab === 'news'} onClick={setActiveTab} />
                     <TabBtn id="videos" icon={<Video size={18} />} label="Media" active={activeTab === 'videos'} onClick={setActiveTab} />
+                    <TabBtn id="music" icon={<Music size={18} />} label="Music" active={activeTab === 'music'} onClick={setActiveTab} />
                 </div>
 
                 {/* Content */}
@@ -357,6 +440,144 @@ const AdminPage = () => {
                                     >
                                         <Save size={18} md:size={20} />
                                         Save Video Library
+                                    </button>
+                                </div>
+                            </motion.div>
+                        )
+                    }
+
+                    {
+                        activeTab === 'music' && (
+                            <motion.div key="music" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }}>
+                                <div className="glass p-4 md:p-8 rounded-[30px] md:rounded-[40px] shadow-luxury border-white/40">
+                                    <h3 className="text-lg md:text-xl font-playfair font-black text-magenta-700 uppercase tracking-widest mb-6">Music Manager</h3>
+                                    
+                                    <div className="flex flex-col gap-8">
+                                        {/* Home Page Music */}
+                                        <div className="bg-slate-50 p-6 rounded-3xl border border-slate-100">
+                                            <div className="flex justify-between items-center mb-4">
+                                                <h4 className="text-sm font-black text-magenta-600 uppercase tracking-widest">Home Page Music</h4>
+                                                <div className="flex bg-white/50 p-1 rounded-xl border border-slate-100">
+                                                    <button 
+                                                        onClick={() => setMusicState({...musicState, homeMusic: {...musicState.homeMusic, sourceType: 'youtube'}})}
+                                                        className={`px-3 py-1.5 rounded-lg text-[10px] font-black uppercase tracking-wider transition-all flex items-center gap-2 ${musicState.homeMusic.sourceType === 'youtube' ? 'bg-magenta-600 text-white shadow-md' : 'text-slate-400 hover:text-slate-600'}`}
+                                                    >
+                                                        <Youtube size={12} /> YouTube
+                                                    </button>
+                                                    <button 
+                                                        onClick={() => setMusicState({...musicState, homeMusic: {...musicState.homeMusic, sourceType: 'local'}})}
+                                                        className={`px-3 py-1.5 rounded-lg text-[10px] font-black uppercase tracking-wider transition-all flex items-center gap-2 ${musicState.homeMusic.sourceType === 'local' ? 'bg-magenta-600 text-white shadow-md' : 'text-slate-400 hover:text-slate-600'}`}
+                                                    >
+                                                        <HardDrive size={12} /> Local File
+                                                    </button>
+                                                </div>
+                                            </div>
+                                            
+                                            <div className="flex flex-col gap-4">
+                                                <div className="flex flex-col md:flex-row gap-4 items-center">
+                                                    <div className={`w-12 h-12 rounded-2xl flex items-center justify-center shrink-0 ${
+                                                        (musicState.homeMusic.sourceType === 'youtube' && getYouTubeId(musicState.homeMusic.videoId).length === 11) ||
+                                                        (musicState.homeMusic.sourceType === 'local' && musicState.homeMusic.fileUrl)
+                                                        ? 'bg-green-100 text-green-600' : 'bg-magenta-100 text-magenta-600'
+                                                    }`}>
+                                                        {musicState.homeMusic.sourceType === 'youtube' ? <Youtube size={24} /> : <Music size={24} />}
+                                                    </div>
+                                                    
+                                                    {musicState.homeMusic.sourceType === 'youtube' ? (
+                                                        <input
+                                                            className="flex-1 w-full bg-white border border-slate-200 px-4 py-2.5 rounded-xl font-poppins text-sm outline-none"
+                                                            placeholder="YouTube Link for Home Page"
+                                                            value={musicState.homeMusic.videoId}
+                                                            onChange={(e) => setMusicState({ ...musicState, homeMusic: { ...musicState.homeMusic, videoId: e.target.value } })}
+                                                        />
+                                                    ) : (
+                                                        <div className="flex-1 w-full flex items-center gap-3">
+                                                            <div className="flex-1 bg-white border border-slate-200 px-4 py-2.5 rounded-xl font-poppins text-sm text-slate-500 truncate">
+                                                                {musicState.homeMusic.fileUrl || "No file uploaded"}
+                                                            </div>
+                                                            <label className="shrink-0 cursor-pointer px-4 py-2.5 bg-magenta-50 text-magenta-600 rounded-xl font-poppins font-bold text-xs uppercase tracking-widest hover:bg-magenta-600 hover:text-white transition-all flex items-center gap-2">
+                                                                <Upload size={14} /> Upload
+                                                                <input type="file" accept="audio/*" className="hidden" onChange={(e) => handleMusicFileUpload(e, 'homeMusic')} />
+                                                            </label>
+                                                        </div>
+                                                    )}
+
+                                                    <input
+                                                        className="flex-1 w-full bg-white border border-slate-200 px-4 py-2.5 rounded-xl font-poppins text-sm outline-none"
+                                                        placeholder="Display Title"
+                                                        value={musicState.homeMusic.title}
+                                                        onChange={(e) => setMusicState({ ...musicState, homeMusic: { ...musicState.homeMusic, title: e.target.value } })}
+                                                    />
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        {/* Rates Page Music */}
+                                        <div className="bg-slate-50 p-6 rounded-3xl border border-slate-100">
+                                            <div className="flex justify-between items-center mb-4">
+                                                <h4 className="text-sm font-black text-magenta-600 uppercase tracking-widest">Rates Page Music</h4>
+                                                <div className="flex bg-white/50 p-1 rounded-xl border border-slate-100">
+                                                    <button 
+                                                        onClick={() => setMusicState({...musicState, ratesMusic: {...musicState.ratesMusic, sourceType: 'youtube'}})}
+                                                        className={`px-3 py-1.5 rounded-lg text-[10px] font-black uppercase tracking-wider transition-all flex items-center gap-2 ${musicState.ratesMusic.sourceType === 'youtube' ? 'bg-magenta-600 text-white shadow-md' : 'text-slate-400 hover:text-slate-600'}`}
+                                                    >
+                                                        <Youtube size={12} /> YouTube
+                                                    </button>
+                                                    <button 
+                                                        onClick={() => setMusicState({...musicState, ratesMusic: {...musicState.ratesMusic, sourceType: 'local'}})}
+                                                        className={`px-3 py-1.5 rounded-lg text-[10px] font-black uppercase tracking-wider transition-all flex items-center gap-2 ${musicState.ratesMusic.sourceType === 'local' ? 'bg-magenta-600 text-white shadow-md' : 'text-slate-400 hover:text-slate-600'}`}
+                                                    >
+                                                        <HardDrive size={12} /> Local File
+                                                    </button>
+                                                </div>
+                                            </div>
+                                            
+                                            <div className="flex flex-col gap-4">
+                                                <div className="flex flex-col md:flex-row gap-4 items-center">
+                                                    <div className={`w-12 h-12 rounded-2xl flex items-center justify-center shrink-0 ${
+                                                        (musicState.ratesMusic.sourceType === 'youtube' && getYouTubeId(musicState.ratesMusic.videoId).length === 11) ||
+                                                        (musicState.ratesMusic.sourceType === 'local' && musicState.ratesMusic.fileUrl)
+                                                        ? 'bg-green-100 text-green-600' : 'bg-magenta-100 text-magenta-600'
+                                                    }`}>
+                                                        {musicState.ratesMusic.sourceType === 'youtube' ? <Youtube size={24} /> : <Music size={24} />}
+                                                    </div>
+                                                    
+                                                    {musicState.ratesMusic.sourceType === 'youtube' ? (
+                                                        <input
+                                                            className="flex-1 w-full bg-white border border-slate-200 px-4 py-2.5 rounded-xl font-poppins text-sm outline-none"
+                                                            placeholder="YouTube Link for Rates Page"
+                                                            value={musicState.ratesMusic.videoId}
+                                                            onChange={(e) => setMusicState({ ...musicState, ratesMusic: { ...musicState.ratesMusic, videoId: e.target.value } })}
+                                                        />
+                                                    ) : (
+                                                        <div className="flex-1 w-full flex items-center gap-3">
+                                                            <div className="flex-1 bg-white border border-slate-200 px-4 py-2.5 rounded-xl font-poppins text-sm text-slate-500 truncate">
+                                                                {musicState.ratesMusic.fileUrl || "No file uploaded"}
+                                                            </div>
+                                                            <label className="shrink-0 cursor-pointer px-4 py-2.5 bg-magenta-50 text-magenta-600 rounded-xl font-poppins font-bold text-xs uppercase tracking-widest hover:bg-magenta-600 hover:text-white transition-all flex items-center gap-2">
+                                                                <Upload size={14} /> Upload
+                                                                <input type="file" accept="audio/*" className="hidden" onChange={(e) => handleMusicFileUpload(e, 'ratesMusic')} />
+                                                            </label>
+                                                        </div>
+                                                    )}
+
+                                                    <input
+                                                        className="flex-1 w-full bg-white border border-slate-200 px-4 py-2.5 rounded-xl font-poppins text-sm outline-none"
+                                                        placeholder="Display Title"
+                                                        value={musicState.ratesMusic.title}
+                                                        onChange={(e) => setMusicState({ ...musicState, ratesMusic: { ...musicState.ratesMusic, title: e.target.value } })}
+                                                    />
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <button
+                                        onClick={saveMusic}
+                                        className="mt-10 flex items-center gap-3 px-8 py-4 gradient-luxury text-white rounded-2xl font-poppins font-black uppercase tracking-widest shadow-gold-glow hover:scale-105 transition-all w-full justify-center text-sm"
+                                    >
+                                        <Save size={20} />
+                                        Save Music Settings
                                     </button>
                                 </div>
                             </motion.div>

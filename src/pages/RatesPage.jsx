@@ -42,7 +42,7 @@ const RatesPage = () => {
         <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
-            className="pb-16 md:pb-64 md:min-h-[90vh] px-4 pt-4 max-w-7xl mx-auto mt-2 md:-mt-[540px] md:w-full md:ml-auto md:mr-0 md:pr-10"
+            className="pb-16 md:pb-32 md:min-h-[90vh] px-4 pt-4 max-w-7xl mx-auto mt-2 md:-mt-[540px] md:w-full md:ml-auto md:mr-0 md:pr-10"
         >
             {error && (
                 <div className="max-w-md mx-auto mb-4 bg-red-500/10 border border-red-500/20 text-red-400 p-3 rounded-xl text-center text-xs font-bold uppercase tracking-wider">

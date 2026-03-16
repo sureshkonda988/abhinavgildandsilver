@@ -1,6 +1,6 @@
 import React from 'react';
-import { motion } from 'framer-motion';
-import { Check, X } from 'lucide-react';
+import { motion, AnimatePresence } from 'framer-motion';
+import { Check, X, TrendingUp, TrendingDown, Minus, Volume2, VolumeX, Music } from 'lucide-react';
 import { useRates } from '../context/RateContext';
 import SpotRatesCard from './SpotRatesCard';
 import SpotBar from './SpotBar';
@@ -8,7 +8,7 @@ import SpotBar from './SpotBar';
 import Ticker from './Ticker';
 
 const Hero = () => {
-    const { rates, rawRates, loading, error, getPriceClass } = useRates();
+    const { rates, rawRates, loading, error, getPriceClass, isMusicEnabled, toggleMusic, music } = useRates();
 
     const fmt = (val) => {
         if (typeof val !== 'number') return '-';
@@ -22,12 +22,23 @@ const Hero = () => {
             transition={{ duration: 1 }}
             className="w-full inventory-section min-h-[60vh] relative overflow-hidden pt-6 md:pt-0"
         >
+            {/* Music Toggle - Home Page */}
+            <div className="absolute top-4 right-4 z-50">
+                <button
+                    onClick={toggleMusic}
+                    className={`p-3 rounded-full shadow-lg transition-all border-2 ${isMusicEnabled ? 'bg-magenta-600 border-magenta-400 text-white animate-pulse' : 'bg-white/80 border-slate-200 text-slate-600'} ${!(music.homeMusic?.sourceType === 'local' ? music.homeMusic?.fileUrl : music.homeMusic?.videoId) ? 'opacity-50' : 'hover:scale-110'}`}
+                    title={!(music.homeMusic?.sourceType === 'local' ? music.homeMusic?.fileUrl : music.homeMusic?.videoId) ? "No music set for Home page" : (isMusicEnabled ? "Turn Off Music" : "Turn On Music")}
+                >
+                    <Music size={20} />
+                </button>
+                {!(music.homeMusic?.sourceType === 'local' ? music.homeMusic?.fileUrl : music.homeMusic?.videoId) && <span className="absolute top-full right-0 mt-2 text-[8px] text-slate-500 whitespace-nowrap bg-white/90 px-2 py-1 rounded shadow-sm">No music set</span>}
+            </div>
             {/* Ambient Background Accents */}
             <div className="absolute top-0 left-0 w-full h-full opacity-30 pointer-events-none"
                 style={{ background: 'radial-gradient(circle at 10% 20%, #fff, transparent 80%)' }} />
 
             {/* Rates Section */}
-            <section className="max-w-2xl mx-auto px-4 md:px-6 w-full mt-6 md:mt-2 relative z-10 mb-10 md:mb-16">
+            <section className="max-w-xl mx-auto px-4 md:px-6 w-full mt-6 md:mt-2 relative z-10 mb-10 md:mb-16">
                 <motion.div
                     initial={{ opacity: 0, y: 50 }}
                     animate={{ opacity: 1, y: 0 }}
@@ -98,13 +109,17 @@ const Hero = () => {
                                                         animate={{
                                                             scale: pClass === 'price-up' || pClass === 'price-down' ? 1.04 : 1
                                                         }}
-                                                        style={{ borderColor: bColor, borderWidth: isGold ? '3px' : '2px' }}
-                                                        className="w-full transition-all duration-300 max-w-[110px] md:max-w-[170px] py-3 md:py-2 px-2 md:px-4 bg-transparent rounded-[14px] md:rounded-[18px] flex items-center justify-center shadow-md"
+                                                        style={{ 
+                                                            backgroundColor: bColor, 
+                                                            borderColor: '#000000', 
+                                                            borderWidth: window.innerWidth >= 768 ? '4px' : '3px' 
+                                                        }}
+                                                        className="w-full transition-all duration-300 max-w-[100px] md:max-w-[150px] py-3 md:py-2 px-2 md:px-4 rounded-[14px] md:rounded-[18px] flex items-center justify-center shadow-md"
                                                     >
                                                         <motion.span
                                                             key={`buy-${item.buy}-${pClass}`}
                                                             animate={{ scale: [1, 1.08, 1] }}
-                                                            className={`font-black font-poppins text-center tracking-tighter md:tracking-normal text-slate-900 text-[14px] md:text-[22px] leading-none`}
+                                                            className={`font-black font-poppins text-center tracking-tighter md:tracking-normal text-[14px] md:text-[22px] leading-none ${bColor === '#FFD700' || bColor === '#CFE9E1' || bColor === '#E5E5E5' ? 'text-slate-900' : 'text-white'}`}
                                                         >
                                                             {item.buy !== '-' ? <><span style={{ fontFamily: 'Inter, system-ui, sans-serif' }}>₹</span>{fmt(item.buy)}</> : '—'}
                                                         </motion.span>
@@ -124,13 +139,17 @@ const Hero = () => {
                                                         animate={{
                                                             scale: pClass === 'price-up' || pClass === 'price-down' ? 1.04 : 1
                                                         }}
-                                                        style={{ borderColor: bColor, borderWidth: isGold ? '3px' : '2px' }}
-                                                        className="w-full transition-all duration-300 max-w-[110px] md:max-w-[170px] py-3 md:py-2 px-2 md:px-4 bg-transparent rounded-[14px] md:rounded-[18px] flex items-center justify-center shadow-md"
+                                                        style={{ 
+                                                            backgroundColor: bColor, 
+                                                            borderColor: '#000000', 
+                                                            borderWidth: window.innerWidth >= 768 ? '4px' : '3px' 
+                                                        }}
+                                                        className="w-full transition-all duration-300 max-w-[110px] md:max-w-[170px] py-3 md:py-2 px-2 md:px-4 rounded-[14px] md:rounded-[18px] flex items-center justify-center shadow-md"
                                                     >
                                                         <motion.span
                                                             key={`sell-${item.sell}-${pClass}`}
                                                             animate={{ scale: [1, 1.08, 1] }}
-                                                            className={`font-black font-poppins text-center tracking-tighter md:tracking-normal text-slate-900 text-[14px] md:text-[22px] leading-none`}
+                                                            className={`font-black font-poppins text-center tracking-tighter md:tracking-normal text-[14px] md:text-[22px] leading-none ${bColor === '#FFD700' || bColor === '#CFE9E1' || bColor === '#E5E5E5' ? 'text-slate-900' : 'text-white'}`}
                                                         >
                                                             {item.sell !== '-' ? <><span style={{ fontFamily: 'Inter, system-ui, sans-serif' }}>₹</span>{fmt(item.sell)}</> : '—'}
                                                         </motion.span>

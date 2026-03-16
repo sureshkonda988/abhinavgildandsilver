@@ -68,6 +68,11 @@ export const RateProvider = ({ children }) => {
     const [ticker, setTicker] = useState('Welcome to Abhinav Gold & Silver - Quality Purity Guaranteed');
     const [videos, setVideos] = useState([]);
     const [videosLoaded, setVideosLoaded] = useState(false);
+    const [music, setMusic] = useState({ homeMusic: { videoId: '', title: '' }, ratesMusic: { videoId: '', title: '' } });
+    const [musicLoaded, setMusicLoaded] = useState(false);
+    const [isMusicEnabled, setIsMusicEnabled] = useState(false);
+
+    const toggleMusic = () => setIsMusicEnabled(!isMusicEnabled);
 
     // Use a ref for settings synchronization to avoid infinite loops if needed
     const syncSettingsWithMongoDB = async () => {
@@ -105,6 +110,7 @@ export const RateProvider = ({ children }) => {
     useEffect(() => {
         syncSettingsWithMongoDB();
         syncVideosWithMongoDB();
+        syncMusicWithMongoDB();
     }, []);
 
     const syncVideosWithMongoDB = async () => {
@@ -125,13 +131,50 @@ export const RateProvider = ({ children }) => {
     const updateVideos = async (newList) => {
         setVideos(newList);
         try {
-            await fetch(`${API_BASE}/videos`, {
+            const res = await fetch(`${API_BASE}/videos`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ list: newList })
             });
+            if (!res.ok) throw new Error(`HTTP error! status: ${res.status}`);
+            return true;
         } catch (e) {
             console.error("Failed to save videos:", e);
+            return false;
+        }
+    };
+
+    const syncMusicWithMongoDB = async () => {
+        try {
+            const res = await fetch(`${API_BASE}/music?_=${Date.now()}`);
+            if (res.ok) {
+                const data = await res.json();
+                if (data) {
+                    setMusic({
+                        homeMusic: data.homeMusic || { videoId: '', title: '' },
+                        ratesMusic: data.ratesMusic || { videoId: '', title: '' }
+                    });
+                    setMusicLoaded(true);
+                }
+            }
+        } catch (e) {
+            console.error("Failed to sync music:", e);
+        }
+    };
+
+    const updateMusic = async (newMusic) => {
+        setMusic(newMusic);
+        try {
+            const res = await fetch(`${API_BASE}/music`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(newMusic)
+            });
+            if (!res.ok) throw new Error(`HTTP error! status: ${res.status}`);
+            return true;
+        } catch (e) {
+            console.error("Failed to save music:", e);
+            return false;
         }
     };
 
@@ -156,13 +199,16 @@ export const RateProvider = ({ children }) => {
                 showModified: payload.showModified !== undefined ? payload.showModified : showModified
             };
 
-            await fetch(`${API_BASE}/rates/settings`, {
+            const res = await fetch(`${API_BASE}/rates/settings`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(body)
             });
+            if (!res.ok) throw new Error(`HTTP error! status: ${res.status}`);
+            return true;
         } catch (e) {
             console.error("Failed to sync modifications to MongoDB:", e);
+            return false;
         }
     };
 
@@ -623,7 +669,7 @@ export const RateProvider = ({ children }) => {
     }, [rawRates, adj, showModified]);
 
     return (
-        <RateContext.Provider value={{ rates, rawRates, loading, error, news, adj, showModified, settingsLoaded, ticker, videos, videosLoaded, updateSettings, updateVideos, refreshRates: fetchAllRates, getPriceClass }}>
+        <RateContext.Provider value={{ rates, rawRates, loading, error, news, adj, showModified, settingsLoaded, ticker, videos, videosLoaded, music, musicLoaded, isMusicEnabled, toggleMusic, updateSettings, updateVideos, updateMusic, refreshRates: fetchAllRates, getPriceClass }}>
             {children}
         </RateContext.Provider>
     );

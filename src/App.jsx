@@ -1,6 +1,6 @@
 import React from 'react';
 import { BrowserRouter as Router, Routes, Route, useLocation } from 'react-router-dom';
-import { RateProvider } from './context/RateContext';
+import { RateProvider, useRates } from './context/RateContext';
 import Navigation from './components/Navigation';
 import BottomNav from './components/BottomNav';
 import Footer from './components/Footer';
@@ -16,6 +16,7 @@ import AdminPage from './pages/AdminPage';
 import PrivacyPolicy from './pages/PrivacyPolicy';
 import TermsOfService from './pages/TermsOfService';
 import { Loader2 } from 'lucide-react';
+import MusicPlayer from './components/MusicPlayer';
 
 const Preloader = () => (
   <div className="fixed inset-0 z-[100] flex items-center justify-center bg-[#FFB1E1]">
@@ -60,6 +61,7 @@ const useImagePreloader = (imageList) => {
 };
 
 const AppLayout = () => {
+  const { isMusicEnabled } = useRates();
   const location = useLocation();
   const isHomePage = location.pathname === '/';
   const isAdminPage = location.pathname === '/admin';
@@ -68,8 +70,8 @@ const AppLayout = () => {
   const criticalImages = React.useMemo(() => {
     const images = ['/Untitled design (31).png'];
     if (isHomePage) {
+      images.push('/Untitled design (40).png');
       images.push('/Untitled design (23).jpg');
-      images.push('/des ho he.png');
       images.push('/Untitled design (10).jpg');
       images.push('/Untitled design (25).png');
       images.push('/Untitled design (37).png');
@@ -119,9 +121,9 @@ const AppLayout = () => {
 
       {/* Header and Ticker Grouped to prevent gaps */}
       {!isAdminPage && (
-        <div className="flex flex-col relative w-full overflow-hidden bg-transparent">
+        <div className="flex flex-col relative w-full bg-transparent">
           <Navigation />
-          <section className="relative w-full overflow-hidden bg-transparent">
+          <section className="relative w-full bg-transparent">
             {isHomePage ? (
               <>
                 <motion.img
@@ -136,7 +138,7 @@ const AppLayout = () => {
                   initial={{ opacity: 1 }}
                   animate={{ opacity: 1 }}
                   transition={{ duration: 0.5 }}
-                  src="/des ho he.png"
+                  src="/Untitled design (40).png"
                   alt="Abhinav Gold & Silver Header Desktop"
                   className="w-full h-auto hidden md:block object-cover object-center block"
                 />
@@ -173,11 +175,13 @@ const AppLayout = () => {
 
 
           {/* Global Scrolling Ticker - Snapped to header section - Mobile Only */}
-          <div className={`md:hidden z-10 w-full relative ${location.pathname === '/rates' ? '-mt-2' : ''}`}>
+          <div className={`md:hidden z-10 w-full relative ${location.pathname === '/rates' ? 'mt-4' : 'mt-6'}`}>
             <Ticker />
           </div>
         </div>
       )}
+
+      <MusicPlayer isEnabled={isMusicEnabled} />
 
       <Routes>
         <Route path="/" element={<Hero />} />
@@ -194,7 +198,7 @@ const AppLayout = () => {
 
       {/* Desktop Ticker — Above Footer, Desktop Only */}
       {!isAdminPage && (
-      <div className={`hidden md:block ${location.pathname === '/rates' ? 'md:-mt-48' : isHomePage ? 'md:-mt-36' : ''}`}>
+      <div className={`hidden md:block ${location.pathname === '/rates' ? 'md:-mt-40' : isHomePage ? 'md:-mt-28' : 'mt-10'}`}>
         <Ticker />
       </div>
       )}

@@ -1,13 +1,29 @@
 import React from 'react';
-import { motion } from 'framer-motion';
-import { Phone, Mail, MapPin, Instagram, Facebook, Twitter, ShieldCheck, Clock, Award } from 'lucide-react';
-import { Link } from 'react-router-dom';
+import { MapPin, Phone, Mail, Clock, Instagram, Facebook, Twitter, Chrome, ShieldAlert, Volume2, VolumeX, ShieldCheck, Award, Music } from 'lucide-react';
+import { Link, useLocation } from 'react-router-dom';
+import { useRates } from '../context/RateContext';
 
 const Footer = () => {
+    const { isMusicEnabled, toggleMusic, music } = useRates();
+    const location = useLocation();
+    const isRatesPage = location.pathname === '/rates';
     const currentYear = new Date().getFullYear();
 
     return (
-        <footer className="hidden md:block bg-slate-950 text-slate-300 pt-16 pb-8 border-t border-white/5 relative overflow-hidden">
+        <footer className="bg-slate-900 pt-16 pb-8 px-6 text-slate-400 font-poppins relative overflow-hidden">
+            {/* Music Toggle - Rates Page (Footer) */}
+            {isRatesPage && (
+                <div className="absolute top-0 right-6 md:right-12 z-50">
+                    <button
+                        onClick={toggleMusic}
+                        className={`p-4 rounded-full shadow-2xl transition-all border-2 transform -translate-y-1/2 ${isMusicEnabled ? 'bg-gold-500 border-gold-400 text-white animate-pulse' : 'bg-slate-800 border-slate-700 text-slate-400'} ${!(music.ratesMusic?.sourceType === 'local' ? music.ratesMusic?.fileUrl : music.ratesMusic?.videoId) ? 'opacity-50 cursor-not-allowed' : 'hover:scale-110'}`}
+                        title={!(music.ratesMusic?.sourceType === 'local' ? music.ratesMusic?.fileUrl : music.ratesMusic?.videoId) ? "No music set for Rates page" : (isMusicEnabled ? "Turn Off Music" : "Turn On Music")}
+                    >
+                        <Music size={24} />
+                    </button>
+                    {!(music.ratesMusic?.sourceType === 'local' ? music.ratesMusic?.fileUrl : music.ratesMusic?.videoId) && <span className="absolute top-full right-0 mt-2 text-[8px] text-slate-500 whitespace-nowrap bg-slate-800 px-2 py-1 rounded">No music set</span>}
+                </div>
+            )}
             {/* Background Decorative Elements */}
             <div className="absolute top-0 left-1/4 w-96 h-96 bg-magenta-900/10 blur-[120px] rounded-full -translate-y-1/2" />
             <div className="absolute bottom-0 right-1/4 w-96 h-96 bg-gold-900/10 blur-[120px] rounded-full translate-y-1/2" />

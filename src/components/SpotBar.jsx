@@ -44,8 +44,8 @@ const SpotBar = () => {
                                 animate={{
                                     scale: pClass === 'price-up' || pClass === 'price-down' ? 1.04 : 1
                                 }}
-                                style={{ backgroundColor: bColor, borderColor: bColor }}
-                                className="border-[2px] md:border-[2.5px] rounded-[8px] md:rounded-[20px] px-2 md:px-6 py-1.5 md:py-3 flex items-center w-full justify-center group shadow-premium transition-colors duration-200"
+                                style={{ backgroundColor: bColor, borderColor: '#000000' }}
+                                className="border-[3px] md:border-[4px] rounded-[8px] md:rounded-[20px] px-2 md:px-6 py-1.5 md:py-3 flex items-center w-full justify-center group shadow-premium transition-colors duration-200"
                             >
                                 <span className={`text-xs md:text-2xl font-normal mr-1 md:mr-2 ${bColor === '#FFD700' || bColor === '#E5E5E5' ? 'text-slate-900/40' : 'text-white/40'}`}>
                                     {item.symbol === '₹' ? <span style={{ fontFamily: 'Inter, system-ui, sans-serif' }}>₹</span> : item.symbol}
