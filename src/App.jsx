@@ -71,7 +71,7 @@ const AppLayout = () => {
     const images = ['/Untitled design (31).png'];
     if (isHomePage) {
       images.push('/Untitled design (41).png');
-      images.push('/Untitled design (23).jpg');
+      images.push('/Untitled design (42).png');
       images.push('/Abhinav web.psd.jpg');
       images.push('/Untitled design (25).png');
       images.push('/ChatGPT Image Mar 17, 2026, 10_58_54 AM.png');
@@ -130,7 +130,7 @@ const AppLayout = () => {
                   initial={{ opacity: 1 }}
                   animate={{ opacity: 1 }}
                   transition={{ duration: 0.5 }}
-                  src="/Untitled design (23).jpg"
+                  src="/Untitled design (42).png"
                   alt="Abhinav Gold & Silver Header Mobile"
                   className="w-full h-auto md:hidden object-contain object-center block"
                 />
