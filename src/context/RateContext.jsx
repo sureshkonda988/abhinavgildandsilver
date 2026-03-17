@@ -403,8 +403,64 @@ export const RateProvider = ({ children }) => {
             }
 
             if (!success) {
-                // PRODUCTION PIPELINE: Fetch from our own MongoDB persistence layer
-                // This ensures all devices see the same rate at the same time
+                // PRODUCTION PIPELINE (Phase 1): Attempt direct raw API fetch via proxies first
+                // This ensures truly raw data for the "Live" table
+                const rawUrl = `${POTENTIAL_ENDPOINTS[0]}${POTENTIAL_IDS[0]}`;
+                for (const proxyFn of CORS_PROXIES.slice(0, 3)) {
+                    try {
+                        const res = await fetchWithTimeout(proxyFn(rawUrl), 4000);
+                        if (res.ok) {
+                            const text = await res.text();
+                            if (text && text.length > 50) {
+                                const data = parseRateText(text);
+                                if (currentFetchId > lastProcessedTimestamp.current) {
+                                    lastProcessedTimestamp.current = currentFetchId;
+                                    const nextPriceMap = {};
+                                    const recordFieldChange = (section, id, key, oldVal, newVal) => {
+                                        const toNum = (v) => (typeof v === 'number' ? v : Number.isFinite(parseFloat(v)) ? parseFloat(v) : null);
+                                        const o = toNum(oldVal); const n = toNum(newVal);
+                                        if (o === null || n === null) { nextPriceMap[`${section}-${id}-${key}`] = 'neutral'; return; }
+                                        if (n > o) nextPriceMap[`${section}-${id}-${key}`] = 'up';
+                                        else if (n < o) nextPriceMap[`${section}-${id}-${key}`] = 'down';
+                                        else nextPriceMap[`${section}-${id}-${key}`] = 'neutral';
+                                    };
+                                    const calculateTrend = (section, newList, oldList) => {
+                                        const now = Date.now();
+                                        return newList.map(newItem => {
+                                            const oldItem = oldList.find(o => o.id === newItem.id);
+                                            if (!oldItem) return { ...newItem, trend: 'stable', trendExpiry: 0 };
+                                            let change = 0;
+                                            const keys = newItem.buy !== undefined ? ['buy', 'sell'] : ['bid', 'ask'];
+                                            keys.forEach(key => {
+                                                recordFieldChange(section, newItem.id || newItem.name, key, oldItem[key], newItem[key]);
+                                                const nv = parseFloat(newItem[key]); const ov = parseFloat(oldItem[key]);
+                                                if (change === 0 && !isNaN(nv) && !isNaN(ov) && nv !== ov) change = nv > ov ? 1 : -1;
+                                            });
+                                            let trend = oldItem.trend || 'stable'; let trendExpiry = oldItem.trendExpiry || 0;
+                                            if (change !== 0) { trend = change === 1 ? 'up' : 'down'; trendExpiry = now + 5000; }
+                                            else if (now > trendExpiry) { trend = 'stable'; trendExpiry = 0; }
+                                            return { ...newItem, trend, trendExpiry };
+                                        });
+                                    };
+                                    setRawRates(prev => ({
+                                        spot: calculateTrend('spot', data.spot, prev.spot),
+                                        rtgs: calculateTrend('rtgs', data.rtgs, prev.rtgs)
+                                    }));
+                                    setPriceChangeMap(nextPriceMap);
+                                    setError(null); setLoading(false);
+                                    success = true;
+                                    failureCount.current = 0;
+                                    break; // Success with proxy
+                                }
+                            }
+                        }
+                    } catch (e) { }
+                }
+            }
+
+            if (!success) {
+                // PRODUCTION PIPELINE (Phase 2): Fall back to MongoDB persistence layer
+                // This ensures availability even if proxies are blocked
                 try {
                     const res = await fetchWithTimeout(`${API_BASE}/rates/live?_=${iterationTimestamp}`, 3000);
                     if (res.ok) {
@@ -441,13 +497,10 @@ export const RateProvider = ({ children }) => {
                                         return { ...newItem, trend, trendExpiry };
                                     });
                                 };
-                                setRawRates(prev => {
-                                    const newFinal = {
-                                        spot: calculateTrend('spot', data.spot, prev.spot),
-                                        rtgs: calculateTrend('rtgs', data.rtgs, prev.rtgs)
-                                    };
-                                    return newFinal;
-                                });
+                                setRawRates(prev => ({
+                                    spot: calculateTrend('spot', data.spot, prev.spot),
+                                    rtgs: calculateTrend('rtgs', data.rtgs, prev.rtgs)
+                                }));
                                 setPriceChangeMap(nextPriceMap);
                                 setError(null); setLoading(false);
                                 success = true;

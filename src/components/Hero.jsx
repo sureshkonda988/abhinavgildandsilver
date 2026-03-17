@@ -113,7 +113,7 @@ const Hero = () => {
                 <Ticker />
             </div>
 
-            {/* Table 2: Market Rates (BULL/SELL/HIGH/LOW) */}
+            {/* Table 2: Market Rates (BUY/SELL/HIGH/LOW) */}
             <section className="max-w-4xl mx-auto px-2 md:px-6 w-full relative z-10 mb-10 md:mb-16">
                 <Heading text="GOLD AND SILVER RETAIL RATES" />
                 <motion.div
@@ -130,7 +130,7 @@ const Hero = () => {
                                     <span className="inline-flex items-center justify-center px-1 md:px-4 py-1.5 rounded-xl bg-transparent border-2 border-slate-900/20 text-slate-900 font-playfair font-black text-[8px] md:text-sm tracking-[0.05em] md:tracking-[0.1em] shadow-sm backdrop-blur-sm">PRODUCTS</span>
                                 </div>
                                 <div className="flex justify-center">
-                                    <span className="inline-flex items-center justify-center px-1 md:px-4 py-1.5 rounded-xl bg-transparent border-2 border-slate-900/20 text-slate-900 font-playfair font-black text-[8px] md:text-sm tracking-[0.05em] md:tracking-[0.1em] shadow-sm backdrop-blur-sm">BULL</span>
+                                    <span className="inline-flex items-center justify-center px-1 md:px-4 py-1.5 rounded-xl bg-transparent border-2 border-slate-900/20 text-slate-900 font-playfair font-black text-[8px] md:text-sm tracking-[0.05em] md:tracking-[0.1em] shadow-sm backdrop-blur-sm">BUY</span>
                                 </div>
                                 <div className="flex justify-center">
                                     <span className="inline-flex items-center justify-center px-1 md:px-4 py-1.5 rounded-xl bg-transparent border-2 border-slate-900/20 text-slate-900 font-playfair font-black text-[8px] md:text-sm tracking-[0.05em] md:tracking-[0.1em] shadow-sm backdrop-blur-sm">SELL</span>
