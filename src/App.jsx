@@ -70,9 +70,9 @@ const AppLayout = () => {
   const criticalImages = React.useMemo(() => {
     const images = ['/Untitled design (31).png'];
     if (isHomePage) {
-      images.push('/Untitled design (40).png');
+      images.push('/Untitled design (41).png');
       images.push('/Untitled design (23).jpg');
-      images.push('/Untitled design (10).jpg');
+      images.push('/Abhinav web.psd.jpg');
       images.push('/Untitled design (25).png');
       images.push('/ChatGPT Image Mar 17, 2026, 10_58_54 AM.png');
       images.push('/Untitled design (38).png');
@@ -104,7 +104,7 @@ const AppLayout = () => {
         backgroundColor: isHomePage ? '#FFFFFF' : '#fafafb',
         ...(!isAdminPage ? {
           backgroundImage: isHomePage
-            ? 'url("/Untitled design (10).jpg")'
+            ? 'url("/Abhinav web.psd.jpg")'
             : location.pathname === '/alerts'
               ? 'url("/WhatsApp Image 2026-03-12 at 2.19.24 PM.jpeg")'
               : location.pathname === '/videos'
@@ -138,7 +138,7 @@ const AppLayout = () => {
                   initial={{ opacity: 1 }}
                   animate={{ opacity: 1 }}
                   transition={{ duration: 0.5 }}
-                  src="/Untitled design (40).png"
+                  src="/Untitled design (41).png"
                   alt="Abhinav Gold & Silver Header Desktop"
                   className="w-full h-auto hidden md:block object-cover object-center block"
                 />
