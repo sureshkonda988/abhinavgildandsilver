@@ -1,5 +1,5 @@
 import React from 'react';
-import { MapPin, Phone, Mail, Clock, Instagram, Facebook, Twitter, Chrome, ShieldAlert, Volume2, VolumeX, ShieldCheck, Award, Music } from 'lucide-react';
+import { MapPin, Phone, Mail, Clock, Instagram, Facebook, Youtube, Chrome, ShieldAlert, Volume2, VolumeX, ShieldCheck, Award, Music } from 'lucide-react';
 import { Link, useLocation } from 'react-router-dom';
 import { useRates } from '../context/RateContext';
 
@@ -22,7 +22,7 @@ const Footer = () => {
                         <h4 className="text-white font-playfair font-bold text-lg mb-2 uppercase tracking-widest text-center lg:text-left">Bank QR</h4>
                         <div className="flex flex-col items-center lg:items-start gap-4">
                             <a 
-                                href="https://wa.me/919848012345" 
+                                href="https://wa.me/919441055916" 
                                 target="_blank" 
                                 rel="noopener noreferrer"
                                 className="bg-white p-2.5 rounded-[22px] shadow-luxury border-2 border-gold-400/30 group relative overflow-hidden w-max block hover:border-gold-400 transition-all"
@@ -33,7 +33,7 @@ const Footer = () => {
                             <div className="flex flex-col lg:items-start items-center gap-2">
                                 <span className="text-white font-poppins font-black text-[9px] uppercase tracking-[0.2em]">Bank Details</span>
                                 <a 
-                                    href="https://wa.me/919848012345" 
+                                    href="https://wa.me/919441055916" 
                                     target="_blank" 
                                     rel="noopener noreferrer"
                                     className="text-[8px] bg-gold-400/10 text-gold-400 px-3 py-1 rounded-full border border-gold-400/20 hover:bg-gold-400 hover:text-slate-900 transition-all font-bold uppercase tracking-widest"
@@ -57,9 +57,9 @@ const Footer = () => {
                             Purity you can trust, quality you can wear. Abhinav Gold & Silver delivers the finest bullion and jewelry with a legacy of excellence and transparency.
                         </p>
                         <div className="flex gap-4">
-                            <SocialIcon icon={<Instagram size={18} />} href="#" />
+                            <SocialIcon icon={<Instagram size={18} />} href="https://www.instagram.com/abhinavjewellery/" />
                             <SocialIcon icon={<Facebook size={18} />} href="#" />
-                            <SocialIcon icon={<Twitter size={18} />} href="#" />
+                            <SocialIcon icon={<Youtube size={18} />} href="https://www.youtube.com/@abhinavjewellery" />
                         </div>
                     </div>
 
@@ -79,9 +79,9 @@ const Footer = () => {
                     <div>
                         <h4 className="text-white font-playfair font-bold text-lg mb-6 uppercase tracking-widest">Contact Owner</h4>
                         <div className="flex flex-col gap-5">
-                            <ContactItem icon={<Phone size={18} />} title="WhatsApp / Call" value="+91 98480 12345" href="https://wa.me/919848012345" />
+                            <ContactItem icon={<Phone size={18} />} title="WhatsApp / Call" value="+91 94410 55916" href="https://wa.me/919441055916" />
                             <ContactItem icon={<Mail size={18} />} title="Email Support" value="info@abhinavjewellers.com" href="mailto:info@abhinavjewellers.com" />
-                            <ContactItem icon={<MapPin size={18} />} title="Main Branch" value="Jeweler Street, Hyderabad, India" />
+                            <ContactItem icon={<MapPin size={18} />} title="Main Branch" value="D/o.16-8-15/a, AkkalabasavhaiStreet, Main Road, opp. gudivada Hanumantharao Shop, Tenali, 522201" />
                         </div>
                     </div>
 
@@ -91,7 +91,7 @@ const Footer = () => {
                         <h4 className="text-white font-playfair font-bold text-lg mb-2 uppercase tracking-widest text-center lg:text-right">Location QR</h4>
                         <div className="flex flex-col items-center lg:items-end gap-4">
                             <a 
-                                href="https://maps.google.com/?q=Jeweler+Street,Hyderabad,India" 
+                                href="https://www.google.com/maps?rlz=1C5MACD_enIN1163IN1164&gs_lcrp=EgZjaHJvbWUqDQgBEC4YrwEYxwEYgAQyBwgAEAAYgAQyDQgBEC4YrwEYxwEYgAQyBggCEEUYOTINCAMQLhivARjHARiABDIHCAQQABiABDIGCAUQRRg8MgYIBhBFGDwyBggHEEUYPNIBCDY0MzFqMGo3qAIAsAIA&um=1&ie=UTF-8&fb=1&gl=in&sa=X&geocode=KU2BXT4JBko6MVOetju5q7TR&daddr=D/o.16-8-15/a,+AkkalabasavhaiStreet,+Main+Road,+opp.+gudivada+Hanumantharao+Shop,+Tenali,+522201" 
                                 target="_blank" 
                                 rel="noopener noreferrer"
                                 className="bg-white p-2.5 rounded-[22px] shadow-luxury border-2 border-gold-400/30 group relative overflow-hidden w-max block hover:border-gold-400 transition-all"
@@ -102,7 +102,7 @@ const Footer = () => {
                             <div className="flex flex-col lg:items-end items-center gap-2">
                                 <span className="text-white font-poppins font-black text-[9px] uppercase tracking-[0.2em]">📍 Location</span>
                                 <a 
-                                    href="https://maps.google.com/?q=Jeweler+Street,Hyderabad,India" 
+                                    href="https://www.google.com/maps?rlz=1C5MACD_enIN1163IN1164&gs_lcrp=EgZjaHJvbWUqDQgBEC4YrwEYxwEYgAQyBwgAEAAYgAQyDQgBEC4YrwEYxwEYgAQyBggCEEUYOTINCAMQLhivARjHARiABDIHCAQQABiABDIGCAUQRRg8MgYIBhBFGDwyBggHEEUYPNIBCDY0MzFqMGo3qAIAsAIA&um=1&ie=UTF-8&fb=1&gl=in&sa=X&geocode=KU2BXT4JBko6MVOetju5q7TR&daddr=D/o.16-8-15/a,+AkkalabasavhaiStreet,+Main+Road,+opp.+gudivada+Hanumantharao+Shop,+Tenali,+522201" 
                                     target="_blank" 
                                     rel="noopener noreferrer"
                                     className="text-[8px] bg-gold-400/10 text-gold-400 px-3 py-1 rounded-full border border-gold-400/20 hover:bg-gold-400 hover:text-slate-900 transition-all font-bold uppercase tracking-widest"

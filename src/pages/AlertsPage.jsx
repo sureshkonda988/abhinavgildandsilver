@@ -42,7 +42,7 @@ const AlertsPage = () => {
                 <div className="p-3 bg-white/5 rounded-2xl shadow-gold-glow border border-white/20">
                     <Bell className="text-gold-400" size={24} />
                 </div>
-                <h1 className="text-3xl md:text-5xl font-playfair font-black text-white uppercase tracking-tighter leading-none drop-shadow-luxury">Market Alerts</h1>
+                <h1 className="text-3xl md:text-5xl font-playfair font-black text-black uppercase tracking-tighter leading-none drop-shadow-luxury">Market Alerts</h1>
             </div>
 
             <div className="flex flex-col gap-6">
@@ -77,7 +77,7 @@ const AlertsPage = () => {
 
             <div className="mt-16 bg-white/5 p-10 rounded-3xl border border-white/20 text-center backdrop-blur-sm">
                 <Info className="mx-auto text-gold-400 mb-4" size={40} />
-                <p className="text-white/60 font-poppins text-sm">Stay tuned for real-time market updates and exclusive offers from Abhinav Gold & Silver.</p>
+                <p className="text-black/80 font-poppins font-bold text-sm">Stay tuned for real-time market updates and exclusive offers from Abhinav Gold & Silver.</p>
             </div>
         </motion.div>
     );

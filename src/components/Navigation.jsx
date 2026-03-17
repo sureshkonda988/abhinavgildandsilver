@@ -81,7 +81,7 @@ const Navigation = () => {
                             )}
                             <div className="flex items-center gap-3">
                                 <a
-                                    href="https://wa.me/919848012345"
+                                    href="https://wa.me/919441055916"
                                     target="_blank"
                                     rel="noopener noreferrer"
                                     className="w-9 h-9 bg-[#1eb858] text-white rounded-xl hover:bg-green-500 transition-all flex items-center justify-center shadow-lg border-0"
