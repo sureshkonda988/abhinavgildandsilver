@@ -125,6 +125,9 @@ const Footer = () => {
                         <div className="flex gap-4">
                             <Link to="/privacy" className="hover:text-gold-400 transition-colors">Privacy Policy</Link>
                             <Link to="/terms" className="hover:text-gold-400 transition-colors">Terms of Service</Link>
+                            <Link to="/admin" className="hover:opacity-80 transition-opacity">
+                                <img src="/Untitled design (31).png" alt="Admin Login" className="w-10 h-10 object-contain grayscale hover:grayscale-0 transition-all" />
+                            </Link>
                         </div>
                         <div className="h-4 w-px bg-white/10 hidden md:block" />
                         <a href="https://stackvil.com" target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 group hover:opacity-80 transition-opacity">

@@ -27,7 +27,7 @@ const Navigation = () => {
             <div className="absolute lg:relative top-0 w-full z-50 p-0">
                 <div className="max-w-full mx-auto px-0 py-0">
                     {/* Desktop View (≥1024px) */}
-                    <nav className="hidden lg:flex items-center justify-between bg-[#0b0e14] border-b border-white/5 px-6 py-1 shadow-2xl">
+                    <nav className="hidden lg:flex items-center justify-between bg-[#0b0e14] border-b border-white/5 px-6 py-0.5 shadow-2xl">
                         {/* Logo */}
                         <Link to="/" className="flex items-center gap-3 group">
                             <img 
@@ -36,8 +36,8 @@ const Navigation = () => {
                                 className="w-10 h-10 object-contain" 
                             />
                             <div className="flex flex-col">
-                                <span className="text-[#e91e63] font-playfair font-black text-xl tracking-tight leading-none uppercase">ABHINAV</span>
-                                <span className="text-[#e91e63] font-poppins font-bold text-[9px] tracking-[0.1em] leading-tight">GOLD & SILVER</span>
+                                <span className="text-[#f4cb4c] font-playfair font-black text-xl tracking-tight leading-none uppercase">ABHINAV</span>
+                                <span className="text-[#f4cb4c] font-poppins font-bold text-[9px] tracking-[0.1em] leading-tight">GOLD & SILVER</span>
                             </div>
                         </Link>
 

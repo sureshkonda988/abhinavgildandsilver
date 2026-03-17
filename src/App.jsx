@@ -74,7 +74,7 @@ const AppLayout = () => {
       images.push('/Untitled design (23).jpg');
       images.push('/Untitled design (10).jpg');
       images.push('/Untitled design (25).png');
-      images.push('/Untitled design (37).png');
+      images.push('/ChatGPT Image Mar 17, 2026, 10_58_54 AM.png');
       images.push('/Untitled design (38).png');
     } else if (location.pathname === '/rates') {
       images.push('/Untitled design (30).png');
@@ -175,9 +175,11 @@ const AppLayout = () => {
 
 
           {/* Global Scrolling Ticker - Snapped to header section - Mobile Only */}
-          <div className={`md:hidden z-10 w-full relative ${location.pathname === '/rates' ? 'mt-0' : 'mt-6'}`}>
-            <Ticker />
-          </div>
+          {!isHomePage && (
+            <div className={`md:hidden z-10 w-full relative ${location.pathname === '/rates' ? 'mt-0' : 'mt-6'}`}>
+              <Ticker />
+            </div>
+          )}
         </div>
       )}
 
@@ -197,7 +199,7 @@ const AppLayout = () => {
       {!isAdminPage && <BottomNav />}
 
       {/* Desktop Ticker — Above Footer, Desktop Only */}
-      {!isAdminPage && (
+      {!isAdminPage && !isHomePage && (
       <div className={`hidden md:block ${location.pathname === '/rates' ? 'md:-mt-10' : isHomePage ? 'md:-mt-10' : 'mt-10'}`}>
         <Ticker />
       </div>

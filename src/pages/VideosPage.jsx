@@ -104,16 +104,6 @@ const VideosPage = () => {
             animate={{ opacity: 1 }}
             className="w-full relative py-12 px-6 flex flex-col items-center select-none"
         >
-            {/* Admin/Manage Link */}
-            <div className="absolute top-8 right-8 z-50">
-                <Link
-                    to="/admin"
-                    className="px-6 py-3 bg-white/5 hover:bg-gold-400 hover:text-magenta-800 text-white rounded-full shadow-luxury border border-white/20 transition-all flex items-center gap-3 font-poppins font-black text-xs uppercase tracking-widest backdrop-blur-md"
-                >
-                    <Settings size={20} />
-                    LOGIN
-                </Link>
-            </div>
 
 
             {/* Carousel Container */}
