@@ -52,16 +52,16 @@ const RatesPage = () => {
             )}
 
             <div className="flex flex-col gap-3">
-                <div className="flex flex-col md:flex-col-reverse gap-6">
-                    <h1 className="text-xl font-poppins font-black text-white/80 mt-2 md:mt-10 mb-1 text-center md:text-right md:-translate-x-32 uppercase tracking-tighter drop-shadow-luxury px-2 md:order-2">
+                <div className="relative">
+                    <h1 className="text-xl font-poppins font-black text-white/80 mt-2 md:mt-1 mb-1 text-center md:text-right md:-translate-x-32 uppercase tracking-tighter drop-shadow-luxury px-2 md:absolute md:-top-20 md:right-0">
                         Live Retail Rates with GST
                     </h1>
                     
                     {/* Separate Tables Grid */}
-                    <div className="flex flex-col gap-4 md:order-1">
-                        
+                    <div className="flex flex-col gap-4">
+
                         {/* Gold Rates Table */}
-                        <div className="flex flex-col w-[95%] min-w-[210px] md:max-w-[480px] max-w-[450px] mx-auto md:mx-0 md:self-end md:-mt-8">
+                        <div className="flex flex-col w-[95%] min-w-[210px] md:max-w-[480px] max-w-[450px] mx-auto md:mx-0 md:self-end md:-mt-12">
                             <div className="gradient-luxury px-3 py-2 md:px-4 md:py-1.5 rounded-t-xl shadow-lg flex justify-between items-center">
                                 <h2 className="text-white font-poppins font-bold text-[12px] md:text-[14px] uppercase tracking-widest">Gold Rates</h2>
                                 <span className="text-white/40 text-[9px] md:text-[10px] font-black uppercase tracking-widest bg-white/5 px-2 py-1 rounded-full">GST INCL</span>
@@ -100,7 +100,7 @@ const RatesPage = () => {
                         </div>
 
                         {/* Silver Rates Table */}
-                        <div className="flex flex-col w-[95%] min-w-[210px] md:max-w-[270px] max-w-[450px] mx-auto md:mx-0 md:self-start md:translate-x-80">
+                        <div className="flex flex-col w-[95%] min-w-[210px] md:max-w-[270px] max-w-[450px] mx-auto md:mx-0 md:self-start md:translate-x-80 md:-mt-48">
                             <div className="gradient-luxury px-3 py-2 md:px-2.5 md:py-2 rounded-t-xl shadow-lg flex justify-between items-center">
                                 <h2 className="text-white font-poppins font-bold text-[12px] md:text-[11px] uppercase tracking-widest">Silver Rates</h2>
                                 <span className="text-white/40 text-[9px] md:text-[7px] font-black uppercase tracking-widest bg-white/5 px-1.5 py-0.5 rounded-full">GST INCL</span>
@@ -158,9 +158,8 @@ const RatesPage = () => {
                 <div className="flex md:hidden justify-center pb-4 mt-4">
                     <button
                         onClick={toggleMusic}
-                        className={`flex items-center gap-2 px-5 py-2.5 rounded-full shadow-lg transition-all border-2 font-poppins font-bold text-xs uppercase tracking-widest ${
-                            isMusicEnabled ? 'bg-gold-500 border-gold-400 text-white animate-pulse' : 'bg-white/20 border-white/30 text-white'
-                        } hover:scale-105`}
+                        className={`flex items-center gap-2 px-5 py-2.5 rounded-full shadow-lg transition-all border-2 font-poppins font-bold text-xs uppercase tracking-widest ${isMusicEnabled ? 'bg-gold-500 border-gold-400 text-white animate-pulse' : 'bg-white/20 border-white/30 text-white'
+                            } hover:scale-105`}
                         title={isMusicEnabled ? 'Turn Off Music' : 'Turn On Music'}
                     >
                         <Music size={16} />
