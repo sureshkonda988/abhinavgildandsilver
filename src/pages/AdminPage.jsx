@@ -172,9 +172,9 @@ const AdminPage = () => {
             className="min-h-screen pb-32 text-slate-800 bg-fixed bg-center bg-cover"
             style={{ backgroundImage: "url('/Untitled design (14).webp')" }}
         >
-            <div className="bg-white/90 backdrop-blur-md border-b border-white/20 px-6 py-3 flex justify-between items-center sticky top-0 z-30 shadow-sm">
+            <div className="bg-black/90 backdrop-blur-md border-b border-white/20 px-6 py-3 flex justify-between items-center sticky top-0 z-30 shadow-md">
                 <div className="flex items-center gap-3">
-                    <img src="/logofd.webp" alt="Abhinav Logo" className="w-10 h-10 object-contain" />
+                    <img src="/logofd.webp" alt="Abhinav Logo" className="w-10 h-10 object-contain drop-shadow-luxury" />
                     <div className="flex flex-col">
                         <span className="font-playfair font-black text-[#f4cb4c] uppercase tracking-widest text-sm md:text-lg leading-none">ABHINAV</span>
                         <span className="text-[8px] text-[#f4cb4c]/80 font-poppins font-bold tracking-[0.2em] uppercase">Admin Dashboard</span>
@@ -183,7 +183,7 @@ const AdminPage = () => {
                 <button onClick={() => {
                     setIsLoggedIn(false);
                     navigate('/');
-                }} className="flex items-center gap-2 text-slate-500 hover:text-red-500 font-poppins font-bold text-sm transition-colors bg-white/50 border border-white/20 px-4 py-2 rounded-full">
+                }} className="flex items-center gap-2 text-[#f4cb4c] hover:text-white font-poppins font-bold text-sm transition-colors bg-white/5 hover:bg-white/10 border border-[#f4cb4c]/30 hover:border-[#f4cb4c]/60 px-4 py-2 rounded-full shadow-sm">
                     <LogOut size={16} />
                     Logout
                 </button>
