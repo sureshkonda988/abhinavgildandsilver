@@ -480,13 +480,15 @@ const TabBtn = ({ id, icon, label, active, onClick }) => (
 const AdjustmentCard = ({ label, item, liveRates = [], targetField = 'sell', onChange }) => {
     const initialVal = (item?.value !== undefined && item?.value !== null) ? item.value.toString() : '0';
     const [localVal, setLocalVal] = useState(initialVal);
+    const [isFocused, setIsFocused] = useState(false);
+    const debounceTimer = React.useRef(null);
 
     useEffect(() => {
-        // Sync local value with prop only if it's not currently being edited as a minus sign
-        if (item?.value !== undefined && localVal !== '-' && parseFloat(localVal) !== item.value) {
+        // Sync local value with prop only if it's not currently being edited
+        if (!isFocused && item?.value !== undefined && localVal !== '-' && parseFloat(localVal) !== item.value) {
             setLocalVal(item.value.toString());
         }
-    }, [item?.value]);
+    }, [item?.value, isFocused]);
 
     const handleTextChange = (v) => {
         // Allow only numbers and a single leading minus
@@ -497,7 +499,10 @@ const AdjustmentCard = ({ label, item, liveRates = [], targetField = 'sell', onC
 
         const num = parseFloat(v);
         if (!isNaN(num)) {
-            onChange({ ...item, value: num });
+            if (debounceTimer.current) clearTimeout(debounceTimer.current);
+            debounceTimer.current = setTimeout(() => {
+                onChange({ ...item, value: num });
+            }, 500);
         }
     };
 
@@ -556,6 +561,8 @@ const AdjustmentCard = ({ label, item, liveRates = [], targetField = 'sell', onC
                     inputMode="numeric"
                     className="flex-1 bg-white/10 border border-white/10 text-center py-1.5 md:py-2.5 rounded-lg md:rounded-xl font-poppins font-bold text-[#f4cb4c] text-sm md:text-lg min-w-0 outline-none focus:ring-1 focus:ring-[#f4cb4c]/30"
                     value={localVal}
+                    onFocus={() => setIsFocused(true)}
+                    onBlur={() => setIsFocused(false)}
                     onChange={(e) => handleTextChange(e.target.value)}
                     onKeyDown={(e) => {
                         if (e.key === 'Enter') {
