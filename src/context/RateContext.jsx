@@ -66,7 +66,13 @@ export const RateProvider = ({ children }) => {
         }
     });
 
-    const [adj, setAdj] = useState(getInitialAdj());
+    const [adj, setAdjState] = useState(getInitialAdj());
+    const adjRef = React.useRef(getInitialAdj());
+    const setAdj = (newAdj) => {
+        adjRef.current = newAdj;
+        setAdjState(newAdj);
+    };
+
     const [showModified, setShowModified] = useState(false);
     const [settingsLoaded, setSettingsLoaded] = useState(false);
     const [priceChangeMap, setPriceChangeMap] = useState({});
@@ -154,23 +160,31 @@ export const RateProvider = ({ children }) => {
 
 
     const updateSettings = async (payload) => {
-        // 1. Update local React state immediately for snappy UI
-        if (payload.adj !== undefined) {
-            setAdj(payload.adj);
+        // Evaluate the new adj correctly against the absolute latest ref state
+        // to prevent stale closures and race conditions when typing and clicking fast.
+        let newAdj = adjRef.current;
+        
+        if (payload.adjFn) {
+            newAdj = payload.adjFn(adjRef.current);
+            setAdj(newAdj);
+        } else if (payload.adj !== undefined) {
+            newAdj = payload.adj;
+            setAdj(newAdj);
         }
+
         if (payload.showModified !== undefined) {
             setShowModified(payload.showModified);
         }
         if (payload.ticker !== undefined) setTicker(payload.ticker);
 
-        // 2. Prepare the full payload for MongoDB sync
+        // 2. Prepare the full payload for MongoDB sync using the newly evaluated adj
         try {
             const body = {
-                gold: payload.adj?.gold || adj.gold,
-                silver: payload.adj?.silver || adj.silver,
-                baseModifications: payload.adj?.baseModifications || adj.baseModifications,
-                stockOverrides: payload.adj?.stockOverrides || adj.stockOverrides,
-                ratesPage: payload.adj?.ratesPage || adj.ratesPage,
+                gold: newAdj.gold,
+                silver: newAdj.silver,
+                baseModifications: newAdj.baseModifications,
+                stockOverrides: newAdj.stockOverrides,
+                ratesPage: newAdj.ratesPage,
                 ticker: payload.ticker !== undefined ? payload.ticker : ticker,
                 showModified: payload.showModified !== undefined ? payload.showModified : showModified
             };

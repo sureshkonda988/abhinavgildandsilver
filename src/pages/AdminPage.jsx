@@ -265,9 +265,7 @@ const AdminPage = () => {
                                                 liveRates={rates.rtgs.filter(r => r.id === '945')}
                                                 targetField="sell"
                                                 onChange={(newItem) => {
-                                                    const newBase = { ...adj.baseModifications };
-                                                    newBase.gold999 = newItem;
-                                                    updateSettings({ adj: { ...adj, baseModifications: newBase } });
+                                                    updateSettings({ adjFn: (prev) => ({ ...prev, baseModifications: { ...prev.baseModifications, gold999: newItem } }) });
                                                 }}
                                             />
                                             <AdjustmentCard
@@ -276,9 +274,7 @@ const AdminPage = () => {
                                                 liveRates={rates.rtgs.filter(r => r.id === '2987')}
                                                 targetField="sell"
                                                 onChange={(newItem) => {
-                                                    const newBase = { ...adj.baseModifications };
-                                                    newBase.silver999 = newItem;
-                                                    updateSettings({ adj: { ...adj, baseModifications: newBase } });
+                                                    updateSettings({ adjFn: (prev) => ({ ...prev, baseModifications: { ...prev.baseModifications, silver999: newItem } }) });
                                                 }}
                                             />
                                         </div>
@@ -294,13 +290,13 @@ const AdminPage = () => {
                                             </div>
                                             <div className="flex gap-2 w-full md:w-auto">
                                                 <button
-                                                    onClick={() => updateSettings({ adj: { ...adj, ratesPage: { ...adj.ratesPage, showModified: false } } })}
+                                                    onClick={() => updateSettings({ adjFn: (prev) => ({ ...prev, ratesPage: { ...prev.ratesPage, showModified: false } }) })}
                                                     className={`flex-1 md:flex-none px-4 py-2 rounded-full text-[9px] md:text-[10px] font-black uppercase tracking-widest transition-all ${!adj.ratesPage.showModified ? 'bg-[#f4cb4c] text-slate-900 shadow-lg' : 'bg-white/10 text-white/60'}`}
                                                 >
                                                     Live Mode
                                                 </button>
                                                 <button
-                                                    onClick={() => updateSettings({ adj: { ...adj, ratesPage: { ...adj.ratesPage, showModified: true } } })}
+                                                    onClick={() => updateSettings({ adjFn: (prev) => ({ ...prev, ratesPage: { ...prev.ratesPage, showModified: true } }) })}
                                                     className={`flex-1 md:flex-none px-4 py-2 rounded-full text-[9px] md:text-[10px] font-black uppercase tracking-widest transition-all ${adj.ratesPage.showModified ? 'bg-[#f4cb4c] text-slate-900 shadow-lg' : 'bg-white/10 text-white/60'}`}
                                                 >
                                                     Modified Mode
@@ -314,14 +310,14 @@ const AdminPage = () => {
                                                 item={adj.ratesPage.gold}
                                                 liveRates={(rawRates.rtgs || []).filter(r => r.id === '945')}
                                                 targetField="sell"
-                                                onChange={(val) => updateSettings({ adj: { ...adj, ratesPage: { ...adj.ratesPage, gold: val } } })}
+                                                onChange={(val) => updateSettings({ adjFn: (prev) => ({ ...prev, ratesPage: { ...prev.ratesPage, gold: val } }) })}
                                             />
                                             <AdjustmentCard
                                                 label="Rates Silver Modification"
                                                 item={adj.ratesPage.silver}
                                                 liveRates={(rawRates.rtgs || []).filter(r => r.id === '2987')}
                                                 targetField="sell"
-                                                onChange={(val) => updateSettings({ adj: { ...adj, ratesPage: { ...adj.ratesPage, silver: val } } })}
+                                                onChange={(val) => updateSettings({ adjFn: (prev) => ({ ...prev, ratesPage: { ...prev.ratesPage, silver: val } }) })}
                                             />
                                         </div>
                                     </div>
@@ -337,9 +333,7 @@ const AdminPage = () => {
                                                     <span className="font-poppins font-black text-white text-[11px] uppercase tracking-tight">{item.name}</span>
                                                     <button
                                                         onClick={() => {
-                                                            const newStock = { ...adj.stockOverrides };
-                                                            newStock[item.id] = !item.stock;
-                                                            updateSettings({ adj: { ...adj, stockOverrides: newStock } });
+                                                            updateSettings({ adjFn: (prev) => ({ ...prev, stockOverrides: { ...prev.stockOverrides, [item.id]: !item.stock } }) });
                                                         }}
                                                         className={`px-4 py-2 rounded-xl font-poppins font-black text-[10px] uppercase tracking-widest transition-all min-w-[120px] ${item.stock ? 'bg-green-500 text-white shadow-lg shadow-green-900/20' : 'bg-red-500 text-white shadow-lg shadow-red-900/20'}`}
                                                     >
