@@ -31,7 +31,12 @@ const rateSettingsSchema = new mongoose.Schema({
     },
     goldOffset: { mode: String, value: Number },
     silverOffset: { mode: String, value: Number },
-    showModified: { type: Boolean, default: false }
+    showModified: { type: Boolean, default: false },
+    ratesPage: {
+        gold: { mode: { type: String, default: 'amount' }, value: { type: Number, default: 0 } },
+        silver: { mode: { type: String, default: 'amount' }, value: { type: Number, default: 0 } },
+        showModified: { type: Boolean, default: false }
+    }
 }, { timestamps: true });
 
 const RateSettings = mongoose.model('RateSettings', rateSettingsSchema);

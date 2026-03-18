@@ -175,7 +175,7 @@ app.get('/api/rates/settings', async (req, res) => {
 // 2. Update settings
 app.post('/api/rates/settings', async (req, res) => {
     try {
-        const { baseModifications, gold, silver, stockOverrides, ticker, videos, adminPassword, showModified } = req.body;
+        const { baseModifications, gold, silver, stockOverrides, ticker, videos, adminPassword, showModified, ratesPage } = req.body;
 
         const update = {};
         if (baseModifications !== undefined) update.baseModifications = baseModifications;
@@ -186,6 +186,7 @@ app.post('/api/rates/settings', async (req, res) => {
         if (videos !== undefined) update.videos = videos;
         if (adminPassword !== undefined) update.adminPassword = adminPassword;
         if (showModified !== undefined) update.showModified = showModified;
+        if (ratesPage !== undefined) update.ratesPage = ratesPage;
 
         const settings = await RateSettings.findOneAndUpdate(
             { key: 'global_settings' },
