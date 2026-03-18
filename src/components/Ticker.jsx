@@ -13,6 +13,7 @@ const Ticker = () => {
         <div
             className="relative w-full overflow-hidden flex items-center h-8 md:h-10 bg-[#90034a] z-30"
             style={{
+                backgroundImage: 'url(/1000029434.jpg.jpeg)',
                 backgroundPosition: 'center',
                 backgroundRepeat: 'repeat-x',
                 backgroundSize: 'auto 100%'
