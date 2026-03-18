@@ -31,7 +31,7 @@ const Navigation = () => {
                         {/* Logo */}
                         <Link to="/" className="flex items-center gap-3 group">
                             <img 
-                                src="/logofd.webp" 
+                                src="/Untitled design (31).webp" 
                                 alt="Abhinav Logo" 
                                 className="w-10 h-10 object-contain" 
                             />

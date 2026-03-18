@@ -111,7 +111,7 @@ const AdminPage = () => {
                             initial={{ y: 20, opacity: 0 }}
                             animate={{ y: 0, opacity: 1 }}
                             transition={{ delay: 0.2 }}
-                            src="/logofd.webp" 
+                            src="/Untitled design (31).webp" 
                             alt="Abhinav Logo" 
                             className="w-48 h-48 md:w-64 md:h-64 object-contain drop-shadow-luxury mb-8" 
                         />
@@ -174,7 +174,7 @@ const AdminPage = () => {
         >
             <div className="bg-black/90 backdrop-blur-md border-b border-white/20 px-6 py-3 flex justify-between items-center sticky top-0 z-30 shadow-md">
                 <div className="flex items-center gap-3">
-                    <img src="/logofd.webp" alt="Abhinav Logo" className="w-10 h-10 object-contain drop-shadow-luxury" />
+                    <img src="/Untitled design (31).webp" alt="Abhinav Logo" className="w-10 h-10 object-contain drop-shadow-luxury" />
                     <div className="flex flex-col">
                         <span className="font-playfair font-black text-[#f4cb4c] uppercase tracking-widest text-sm md:text-lg leading-none">ABHINAV</span>
                         <span className="text-[8px] text-[#f4cb4c]/80 font-poppins font-bold tracking-[0.2em] uppercase">Admin Dashboard</span>
