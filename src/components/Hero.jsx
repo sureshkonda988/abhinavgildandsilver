@@ -109,7 +109,7 @@ const Hero = () => {
             </section>
 
             {/* Ticker between Table 1 and Table 2 */}
-            <div className="w-full relative z-20 py-0 mt-14 md:mt-24">
+            <div className="w-full relative z-20 py-0 mt-10 md:mt-16">
                 <Ticker />
             </div>
 
@@ -190,7 +190,7 @@ const Hero = () => {
                                                         animate={{ backgroundColor: getPriceClass('rtgs', item.id, 'buy') === 'price-up' ? '#00c853' : getPriceClass('rtgs', item.id, 'buy') === 'price-down' ? '#ff1744' : '#FFD700' }}
                                                         className="w-full h-8 md:h-12 rounded-lg md:rounded-xl flex items-center justify-center border-[1.5px] md:border-2 border-slate-900 shadow-[2px_2px_0px_#000000] md:shadow-[3px_3px_0px_#000000]"
                                                     >
-                                                        <span className={`text-[11px] md:text-[21px] font-black font-poppins ${['price-up', 'price-down'].includes(getPriceClass('rtgs', item.id, 'buy')) ? 'text-white' : 'text-slate-900'}`}>
+                                                        <span className="text-[11px] md:text-[21px] font-black font-poppins text-slate-900">
                                                             {item.buy !== '-' ? <><span style={{ fontFamily: 'Inter, system-ui, sans-serif' }}>₹</span>{fmt(item.buy)}</> : '—'}
                                                         </span>
                                                     </motion.div>
@@ -202,7 +202,7 @@ const Hero = () => {
                                                         animate={{ backgroundColor: getPriceClass('rtgs', item.id, 'sell') === 'price-up' ? '#00c853' : getPriceClass('rtgs', item.id, 'sell') === 'price-down' ? '#ff1744' : '#FFD700' }}
                                                         className="w-full h-8 md:h-12 rounded-lg md:rounded-xl flex items-center justify-center border-[1.5px] md:border-2 border-slate-900 shadow-[2px_2px_0px_#000000] md:shadow-[3px_3px_0px_#000000]"
                                                     >
-                                                        <span className={`text-[11px] md:text-[21px] font-black font-poppins ${['price-up', 'price-down'].includes(getPriceClass('rtgs', item.id, 'sell')) ? 'text-white' : 'text-slate-900'}`}>
+                                                        <span className="text-[11px] md:text-[21px] font-black font-poppins text-slate-900">
                                                             {item.sell !== '-' ? <><span style={{ fontFamily: 'Inter, system-ui, sans-serif' }}>₹</span>{fmt(item.sell)}</> : '—'}
                                                         </span>
                                                     </motion.div>
