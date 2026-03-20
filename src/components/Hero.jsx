@@ -109,7 +109,7 @@ const Hero = () => {
             </section>
 
             {/* Ticker between Table 1 and Table 2 */}
-            <div className="w-full relative z-20 py-0 mt-10 md:mt-16">
+            <div className="w-full relative z-20 py-0 mt-14 md:mt-24">
                 <Ticker />
             </div>
 
