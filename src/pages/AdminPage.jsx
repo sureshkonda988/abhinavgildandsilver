@@ -262,7 +262,7 @@ const AdminPage = () => {
                                             <AdjustmentCard
                                                 label="Gold Sell Modification"
                                                 item={adj.baseModifications.gold999}
-                                                liveRates={rates.rtgs.filter(r => r.id === '945')}
+                                                liveRates={(rawRates.rtgs || []).filter(r => r.id === '945')}
                                                 targetField="sell"
                                                 onChange={(newItem) => {
                                                     updateSettings({ adjFn: (prev) => ({ ...prev, baseModifications: { ...prev.baseModifications, gold999: newItem } }) });
@@ -271,12 +271,13 @@ const AdminPage = () => {
                                             <AdjustmentCard
                                                 label="Silver Sell Modification"
                                                 item={adj.baseModifications.silver999}
-                                                liveRates={rates.rtgs.filter(r => r.id === '2987')}
+                                                liveRates={(rawRates.rtgs || []).filter(r => r.id === '2987')}
                                                 targetField="sell"
                                                 onChange={(newItem) => {
                                                     updateSettings({ adjFn: (prev) => ({ ...prev, baseModifications: { ...prev.baseModifications, silver999: newItem } }) });
                                                 }}
                                             />
+
                                         </div>
                                     </div>
 

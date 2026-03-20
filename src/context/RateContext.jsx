@@ -611,20 +611,9 @@ export const RateProvider = ({ children }) => {
             return parseFloat((val + delta).toFixed(2));
         };
 
-        // 1. Spot Rates
-        const spot = rawRates.spot.map(s => {
-            if (!showModified) return s;
-            const isGold = s.name.toUpperCase().includes('GOLD');
-            const isSilver = s.name.toUpperCase().includes('SILVER');
-            if (!isGold && !isSilver) return s;
-            return {
-                ...s,
-                bid: adjust(s.bid, isGold ? 'GOLD' : 'SILVER'),
-                ask: adjust(s.ask, isGold ? 'GOLD' : 'SILVER'),
-                high: adjust(s.high, isGold ? 'GOLD' : 'SILVER'),
-                low: adjust(s.low, isGold ? 'GOLD' : 'SILVER')
-            };
-        });
+        // 1. Spot Rates - ALWAYS LIVE as requested
+        const spot = rawRates.spot;
+
 
         // 2. RTGS Rates & Base Modifications
         const rtgs = rawRates.rtgs.map(r => {
@@ -647,11 +636,13 @@ export const RateProvider = ({ children }) => {
                     sell = parseFloat((liveSell + delta).toFixed(2));
                 }
 
-                // Buy Calculation: LiveSell + BuyMod (Consistent base for spread)
+                // Buy Calculation: LiveBuy + BuyMod
+                const liveBuy = parseFloat(r.buy) || 0;
                 if (buyOffset) {
-                    const delta = buyOffset.mode === 'amount' ? buyOffset.value : (liveSell * buyOffset.value) / 100;
-                    buy = parseFloat((liveSell + delta).toFixed(2));
+                    const delta = buyOffset.mode === 'amount' ? buyOffset.value : (liveBuy * buyOffset.value) / 100;
+                    buy = parseFloat((liveBuy + delta).toFixed(2));
                 }
+
             }
 
             // Apply Stock Override if exists
