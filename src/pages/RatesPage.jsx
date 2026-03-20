@@ -30,7 +30,7 @@ const RatesPage = () => {
 
             <div className="flex flex-col gap-3">
                 <div className="relative">
-                    <h1 className="text-xl font-poppins font-black text-white/80 mt-2 md:mt-2 mb-2 text-center md:text-right uppercase tracking-tighter drop-shadow-luxury px-2 md:w-full leading-none">
+                    <h1 className="text-xl font-poppins font-black text-white/80 mt-2 md:mt-0 mb-3 text-center uppercase tracking-tighter drop-shadow-luxury px-2 md:w-full leading-none">
                         Live Retail Rates with GST
                     </h1>
                     
