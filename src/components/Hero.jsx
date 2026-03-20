@@ -61,7 +61,7 @@ const Hero = () => {
 
                                         {rawRates.rtgs.filter(item => !(item.name.toLowerCase().includes('silver') && item.name.toLowerCase().includes('10 kg'))).map((item, idx) => {
                             const pClass = getPriceClass('rtgs', item.id, 'sell');
-                            const bColor = pClass === 'price-up' ? '#dcfce7' : pClass === 'price-down' ? '#fee2e2' : pClass === 'gold-default' ? '#fef9c3' : pClass === 'silver-default' ? '#CFE9E1' : '#0f172a';
+                            const bColor = pClass === 'price-up' ? '#4ade80' : pClass === 'price-down' ? '#f87171' : pClass === 'gold-default' ? '#facc15' : pClass === 'silver-default' ? '#CFE9E1' : '#0f172a';
                             const effectiveStock = adj.stockOverrides?.[item.id] !== undefined ? adj.stockOverrides[item.id] : item.stock;
 
                             return (
@@ -187,7 +187,7 @@ const Hero = () => {
                                                 {/* BUY Box */}
                                                 <div className="flex justify-center w-full">
                                                     <motion.div 
-                                                        animate={{ backgroundColor: getPriceClass('rtgs', item.id, 'buy') === 'price-up' ? '#dcfce7' : getPriceClass('rtgs', item.id, 'buy') === 'price-down' ? '#fee2e2' : '#fef9c3' }}
+                                                        animate={{ backgroundColor: getPriceClass('rtgs', item.id, 'buy') === 'price-up' ? '#4ade80' : getPriceClass('rtgs', item.id, 'buy') === 'price-down' ? '#f87171' : '#facc15' }}
                                                         className="w-full h-8 md:h-12 rounded-lg md:rounded-xl flex items-center justify-center border-[1.5px] md:border-2 border-slate-900 shadow-[2px_2px_0px_#000000] md:shadow-[3px_3px_0px_#000000]"
                                                     >
                                                         <span className="text-[11px] md:text-[21px] font-black font-poppins text-slate-900">
@@ -199,7 +199,7 @@ const Hero = () => {
                                                 {/* SELL Box */}
                                                 <div className="flex justify-center w-full">
                                                     <motion.div 
-                                                        animate={{ backgroundColor: getPriceClass('rtgs', item.id, 'sell') === 'price-up' ? '#dcfce7' : getPriceClass('rtgs', item.id, 'sell') === 'price-down' ? '#fee2e2' : '#fef9c3' }}
+                                                        animate={{ backgroundColor: getPriceClass('rtgs', item.id, 'sell') === 'price-up' ? '#4ade80' : getPriceClass('rtgs', item.id, 'sell') === 'price-down' ? '#f87171' : '#facc15' }}
                                                         className="w-full h-8 md:h-12 rounded-lg md:rounded-xl flex items-center justify-center border-[1.5px] md:border-2 border-slate-900 shadow-[2px_2px_0px_#000000] md:shadow-[3px_3px_0px_#000000]"
                                                     >
                                                         <span className="text-[11px] md:text-[21px] font-black font-poppins text-slate-900">
