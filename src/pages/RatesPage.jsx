@@ -20,7 +20,7 @@ const RatesPage = () => {
         <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
-            className="pb-12 md:pb-8 md:min-h-0 px-4 pt-4 max-w-7xl mx-auto mt-2 md:-mt-[420px] md:w-full md:ml-auto md:mr-0 md:pr-10"
+            className="pb-12 md:pb-8 md:min-h-0 px-4 pt-4 max-w-7xl mx-auto mt-2 md:absolute md:top-24 md:right-4 md:z-40 md:w-full md:max-w-[500px]"
         >
             {error && (
                 <div className="max-w-md mx-auto mb-4 bg-red-500/10 border border-red-500/20 text-red-400 p-3 rounded-xl text-center text-xs font-bold uppercase tracking-wider">
@@ -30,13 +30,13 @@ const RatesPage = () => {
 
             <div className="flex flex-col gap-3">
                 <div className="relative">
-                    <h1 className="text-xl font-poppins font-black text-white/80 mt-2 md:mt-0 mb-1 text-center md:text-right uppercase tracking-tighter drop-shadow-luxury px-2 md:absolute md:-top-24 md:right-10 leading-none">
+                    <h1 className="text-xl font-poppins font-black text-white/80 mt-2 md:mt-2 mb-2 text-center md:text-right uppercase tracking-tighter drop-shadow-luxury px-2 md:w-full leading-none">
                         Live Retail Rates with GST
                     </h1>
                     
                     <div className="flex flex-col gap-4">
                         {/* Gold Rates Table */}
-                        <div className="flex flex-col w-[95%] min-w-[210px] md:max-w-[480px] max-w-[450px] mx-auto md:ml-auto md:mr-4 md:-mt-8">
+                        <div className="flex flex-col w-[95%] min-w-[210px] md:max-w-[480px] max-w-[450px] mx-auto md:ml-auto md:mr-4">
                             <div className="gradient-luxury px-3 py-2 md:px-4 md:py-1.5 rounded-t-xl shadow-lg flex justify-between items-center">
                                 <h2 className="text-white font-poppins font-bold text-[12px] md:text-[14px] uppercase tracking-widest">Gold Rates</h2>
                                 <span className="text-white/40 text-[9px] md:text-[10px] font-black uppercase tracking-widest bg-white/5 px-2 py-1 rounded-full">GST INCL</span>

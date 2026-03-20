@@ -121,7 +121,7 @@ const AppLayout = () => {
         backgroundColor: isHomePage ? '#FFFFFF' : '#fafafb',
         ...(!isAdminPage ? {
           backgroundImage: isHomePage
-            ? 'url("/gold-texture-bg.jpg")'
+            ? 'url("/gold-bg-v2.jpg")'
             : location.pathname === '/alerts'
               ? 'url("/WhatsApp Image 2026-03-12 at 2.19.24 PM.webp")'
               : location.pathname === '/videos'
@@ -168,7 +168,7 @@ const AppLayout = () => {
                   transition={{ duration: 0.5 }}
                   src={['/alerts', '/videos'].includes(location.pathname) ? "/Untitled design (31).webp" : location.pathname === '/rates' ? "/Untitled (A2 (Landscape)).webp" : "/Untitled design (21).webp"}
                   alt="Abhinav Gold & Silver Header Mobile"
-                  className={`${['/alerts', '/videos'].includes(location.pathname) ? 'w-[50%] mx-auto py-4 mt-16 max-w-[200px]' : location.pathname === '/rates' ? 'w-full' : 'w-full min-h-[220px]'} h-auto md:hidden ${location.pathname === '/rates' ? 'object-contain' : 'object-cover'} object-center block`}
+                  className={`${['/alerts', '/videos'].includes(location.pathname) ? 'w-[50%] mx-auto py-4 mt-16 max-w-[200px]' : location.pathname === '/rates' ? 'w-full h-auto' : 'w-full min-h-[220px]'} h-auto md:hidden ${location.pathname === '/rates' ? '' : 'object-cover'} object-center block`}
                 />
                 <motion.img
                   initial={{ opacity: 1 }}
@@ -176,7 +176,7 @@ const AppLayout = () => {
                   transition={{ duration: 0.5 }}
                   src={['/alerts', '/videos'].includes(location.pathname) ? "/Untitled design (31).webp" : "/Untitled design (30).webp"}
                   alt="Abhinav Gold & Silver Header Desktop"
-                  className={`${['/alerts', '/videos'].includes(location.pathname) ? 'w-[30%] mx-auto py-6 max-w-[250px]' : location.pathname === '/rates' ? 'w-full' : 'w-full min-h-[350px]'} h-auto hidden md:block ${location.pathname === '/rates' ? 'object-contain' : 'object-cover'} object-center block`}
+                  className={`${['/alerts', '/videos'].includes(location.pathname) ? 'w-[30%] mx-auto py-6 max-w-[250px]' : location.pathname === '/rates' ? 'w-full h-auto' : 'w-full min-h-[350px]'} h-auto hidden md:block ${location.pathname === '/rates' ? '' : 'object-cover'} object-center block`}
                 />
               </div>
             )}
@@ -193,7 +193,7 @@ const AppLayout = () => {
 
           {/* Global Scrolling Ticker - Snapped to header section - Mobile Only */}
           {!isHomePage && (
-            <div className={`md:hidden z-10 w-full relative ${location.pathname === '/rates' ? 'mt-0' : 'mt-6'}`}>
+            <div className={`z-10 w-full relative ${location.pathname === '/rates' ? 'mt-4 border-t-2 border-magenta-500/20' : 'mt-6'}`}>
               <Ticker />
             </div>
           )}
@@ -215,12 +215,7 @@ const AppLayout = () => {
       {/* Bottom Footer Navigation — hidden on Admin, Mobile Only */}
       {!isAdminPage && <BottomNav />}
 
-      {/* Desktop Ticker — Above Footer, Desktop Only */}
-      {!isAdminPage && !isHomePage && (
-        <div className={`hidden md:block ${location.pathname === '/rates' ? 'md:mt-2' : 'mt-10'}`}>
-          <Ticker />
-        </div>
-      )}
+
 
       {/* Desktop Footer — hidden on Admin, Desktop Only */}
       {!isAdminPage && <Footer />}
