@@ -26,7 +26,7 @@ const SpotBar = () => {
             <div className="flex items-center justify-center gap-1.5 md:gap-3">
                 {items.map((item, idx) => {
                     const pClass = getPriceClass('spot', item.id, 'ask');
-                    const bColor = pClass === 'price-up' ? '#00c853' : pClass === 'price-down' ? '#ff1744' : item.label.includes('USD-INR') ? '#f8fafc' : item.label.includes('GOLD') ? '#FFD700' : '#E5E5E5';
+                    const bColor = pClass === 'price-up' ? '#BBF7D0' : pClass === 'price-down' ? '#FECACA' : item.label.includes('USD-INR') ? '#f8fafc' : item.label.includes('GOLD') ? '#FEF08A' : '#E5E5E5';
                     
                     return (
                         <div key={idx} className="flex flex-col items-center">
