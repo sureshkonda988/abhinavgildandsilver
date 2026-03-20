@@ -116,7 +116,8 @@ const Hero = () => {
             {/* Table 2: Market Rates (Bullion Style) */}
             <section className="w-full relative z-10 mt-10 md:mt-20 mb-8 md:mb-12">
                 <div className="max-w-[1600px] mx-auto px-4">
-                    <Heading text="GOLD AND SILVER RETAIL RATES" />
+                    <Heading text="LOCAL GOLD AND SILVER RETAIL RATES" />
+
                     
                     <div className="flex flex-col xl:flex-row items-center justify-center gap-4 xl:gap-8 mt-4 md:mt-6">
                         {/* LEFT IMAGE: Gold Bars (Desktop Only) */}
