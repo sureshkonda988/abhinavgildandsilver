@@ -88,7 +88,7 @@ const Hero = () => {
                                                 className="w-full transition-all duration-300 max-w-[140px] md:max-w-[300px] py-2 md:py-3 px-2 md:px-6 rounded-[14px] md:rounded-[24px] flex items-center justify-center shadow-lg hover:scale-105"
                                             >
                                                 <span
-                                                    className={`font-black font-poppins text-center tracking-tighter md:tracking-normal text-[14px] md:text-[34px] leading-none ${bColor === '#fde047' || bColor === '#CFE9E1' || bColor === '#E5E5E5' ? 'text-slate-900' : 'text-white'}`}
+                                                    className="font-black font-poppins text-center tracking-tighter md:tracking-normal text-[14px] md:text-[34px] leading-none text-slate-900"
                                                 >
                                                     {item.sell !== '-' ? <><span style={{ fontFamily: 'Inter, system-ui, sans-serif' }}>₹</span>{fmt(item.sell)}</> : '—'}
                                                 </span>
