@@ -79,11 +79,18 @@ export const RateProvider = ({ children }) => {
     const [ticker, setTicker] = useState('Welcome to Abhinav Gold & Silver - Quality Purity Guaranteed');
     const [videos, setVideos] = useState([]);
     const [videosLoaded, setVideosLoaded] = useState(false);
-    const [isMusicEnabled, setIsMusicEnabled] = useState(false);
+    const [isMusicEnabled, setIsMusicEnabled] = useState(() => {
+        const persisted = localStorage.getItem('abhinav_music_enabled');
+        return persisted === 'true'; // Defaults to false if never set
+    });
     const [homeAudio, setHomeAudio] = useState('');
     const [ratesAudio, setRatesAudio] = useState('');
 
-    const toggleMusic = () => setIsMusicEnabled(!isMusicEnabled);
+    const toggleMusic = () => {
+        const nextValue = !isMusicEnabled;
+        setIsMusicEnabled(nextValue);
+        localStorage.setItem('abhinav_music_enabled', nextValue.toString());
+    };
 
     // Use a ref for settings synchronization to avoid infinite loops if needed
     const syncSettingsWithMongoDB = async () => {

@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useRates } from '../context/RateContext';
 import { motion, AnimatePresence } from 'framer-motion';
+import ReactPlayer from 'react-player';
 import { Lock, LogOut, TrendingUp, Settings, Video, MessageSquare, Play, Pause, Trash2, Save, RefreshCw, CheckCircle2, AlertCircle, Music, Upload, Youtube, HardDrive } from 'lucide-react';
 
 const AdminPage = () => {
@@ -47,15 +48,27 @@ const AdminPage = () => {
 
         const directUrl = getDirectAudioUrl(url);
 
-        if (previewingUrl === url && previewAudio) {
-            previewAudio.pause();
+        // Check if it's a YouTube URL
+        const isYT = url.includes('youtube.com') || url.includes('youtu.be');
+
+        if (previewingUrl === url) {
             setPreviewingUrl('');
-            setPreviewAudio(null);
+            if (previewAudio) {
+                previewAudio.pause();
+                setPreviewAudio(null);
+            }
             return;
         }
 
         if (previewAudio) {
             previewAudio.pause();
+            setPreviewAudio(null);
+        }
+
+        if (isYT) {
+            setIsPreviewLoading(true);
+            setPreviewingUrl(url);
+            return;
         }
 
         const isLocal = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1' || window.location.hostname.startsWith('192.168.');
@@ -119,11 +132,6 @@ const AdminPage = () => {
         };
 
         tryPlayback(directUrl);
-
-        audio.onerror = (e) => {
-            // Error handling is mostly covered by tryPlayback.catch
-            console.error('Audio Error Event:', e);
-        };
     };
 
     useEffect(() => {
@@ -342,6 +350,31 @@ const AdminPage = () => {
             className="min-h-screen pb-32 text-slate-800 bg-fixed bg-center bg-cover"
             style={{ backgroundImage: "url('/Untitled design (14).webp')" }}
         >
+            {/* Player for Previewing YouTube */}
+            {previewingUrl && (previewingUrl.includes('youtube.com') || previewingUrl.includes('youtu.be')) && (
+                <div style={{ position: 'fixed', bottom: 10, right: 10, opacity: 0.8, pointerEvents: 'none', width: '80px', height: '45px', overflow: 'hidden', zIndex: 9999, borderRadius: '8px', border: '1px solid white' }}>
+                    <ReactPlayer 
+                        url={previewingUrl} 
+                        playing={!!previewingUrl} 
+                        volume={1}
+                        muted={false}
+                        width="100%"
+                        height="100%"
+                        onReady={() => setIsPreviewLoading(false)}
+                        onStart={() => setIsPreviewLoading(false)}
+                        onEnded={() => setPreviewingUrl('')}
+                        config={{
+                            youtube: {
+                                playerVars: { 
+                                    autoplay: 1,
+                                    mute: 0,
+                                    origin: window.location.origin
+                                }
+                            }
+                        }}
+                    />
+                </div>
+            )}
             <div className="bg-black/90 backdrop-blur-md border-b border-white/20 px-6 py-3 flex justify-between items-center sticky top-0 z-30 shadow-md">
                 <div className="flex items-center gap-3">
                     <img src="/Untitled design (31).webp" alt="Abhinav Logo" className="w-10 h-10 object-contain drop-shadow-luxury" />
@@ -646,8 +679,8 @@ const AdminPage = () => {
                                 </div>
 
                                 <div className="mt-8">
-                                    <h4 className="text-sm font-poppins font-black text-white/80 uppercase tracking-widest mb-2">Custom Audio Links</h4>
-                                    <p className="text-[9px] font-bold text-white/30 uppercase tracking-widest mb-5">Paste a direct MP3/audio URL (e.g. Google Drive, Dropbox, any CDN link)</p>
+                                    <h4 className="text-sm font-poppins font-black text-white/80 uppercase tracking-widest mb-2">Background Music Source</h4>
+                                    <p className="text-[9px] font-bold text-white/30 uppercase tracking-widest mb-5">Paste a direct MP3 URL, YouTube link, or upload a file (e.g. Google Drive, Dropbox, YouTube)</p>
                                     <div className="flex flex-col gap-4">
                                         <div className="flex flex-col gap-2">
                                             <label className="text-[10px] font-black text-[#f4cb4c] uppercase tracking-widest ml-1">Home Page Audio URL</label>
