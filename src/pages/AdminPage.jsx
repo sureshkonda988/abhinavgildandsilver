@@ -5,7 +5,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { Lock, LogOut, TrendingUp, Settings, Video, MessageSquare, Play, Trash2, Save, RefreshCw, CheckCircle2, AlertCircle, Music, Upload, Youtube, HardDrive } from 'lucide-react';
 
 const AdminPage = () => {
-    const { rates, rawRates, adj, showModified, settingsLoaded, videosLoaded, updateSettings, updateVideos, refreshRates, loading, error, ticker: contextTicker, videos: contextVideos } = useRates();
+    const { rates, rawRates, adj, showModified, settingsLoaded, videosLoaded, updateSettings, updateVideos, refreshRates, loading, error, ticker: contextTicker, videos: contextVideos, isMusicEnabled, toggleMusic, homeAudio, ratesAudio } = useRates();
     const navigate = useNavigate();
     const [isLoggedIn, setIsLoggedIn] = useState(false);
     const [username, setUsername] = useState('');
@@ -16,6 +16,9 @@ const AdminPage = () => {
     const [ticker, setTicker] = useState('');
     const [videos, setVideos] = useState([]);
     const [isInitialized, setIsInitialized] = useState({ ticker: false, videos: false });
+    const [homeAudioInput, setHomeAudioInput] = useState('');
+    const [ratesAudioInput, setRatesAudioInput] = useState('');
+    const [audioSaving, setAudioSaving] = useState(false);
 
     useEffect(() => {
         if (settingsLoaded && !isInitialized.ticker) {
@@ -30,6 +33,14 @@ const AdminPage = () => {
             setIsInitialized(prev => ({ ...prev, videos: true }));
         }
     }, [contextVideos, videosLoaded, isInitialized.videos]);
+
+    // Sync audio inputs from context when settings load
+    useEffect(() => {
+        if (settingsLoaded) {
+            setHomeAudioInput(homeAudio || '');
+            setRatesAudioInput(ratesAudio || '');
+        }
+    }, [homeAudio, ratesAudio, settingsLoaded]);
 
 
 
@@ -92,7 +103,43 @@ const AdminPage = () => {
         }
     };
 
+    const handleMusicUpload = async (e, type) => {
+        const file = e.target.files[0];
+        if (!file) return;
+        if (!file.type.startsWith('audio/')) {
+            alert('Please select a valid audio file.');
+            return;
+        }
+        const formData = new FormData();
+        formData.append('file', file);
+        formData.append('type', type);
+        try {
+            const apiBase = import.meta.env.VITE_API_URL || 'http://localhost:5000';
+            const res = await fetch(`${apiBase}/api/music/upload`, { method: 'POST', body: formData });
+            if (res.ok) {
+                alert(`${type.toUpperCase()} music updated successfully!`);
+            } else {
+                alert('Failed to update music.');
+            }
+        } catch (err) {
+            console.error(err);
+            alert('Error updating music.');
+        } finally {
+            e.target.value = null;
+        }
+    };
 
+    const saveAudioUrls = async () => {
+        setAudioSaving(true);
+        try {
+            await updateSettings({ homeAudio: homeAudioInput, ratesAudio: ratesAudioInput });
+            alert('Audio links saved!');
+        } catch (e) {
+            alert('Failed to save audio links.');
+        } finally {
+            setAudioSaving(false);
+        }
+    };
 
     if (!isLoggedIn) {
         return (
@@ -195,7 +242,7 @@ const AdminPage = () => {
                     <TabBtn id="rates" icon={<TrendingUp size={18} />} label="Rates" active={activeTab === 'rates'} onClick={setActiveTab} />
                     <TabBtn id="news" icon={<MessageSquare size={18} />} label="News" active={activeTab === 'news'} onClick={setActiveTab} />
                     <TabBtn id="videos" icon={<Video size={18} />} label="Media" active={activeTab === 'videos'} onClick={setActiveTab} />
-
+                    <TabBtn id="settings" icon={<Settings size={18} />} label="Settings" active={activeTab === 'settings'} onClick={setActiveTab} />
                 </div>
 
                 {/* Content */}
@@ -454,7 +501,62 @@ const AdminPage = () => {
                         </motion.div>
                     )}
 
+                    {activeTab === 'settings' && (
+                        <motion.div key="settings" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }}>
+                            <div className="glass p-4 md:p-8 rounded-[30px] md:rounded-[40px] shadow-luxury border-white/20">
+                                <h3 className="text-lg md:text-xl font-playfair font-black text-[#f4cb4c] uppercase tracking-widest mb-6 border-b border-[#f4cb4c]/20 pb-2">Application Settings</h3>
+                                
+                                <div className="bg-white/5 backdrop-blur-md p-6 rounded-[24px] border border-white/10 flex items-center justify-between shadow-sm">
+                                    <div className="flex flex-col gap-1">
+                                        <div className="flex items-center gap-2">
+                                            <Music size={18} className="text-[#f4cb4c]" />
+                                            <span className="font-poppins font-black text-white text-sm uppercase tracking-widest">Background Music</span>
+                                        </div>
+                                        <span className="text-[10px] font-bold text-white/40 uppercase tracking-widest">Toggle background music globally</span>
+                                    </div>
+                                    <button
+                                        onClick={toggleMusic}
+                                        className={`w-14 h-8 rounded-full transition-colors relative shadow-inner flex items-center px-1 ${isMusicEnabled ? 'bg-green-500 shadow-green-900/50' : 'bg-red-500 shadow-red-900/50'}`}
+                                    >
+                                        <div className={`w-6 h-6 rounded-full bg-white shadow-md transform transition-transform duration-300 ${isMusicEnabled ? 'translate-x-6' : 'translate-x-0'}`} />
+                                    </button>
+                                </div>
 
+                                <div className="mt-8">
+                                    <h4 className="text-sm font-poppins font-black text-white/80 uppercase tracking-widest mb-2">Custom Audio Links</h4>
+                                    <p className="text-[9px] font-bold text-white/30 uppercase tracking-widest mb-5">Paste a direct MP3/audio URL (e.g. Google Drive, Dropbox, any CDN link)</p>
+                                    <div className="flex flex-col gap-4">
+                                        <div className="flex flex-col gap-2">
+                                            <label className="text-[10px] font-black text-[#f4cb4c] uppercase tracking-widest ml-1">Home Page Audio URL</label>
+                                            <input
+                                                className="w-full bg-white/10 border border-white/10 text-white px-4 py-3 rounded-xl font-poppins text-xs outline-none focus:ring-1 focus:ring-[#f4cb4c]/40 placeholder:text-white/20"
+                                                placeholder="https://example.com/music/home.mp3"
+                                                value={homeAudioInput}
+                                                onChange={e => setHomeAudioInput(e.target.value)}
+                                            />
+                                        </div>
+                                        <div className="flex flex-col gap-2">
+                                            <label className="text-[10px] font-black text-[#f4cb4c] uppercase tracking-widest ml-1">Rates Page Audio URL</label>
+                                            <input
+                                                className="w-full bg-white/10 border border-white/10 text-white px-4 py-3 rounded-xl font-poppins text-xs outline-none focus:ring-1 focus:ring-[#f4cb4c]/40 placeholder:text-white/20"
+                                                placeholder="https://example.com/music/rates.mp3"
+                                                value={ratesAudioInput}
+                                                onChange={e => setRatesAudioInput(e.target.value)}
+                                            />
+                                        </div>
+                                        <button
+                                            onClick={saveAudioUrls}
+                                            disabled={audioSaving}
+                                            className="mt-2 flex items-center gap-3 px-8 py-3 bg-[#f4cb4c] text-slate-900 rounded-xl font-poppins font-black uppercase tracking-widest shadow-gold-glow hover:scale-105 transition-all w-full justify-center text-xs disabled:opacity-50"
+                                        >
+                                            <Save size={16} />
+                                            {audioSaving ? 'Saving...' : 'Save Audio Links'}
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </motion.div>
+                    )}
 
                 </AnimatePresence >
             </div >

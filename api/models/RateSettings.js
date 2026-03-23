@@ -36,7 +36,9 @@ const rateSettingsSchema = new mongoose.Schema({
         gold: { mode: { type: String, default: 'amount' }, value: { type: Number, default: 0 } },
         silver: { mode: { type: String, default: 'amount' }, value: { type: Number, default: 0 } },
         showModified: { type: Boolean, default: false }
-    }
+    },
+    homeAudio: { type: String, default: '' },
+    ratesAudio: { type: String, default: '' }
 }, { timestamps: true });
 
 const RateSettings = mongoose.model('RateSettings', rateSettingsSchema);

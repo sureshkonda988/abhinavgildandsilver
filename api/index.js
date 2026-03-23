@@ -175,7 +175,7 @@ app.get('/api/rates/settings', async (req, res) => {
 // 2. Update settings
 app.post('/api/rates/settings', async (req, res) => {
     try {
-        const { baseModifications, gold, silver, stockOverrides, ticker, videos, adminPassword, showModified, ratesPage } = req.body;
+        const { baseModifications, gold, silver, stockOverrides, ticker, videos, adminPassword, showModified, ratesPage, homeAudio, ratesAudio } = req.body;
 
         const update = {};
         if (baseModifications !== undefined) update.baseModifications = baseModifications;
@@ -187,6 +187,8 @@ app.post('/api/rates/settings', async (req, res) => {
         if (adminPassword !== undefined) update.adminPassword = adminPassword;
         if (showModified !== undefined) update.showModified = showModified;
         if (ratesPage !== undefined) update.ratesPage = ratesPage;
+        if (homeAudio !== undefined) update.homeAudio = homeAudio;
+        if (ratesAudio !== undefined) update.ratesAudio = ratesAudio;
 
         const settings = await RateSettings.findOneAndUpdate(
             { key: 'global_settings' },
@@ -236,6 +238,28 @@ app.post('/api/videos', async (req, res) => {
     }
 });
 
+
+// --- Separate Music Routes ---
+app.post('/api/music/upload', upload.single('file'), (req, res) => {
+    try {
+        const type = req.body.type; // 'home' or 'rates'
+        if (!['home', 'rates'].includes(type) || !req.file) {
+            return res.status(400).json({ message: 'Invalid request. Missing file or type.' });
+        }
+
+        const musicDir = path.join(__dirname, '../public/music');
+        if (!fs.existsSync(musicDir)) {
+            fs.mkdirSync(musicDir, { recursive: true });
+        }
+
+        const filePath = path.join(musicDir, `${type}.mp3`);
+        fs.writeFileSync(filePath, req.file.buffer);
+
+        res.json({ message: `${type.toUpperCase()} music uploaded successfully` });
+    } catch (error) {
+        res.status(500).json({ message: 'Error uploading music', error: error.message });
+    }
+});
 
 
 if (process.env.NODE_ENV !== 'production') {

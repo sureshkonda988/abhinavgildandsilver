@@ -78,7 +78,7 @@ const Hero = () => {
                                                 {item.name.split('(')[0]}
                                             </span>
                                             <span className="text-[9px] md:text-[14px] font-bold text-slate-500 font-poppins uppercase tracking-wider mt-0.5 md:mt-1">
-                                                {item.name.toLowerCase().includes('gold') ? '10 Grams' : '30 Kg'}
+                                                {item.name.toLowerCase().includes('gold') ? '10 Grams' : '30 KGS'}
                                             </span>
                                         </div>
 
@@ -153,7 +153,7 @@ const Hero = () => {
                                 {(() => {
                                     const rtgsItems = [
                                         rates.rtgs.find(r => r.id === '945') || { name: 'Gold 999 (10 Grams)', buy: '-', sell: '-', high: '-', low: '-', id: 'gold_default' },
-                                        rates.rtgs.find(r => r.name.toLowerCase().includes('30 kg')) || { name: 'Silver 999 (30 Kgs)', buy: '-', sell: '-', high: '-', low: '-', id: 'silver_30_default' },
+                                        rates.rtgs.find(r => r.name.toLowerCase().includes('30 kg') || r.name.toLowerCase().includes('30 kgs')) || { name: 'Silver 999 (30 KGS)', buy: '-', sell: '-', high: '-', low: '-', id: 'silver_30_default' },
                                         (() => {
                                             const raw30 = rates.rtgs.find(r => r.name.toLowerCase().includes('10 kg') || r.id === '2987');
                                             if (!raw30) return { name: 'Silver 999 (5 Kgs)', buy: '-', sell: '-', high: '-', low: '-', id: 'silver_5_default' };
@@ -181,7 +181,7 @@ const Hero = () => {
                                                         {item.name.split('(')[0].trim()}
                                                     </span>
                                                     <span className="text-[8px] md:text-[11px] font-bold text-slate-500 uppercase tracking-widest md:tracking-[0.2em] mt-0.5 md:mt-1">
-                                                        {item.name.match(/\(([^)]+)\)/)?.[1] || (item.name.toLowerCase().includes('gold') ? '10 Grams' : '5 Kgs')}
+                                                        {item.name.match(/\(([^)]+)\)/)?.[1] || (item.name.toLowerCase().includes('gold') ? '10 Grams' : '5 KGS')}
                                                     </span>
                                                 </div>
 

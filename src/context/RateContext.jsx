@@ -24,8 +24,8 @@ const INITIAL_SPOT_CONFIG = [
 
 const INITIAL_RTGS_CONFIG = [
     { id: '945', name: 'Gold 999 (10 grams)' },
-    { id: '2966', name: 'Silver 999 (30 Kgs)' },
-    { id: '2987', name: 'Silver 999 (10 Kgs)' }
+    { id: '2966', name: 'Silver 999 (30 KGS)' },
+    { id: '2987', name: 'Silver 999 (10 KGS)' }
 ];
 
 const getPlaceholders = () => {
@@ -80,6 +80,8 @@ export const RateProvider = ({ children }) => {
     const [videos, setVideos] = useState([]);
     const [videosLoaded, setVideosLoaded] = useState(false);
     const [isMusicEnabled, setIsMusicEnabled] = useState(false);
+    const [homeAudio, setHomeAudio] = useState('');
+    const [ratesAudio, setRatesAudio] = useState('');
 
     const toggleMusic = () => setIsMusicEnabled(!isMusicEnabled);
 
@@ -112,6 +114,8 @@ export const RateProvider = ({ children }) => {
                     });
                     if (data.showModified !== undefined) setShowModified(data.showModified);
                     if (data.ticker) setTicker(data.ticker);
+                    if (data.homeAudio !== undefined) setHomeAudio(data.homeAudio);
+                    if (data.ratesAudio !== undefined) setRatesAudio(data.ratesAudio);
                     setSettingsLoaded(true);
                 }
             }
@@ -743,7 +747,8 @@ export const RateProvider = ({ children }) => {
     }, [rawRates, adj, showModified]);
 
     return (
-        <RateContext.Provider value={{ rates, rawRates, loading, error, news, adj, showModified, settingsLoaded, ticker, videos, videosLoaded, isMusicEnabled, toggleMusic, updateSettings, updateVideos, refreshRates: fetchAllRates, getPriceClass }}>
+        <RateContext.Provider value={{ rates, rawRates, loading, error, news, adj, showModified, settingsLoaded, ticker, videos, videosLoaded, isMusicEnabled, toggleMusic, homeAudio, setHomeAudio, ratesAudio, setRatesAudio, updateSettings, updateVideos, refreshRates: fetchAllRates, getPriceClass }}>
+
             {children}
         </RateContext.Provider>
     );

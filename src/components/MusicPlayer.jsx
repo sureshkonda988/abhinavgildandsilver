@@ -1,41 +1,32 @@
 import React, { useState, useEffect, useRef } from 'react';
-import ReactPlayer from 'react-player';
 import { useLocation } from 'react-router-dom';
 import { useRates } from '../context/RateContext';
 
 const MusicPlayer = ({ isEnabled }) => {
     const location = useLocation();
-    const [isPlaying, setIsPlaying] = useState(false);
-    const [currentUrl, setCurrentUrl] = useState('');
-    const [sourceType, setSourceType] = useState('youtube');
+    const { homeAudio, ratesAudio } = useRates();
     const [unlocked, setUnlocked] = useState(false);
-    
+
     const audioRef = useRef(null);
     const isHomePage = location.pathname === '/' || location.pathname === '/home';
     const isRatesPage = location.pathname === '/rates';
 
-    // Aggressive Autoplay Unlocker
+    const currentUrl = isHomePage ? homeAudio : isRatesPage ? ratesAudio : '';
+
+    // Aggressive Autoplay Unlocker — fires on first user interaction
     useEffect(() => {
         const unlockAudio = () => {
             if (unlocked) return;
-            
-            console.log("MusicPlayer: Attempting to unlock audio context via user interaction...");
-            
-            // Try to play local audio if it's the current source
             if (audioRef.current) {
                 audioRef.current.play()
                     .then(() => {
-                        console.log("MusicPlayer: Local Audio Unlocked!");
                         setUnlocked(true);
-                        // If it's enabled and we just unlocked, keep it playing
                         if (!isEnabled) audioRef.current.pause();
                     })
-                    .catch(err => {
-                        console.log("MusicPlayer: Local Audio unlock attempt (this is expected if no file yet):", err.message);
-                        // We still consider it "attempted" but might need a real click on a source
+                    .catch(() => {
+                        setUnlocked(true);
                     });
             } else {
-                // If no audio element yet (YouTube mode), we just mark as unlocked to allow ReactPlayer to start
                 setUnlocked(true);
             }
         };
@@ -51,73 +42,30 @@ const MusicPlayer = ({ isEnabled }) => {
         };
     }, [unlocked, isEnabled]);
 
+    // Sync play/pause state with isEnabled and unlock status
     useEffect(() => {
-        setSourceType('local');
-        if (isHomePage) {
-            setCurrentUrl('/music/home.mp3');
-        } else if (isRatesPage) {
-            setCurrentUrl('/music/rates.mp3');
-        } else {
-            setCurrentUrl('');
-            setIsPlaying(false);
-        }
-    }, [isHomePage, isRatesPage]);
+        if (!audioRef.current) return;
 
-    // sync playing state
-    useEffect(() => {
         if (isEnabled && currentUrl && unlocked) {
-            setIsPlaying(true);
-            if (sourceType === 'local' && audioRef.current) {
-                audioRef.current.play().catch(e => {
-                    console.warn("MusicPlayer: Local play failed after unlock. Browser still blocking?", e);
-                    // This can happen if the 'unlock' happened but the source changed or was empty
-                });
-            }
+            audioRef.current.play().catch(e => {
+                console.warn('MusicPlayer: play failed:', e.message);
+            });
         } else {
-            setIsPlaying(false);
-            if (audioRef.current) audioRef.current.pause();
+            audioRef.current.pause();
         }
-    }, [isEnabled, currentUrl, sourceType, unlocked]);
+    }, [isEnabled, currentUrl, unlocked]);
+
+    if (!currentUrl) return null;
 
     return (
-        <>
-            {/* HTML5 Audio for Local Files */}
-            {sourceType === 'local' && (
-                <audio
-                    ref={audioRef}
-                    src={currentUrl}
-                    loop
-                    preload="auto"
-                    style={{ display: 'none' }}
-                    onPlay={() => console.log("MusicPlayer: Local Audio started")}
-                    onError={(e) => console.error("MusicPlayer: Local Audio Error", e)}
-                />
-            )}
-
-            {/* ReactPlayer for YouTube */}
-            {sourceType === 'youtube' && (
-                <div className="hidden" aria-hidden="true">
-                    {currentUrl && (
-                        <ReactPlayer
-                            url={currentUrl}
-                            playing={isEnabled && isPlaying}
-                            loop={true}
-                            volume={0.5}
-                            width="0"
-                            height="0"
-                            playsinline
-                            onStart={() => console.log("MusicPlayer: YouTube started")}
-                            onError={(e) => console.error("MusicPlayer: YouTube Error", e)}
-                            config={{
-                                youtube: {
-                                    playerVars: { autoplay: 1, controls: 0, modestbranding: 1 }
-                                }
-                            }}
-                        />
-                    )}
-                </div>
-            )}
-        </>
+        <audio
+            ref={audioRef}
+            src={currentUrl}
+            loop
+            preload="auto"
+            style={{ display: 'none' }}
+            onError={(e) => console.error('MusicPlayer: Audio Error', e)}
+        />
     );
 };
 
