@@ -25,7 +25,7 @@ const INITIAL_SPOT_CONFIG = [
 const INITIAL_RTGS_CONFIG = [
     { id: '945', name: 'Gold 999 (10 grams)' },
     { id: '2966', name: 'Silver 999 (30 KGS)' },
-    { id: '2987', name: 'Silver 999 (10 KGS)' }
+    { id: '2987', name: 'Silver 999 (5 KGS)' }
 ];
 
 const getPlaceholders = () => {
@@ -194,10 +194,12 @@ export const RateProvider = ({ children }) => {
                 stockOverrides: newAdj.stockOverrides,
                 ratesPage: newAdj.ratesPage,
                 ticker: payload.ticker !== undefined ? payload.ticker : ticker,
-                showModified: payload.showModified !== undefined ? payload.showModified : showModified,
-                homeAudio: payload.homeAudio !== undefined ? payload.homeAudio : homeAudio,
-                ratesAudio: payload.ratesAudio !== undefined ? payload.ratesAudio : ratesAudio
+                showModified: payload.showModified !== undefined ? payload.showModified : showModified
             };
+            
+            // Only send massive audio fields if they are explicitly being updated
+            if (payload.homeAudio !== undefined) body.homeAudio = payload.homeAudio;
+            if (payload.ratesAudio !== undefined) body.ratesAudio = payload.ratesAudio;
 
             const res = await fetch(`${API_BASE}/rates/settings`, {
                 method: 'POST',

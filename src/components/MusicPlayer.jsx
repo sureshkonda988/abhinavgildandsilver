@@ -19,6 +19,10 @@ const MusicPlayer = ({ isEnabled }) => {
         if (cleaned.includes('drive.google.com')) {
             const idMatch = cleaned.match(/[-\w]{25,}/);
             if (idMatch) {
+                const isLocal = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1' || window.location.hostname.startsWith('192.168.');
+                if (isLocal) {
+                    return `/audio-proxy?id=${idMatch[0]}&export=media`;
+                }
                 // export=media is generally more stable for streaming background audio
                 return `https://drive.google.com/uc?id=${idMatch[0]}&export=media`;
             }
@@ -84,12 +88,15 @@ const MusicPlayer = ({ isEnabled }) => {
     return (
         <audio
             ref={audioRef}
-            src={currentUrl}
             loop
             preload="auto"
             style={{ display: 'none' }}
             onError={(e) => console.error('MusicPlayer: Audio Error', e)}
-        />
+        >
+            <source src={currentUrl} type="audio/mpeg" />
+            <source src={currentUrl} type="audio/ogg" />
+            <source src={currentUrl} type="audio/wav" />
+        </audio>
     );
 };
 

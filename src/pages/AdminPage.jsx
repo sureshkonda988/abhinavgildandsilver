@@ -58,13 +58,24 @@ const AdminPage = () => {
             previewAudio.pause();
         }
 
+        const isLocal = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1' || window.location.hostname.startsWith('192.168.');
         const audio = new Audio();
         audio.preload = 'auto';
         
         const tryPlayback = (srcUrl, attempt = 1) => {
-            console.log(`[Admin] Audio Sync - Attempt ${attempt}:`, srcUrl);
+            let currentSrc = srcUrl;
+            
+            // Stage 0: If local, try the Vite proxy immediately for Google Drive links
+            if (isLocal && attempt === 1 && srcUrl.includes('drive.google.com')) {
+                const idMatch = srcUrl.match(/id=([-\w]{25,})/);
+                if (idMatch) {
+                    currentSrc = `/audio-proxy?id=${idMatch[1]}&export=media`;
+                }
+            }
+
+            console.log(`[Admin] Audio Sync - Attempt ${attempt}:`, currentSrc);
             setIsPreviewLoading(true);
-            audio.src = srcUrl;
+            audio.src = currentSrc;
             
             // Create a timeout promise to forcefully fail this attempt if it hangs
             const timeoutPromise = new Promise((_, reject) => 
@@ -89,10 +100,13 @@ const AdminPage = () => {
                     // Stage 4: Try with confirmation param
                     return tryPlayback(srcUrl + '&confirm=t', 4);
                 } else if (attempt === 4 && srcUrl.includes('google.com')) {
-                    // Stage 5: Use a high-performance Google CORS proxy as a last resort
-                    // This often bypasses localhost/CORS restrictions entirely
+                    // Stage 5: Use a high-performance Google CORS proxy
                     const proxyUrl = `https://images1-focus-opensocial.googleusercontent.com/gadgets/proxy?container=focus&refresh=31536000&url=${encodeURIComponent(srcUrl)}`;
                     return tryPlayback(proxyUrl, 5);
+                } else if (attempt === 5 && srcUrl.includes('google.com')) {
+                    // Stage 6: Use AllOrigins as a heavy-duty fallback
+                    const proxyUrl = `https://api.allorigins.win/raw?url=${encodeURIComponent(srcUrl)}`;
+                    return tryPlayback(proxyUrl, 6);
                 } else {
                     // Final Fail
                     setIsPreviewLoading(false);
@@ -210,23 +224,32 @@ const AdminPage = () => {
             alert('Please select a valid audio file.');
             return;
         }
-        const formData = new FormData();
-        formData.append('file', file);
-        formData.append('type', type);
-        try {
-            const apiBase = import.meta.env.VITE_API_URL || 'http://localhost:5000';
-            const res = await fetch(`${apiBase}/api/music/upload`, { method: 'POST', body: formData });
-            if (res.ok) {
-                alert(`${type.toUpperCase()} music updated successfully!`);
-            } else {
-                alert('Failed to update music.');
-            }
-        } catch (err) {
-            console.error(err);
-            alert('Error updating music.');
-        } finally {
-            e.target.value = null;
+
+        // 3MB limit for MongoDB document efficiency (safe limit is 16MB)
+        if (file.size > 10 * 1024 * 1024) {
+            alert('Audio file too large. Please keep it under 10MB.');
+            return;
         }
+
+        setAudioSaving(true);
+        const reader = new FileReader();
+        reader.onload = async (event) => {
+            const base64 = event.target.result;
+            const success = await updateSettings({ [type === 'home' ? 'homeAudio' : 'ratesAudio']: base64 });
+            if (success) {
+                if (type === 'home') setHomeAudioInput(base64);
+                else setRatesAudioInput(base64);
+                alert(`${type.toUpperCase()} music uploaded and saved!`);
+            } else {
+                alert('Upload failed. Connection error?');
+            }
+            setAudioSaving(false);
+        };
+        reader.onerror = () => {
+            alert('File read error.');
+            setAudioSaving(false);
+        };
+        reader.readAsDataURL(file);
     };
 
     const saveAudioUrls = async () => {
@@ -476,7 +499,7 @@ const AdminPage = () => {
                                             Manually override the stock status for individual items.
                                         </p>
                                         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mb-10 text-slate-500">
-                                            {rates.rtgs.filter(item => !(item.name.toLowerCase().includes('silver') && item.name.toLowerCase().includes('10 kg'))).map((item) => (
+                                            {rates.rtgs.filter(item => !(item.name.toLowerCase().includes('silver') && (item.name.toLowerCase().includes('10 kg') || item.name.toLowerCase().includes('5 kg')))).map((item) => (
                                                 <div key={item.id} className="bg-white/10 backdrop-blur-md p-4 rounded-2xl border border-white/10 flex items-center justify-between shadow-sm hover:bg-white/20 transition-all">
                                                     <span className="font-poppins font-black text-white text-[11px] uppercase tracking-tight">{item.name}</span>
                                                     <button
@@ -630,40 +653,52 @@ const AdminPage = () => {
                                             <label className="text-[10px] font-black text-[#f4cb4c] uppercase tracking-widest ml-1">Home Page Audio URL</label>
                                             <div className="relative flex items-center">
                                                 <input
-                                                    className="w-full bg-white/10 border border-white/10 text-white px-4 py-3 pr-12 rounded-xl font-poppins text-xs outline-none focus:ring-1 focus:ring-[#f4cb4c]/40 placeholder:text-white/20"
+                                                    className="w-full bg-white/10 border border-white/10 text-white px-4 py-3 pr-24 rounded-xl font-poppins text-xs outline-none focus:ring-1 focus:ring-[#f4cb4c]/40 placeholder:text-white/20"
                                                     placeholder="https://example.com/music/home.mp3"
-                                                    value={homeAudioInput}
+                                                    value={homeAudioInput ? (homeAudioInput.startsWith('data:') ? 'Uploaded File (Base64)' : homeAudioInput) : ''}
                                                     onChange={e => setHomeAudioInput(e.target.value)}
                                                 />
-                                                 {homeAudioInput && (
-                                                    <button
-                                                        onClick={() => togglePreview(homeAudioInput)}
-                                                        className={`absolute right-3 p-1.5 rounded-lg transition-all ${previewingUrl === 'FAILED' ? 'bg-red-500/20 text-red-500' : 'bg-[#f4cb4c]/20 hover:bg-[#f4cb4c]/30 text-[#f4cb4c]'}`}
-                                                        title="Preview Audio"
-                                                    >
-                                                        {previewingUrl === homeAudioInput ? <Pause size={14} /> : previewingUrl === 'FAILED' ? <AlertCircle size={14} /> : isPreviewLoading ? <RefreshCw size={14} className="animate-spin" /> : <Play size={14} />}
-                                                    </button>
-                                                )}
+                                                <div className="absolute right-3 flex items-center gap-1">
+                                                    <label className="p-1.5 bg-white/10 hover:bg-white/20 text-white/60 rounded-lg cursor-pointer transition-all" title="Upload Local File">
+                                                        <Upload size={14} />
+                                                        <input type="file" className="hidden" accept="audio/*" onChange={(e) => handleMusicUpload(e, 'home')} />
+                                                    </label>
+                                                    {homeAudioInput && (
+                                                        <button
+                                                            onClick={() => togglePreview(homeAudioInput)}
+                                                            className={`p-1.5 rounded-lg transition-all ${previewingUrl === 'FAILED' ? 'bg-red-500/20 text-red-500' : 'bg-[#f4cb4c]/20 hover:bg-[#f4cb4c]/30 text-[#f4cb4c]'}`}
+                                                            title="Preview Audio"
+                                                        >
+                                                            {previewingUrl === homeAudioInput ? <Pause size={14} /> : previewingUrl === 'FAILED' ? <AlertCircle size={14} /> : isPreviewLoading ? <RefreshCw size={14} className="animate-spin" /> : <Play size={14} />}
+                                                        </button>
+                                                    )}
+                                                </div>
                                             </div>
                                         </div>
                                         <div className="flex flex-col gap-2">
                                             <label className="text-[10px] font-black text-[#f4cb4c] uppercase tracking-widest ml-1">Rates Page Audio URL</label>
                                             <div className="relative flex items-center">
                                                 <input
-                                                    className="w-full bg-white/10 border border-white/10 text-white px-4 py-3 pr-12 rounded-xl font-poppins text-xs outline-none focus:ring-1 focus:ring-[#f4cb4c]/40 placeholder:text-white/20"
+                                                    className="w-full bg-white/10 border border-white/10 text-white px-4 py-3 pr-24 rounded-xl font-poppins text-xs outline-none focus:ring-1 focus:ring-[#f4cb4c]/40 placeholder:text-white/20"
                                                     placeholder="https://example.com/music/rates.mp3"
-                                                    value={ratesAudioInput}
+                                                    value={ratesAudioInput ? (ratesAudioInput.startsWith('data:') ? 'Uploaded File (Base64)' : ratesAudioInput) : ''}
                                                     onChange={e => setRatesAudioInput(e.target.value)}
                                                 />
-                                                 {ratesAudioInput && (
-                                                    <button
-                                                        onClick={() => togglePreview(ratesAudioInput)}
-                                                        className={`absolute right-3 p-1.5 rounded-lg transition-all ${previewingUrl === 'FAILED' ? 'bg-red-500/20 text-red-500' : 'bg-[#f4cb4c]/20 hover:bg-[#f4cb4c]/30 text-[#f4cb4c]'}`}
-                                                        title="Preview Audio"
-                                                    >
-                                                        {previewingUrl === ratesAudioInput ? <Pause size={14} /> : previewingUrl === 'FAILED' ? <AlertCircle size={14} /> : <Play size={14} />}
-                                                    </button>
-                                                )}
+                                                <div className="absolute right-3 flex items-center gap-1">
+                                                    <label className="p-1.5 bg-white/10 hover:bg-white/20 text-white/60 rounded-lg cursor-pointer transition-all" title="Upload Local File">
+                                                        <Upload size={14} />
+                                                        <input type="file" className="hidden" accept="audio/*" onChange={(e) => handleMusicUpload(e, 'rates')} />
+                                                    </label>
+                                                    {ratesAudioInput && (
+                                                        <button
+                                                            onClick={() => togglePreview(ratesAudioInput)}
+                                                            className={`p-1.5 rounded-lg transition-all ${previewingUrl === 'FAILED' ? 'bg-red-500/20 text-red-500' : 'bg-[#f4cb4c]/20 hover:bg-[#f4cb4c]/30 text-[#f4cb4c]'}`}
+                                                            title="Preview Audio"
+                                                        >
+                                                            {previewingUrl === ratesAudioInput ? <Pause size={14} /> : previewingUrl === 'FAILED' ? <AlertCircle size={14} /> : isPreviewLoading ? <RefreshCw size={14} className="animate-spin" /> : <Play size={14} />}
+                                                        </button>
+                                                    )}
+                                                </div>
                                             </div>
                                         </div>
                                         <button

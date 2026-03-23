@@ -21,6 +21,12 @@ export default defineConfig({
         changeOrigin: true,
         rewrite: (path) => path.replace(/^\/api-news/, ''),
       },
+      '/audio-proxy': {
+        target: 'https://drive.google.com',
+        changeOrigin: true,
+        secure: false,
+        rewrite: (path) => path.replace(/^\/audio-proxy/, '/uc'),
+      },
       '/api': {
         target: 'https://www.abhinavgoldandsilver.com',
         changeOrigin: true,

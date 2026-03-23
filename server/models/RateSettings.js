@@ -29,6 +29,8 @@ const rateSettingsSchema = new mongoose.Schema({
         type: String,
         default: 'admin123'
     },
+    homeAudio: { type: String, default: '' },
+    ratesAudio: { type: String, default: '' },
     goldOffset: { mode: String, value: Number },
     silverOffset: { mode: String, value: Number },
     showModified: { type: Boolean, default: false }

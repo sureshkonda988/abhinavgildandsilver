@@ -59,7 +59,7 @@ const Hero = () => {
                             </div>
                         </div>
 
-                                        {rawRates.rtgs.filter(item => !(item.name.toLowerCase().includes('silver') && item.name.toLowerCase().includes('10 kg'))).map((item, idx) => {
+                        {rawRates.rtgs.filter(item => !(item.name.toLowerCase().includes('silver') && (item.name.toLowerCase().includes('10 kg') || item.name.toLowerCase().includes('5 kg')))).map((item, idx) => {
                             const pClass = getPriceClass('rtgs', item.id, 'sell');
                             const bColor = pClass === 'price-up' ? '#4ade80' : pClass === 'price-down' ? '#f87171' : pClass === 'gold-default' ? '#facc15' : pClass === 'silver-default' ? '#CFE9E1' : '#0f172a';
                             const effectiveStock = adj.stockOverrides?.[item.id] !== undefined ? adj.stockOverrides[item.id] : item.stock;
@@ -78,7 +78,7 @@ const Hero = () => {
                                                 {item.name.split('(')[0]}
                                             </span>
                                             <span className="text-[9px] md:text-[14px] font-bold text-slate-500 font-poppins uppercase tracking-wider mt-0.5 md:mt-1">
-                                                {item.name.toLowerCase().includes('gold') ? '100 Grams' : '30 KGS'}
+                                                {item.name.toLowerCase().includes('gold') ? '100 Grams' : (item.name.toLowerCase().includes('30 kg') ? '30 KGS' : (item.name.match(/\(([^)]+)\)/)?.[1] || '30 KGS'))}
                                             </span>
                                         </div>
 
@@ -146,17 +146,17 @@ const Hero = () => {
                                 rates.rtgs.find(r => r.id === '945') || { name: 'Gold 999 (10 Grams)', buy: '-', sell: '-', high: '-', low: '-', id: 'gold_default' },
                                 rates.rtgs.find(r => r.name.toLowerCase().includes('30 kg') || r.name.toLowerCase().includes('30 kgs')) || { name: 'Silver 999 (30 KGS)', buy: '-', sell: '-', high: '-', low: '-', id: 'silver_30_default' },
                                 (() => {
-                                    const raw30 = rates.rtgs.find(r => r.name.toLowerCase().includes('10 kg') || r.id === '2987');
-                                    if (!raw30) return { name: 'Silver 999 (5 Kgs)', buy: '-', sell: '-', high: '-', low: '-', id: 'silver_5_default' };
+                                    const raw5 = rates.rtgs.find(r => r.name.toLowerCase().includes('5 kg') || r.id === '2987');
+                                    if (!raw5) return { name: 'Silver 999 (5 Kgs)', buy: '-', sell: '-', high: '-', low: '-', id: 'silver_5_default' };
                                     return {
-                                        ...raw30,
+                                        ...raw5,
                                         name: 'Silver 999 (5 Kgs)',
-                                        buy: typeof raw30.buy === 'number' ? raw30.buy / 2 : raw30.buy,
-                                        sell: typeof raw30.sell === 'number' ? raw30.sell / 2 : raw30.sell,
-                                        high: typeof raw30.high === 'number' ? raw30.high / 2 : raw30.high,
-                                        low: typeof raw30.low === 'number' ? raw30.low / 2 : raw30.low,
+                                        buy: raw5.buy,
+                                        sell: raw5.sell,
+                                        high: raw5.high,
+                                        low: raw5.low,
                                         id: 'silver_5_kg',
-                                        refId: raw30.id
+                                        refId: raw5.id
                                     };
                                 })()
                             ];
