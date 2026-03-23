@@ -33,7 +33,8 @@ const rateSettingsSchema = new mongoose.Schema({
     ratesAudio: { type: String, default: '' },
     goldOffset: { mode: String, value: Number },
     silverOffset: { mode: String, value: Number },
-    showModified: { type: Boolean, default: false }
+    showModified: { type: Boolean, default: false },
+    isMusicEnabled: { type: Boolean, default: false }
 }, { timestamps: true });
 
 const RateSettings = mongoose.model('RateSettings', rateSettingsSchema);

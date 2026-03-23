@@ -90,6 +90,9 @@ export const RateProvider = ({ children }) => {
         const nextValue = !isMusicEnabled;
         setIsMusicEnabled(nextValue);
         localStorage.setItem('abhinav_music_enabled', nextValue.toString());
+        
+        // Persist globally to MongoDB
+        updateSettings({ isMusicEnabled: nextValue });
     };
 
     // Use a ref for settings synchronization to avoid infinite loops if needed
@@ -123,6 +126,10 @@ export const RateProvider = ({ children }) => {
                     if (data.ticker) setTicker(data.ticker);
                     if (data.homeAudio !== undefined) setHomeAudio(data.homeAudio);
                     if (data.ratesAudio !== undefined) setRatesAudio(data.ratesAudio);
+                    if (data.isMusicEnabled !== undefined) {
+                        setIsMusicEnabled(data.isMusicEnabled);
+                        localStorage.setItem('abhinav_music_enabled', data.isMusicEnabled.toString());
+                    }
                     setSettingsLoaded(true);
                 }
             }
@@ -201,7 +208,8 @@ export const RateProvider = ({ children }) => {
                 stockOverrides: newAdj.stockOverrides,
                 ratesPage: newAdj.ratesPage,
                 ticker: payload.ticker !== undefined ? payload.ticker : ticker,
-                showModified: payload.showModified !== undefined ? payload.showModified : showModified
+                showModified: payload.showModified !== undefined ? payload.showModified : showModified,
+                isMusicEnabled: payload.isMusicEnabled !== undefined ? payload.isMusicEnabled : isMusicEnabled
             };
             
             // Only send massive audio fields if they are explicitly being updated
