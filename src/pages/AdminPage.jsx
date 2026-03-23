@@ -40,6 +40,13 @@ const AdminPage = () => {
         if (cleaned.includes('dropbox.com')) {
             return cleaned.replace('www.dropbox.com', 'dl.dropboxusercontent.com').replace('?dl=0', '').replace('?dl=1', '');
         }
+        // SndUp Link Helper
+        if (cleaned.includes('sndup.net')) {
+            const sndupMatch = cleaned.match(/sndup\.net\/([a-zA-Z0-9]+)/);
+            if (sndupMatch) {
+                return `https://sndup.net/${sndupMatch[1]}/d`;
+            }
+        }
         return cleaned;
     };
 

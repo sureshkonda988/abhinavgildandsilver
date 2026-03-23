@@ -126,7 +126,7 @@ const VideosPage = () => {
                 {/* Cards Container */}
                 <div className="relative w-full max-w-7xl h-full flex items-center justify-center">
                     <AnimatePresence initial={false}>
-                        {validVideos.map((video, idx) => {
+                        {validVideos.length > 0 ? validVideos.map((video, idx) => {
                             let position = idx - activeIndex;
 
                             // Handle large differences due to circularity
@@ -145,7 +145,16 @@ const VideosPage = () => {
                                     onClick={() => setActiveIndex(idx)}
                                 />
                             );
-                        })}
+                        }) : (
+                            <motion.div 
+                                initial={{ opacity: 0 }} 
+                                animate={{ opacity: 1 }}
+                                className="flex flex-col items-center gap-4 text-white/40"
+                            >
+                                <PlayCircle size={64} style={{ opacity: 0.2 }} />
+                                <span className="font-poppins font-black text-sm uppercase tracking-widest">No videos available</span>
+                            </motion.div>
+                        )}
                     </AnimatePresence>
                 </div>
             </div>

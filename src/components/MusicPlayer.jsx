@@ -49,6 +49,15 @@ const MusicPlayer = ({ isEnabled }) => {
             return cleaned.replace('www.dropbox.com', 'dl.dropboxusercontent.com').replace('?dl=0', '').replace('?dl=1', '');
         }
 
+        // SndUp Link Helper
+        if (cleaned.includes('sndup.net')) {
+            // Converts https://sndup.net/abcd/ to https://sndup.net/abcd/d
+            const sndupMatch = cleaned.match(/sndup\.net\/([a-zA-Z0-9]+)/);
+            if (sndupMatch) {
+                return `https://sndup.net/${sndupMatch[1]}/d`;
+            }
+        }
+
         return cleaned;
     };
 
