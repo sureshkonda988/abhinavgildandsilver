@@ -11,7 +11,28 @@ const MusicPlayer = ({ isEnabled }) => {
     const isHomePage = location.pathname === '/' || location.pathname === '/home';
     const isRatesPage = location.pathname === '/rates';
 
-    const currentUrl = isHomePage ? homeAudio : isRatesPage ? ratesAudio : '';
+    const cleanAudioLink = (url) => {
+        if (!url) return '';
+        let cleaned = url.trim();
+
+        // Google Drive Link Helper
+        if (cleaned.includes('drive.google.com')) {
+            const idMatch = cleaned.match(/[-\w]{25,}/);
+            if (idMatch) {
+                // export=media is generally more stable for streaming background audio
+                return `https://drive.google.com/uc?id=${idMatch[0]}&export=media`;
+            }
+        }
+
+        // Dropbox Link Helper
+        if (cleaned.includes('dropbox.com')) {
+            return cleaned.replace('www.dropbox.com', 'dl.dropboxusercontent.com').replace('?dl=0', '').replace('?dl=1', '');
+        }
+
+        return cleaned;
+    };
+
+    const currentUrl = cleanAudioLink(isHomePage ? homeAudio : isRatesPage ? ratesAudio : '');
 
     // Aggressive Autoplay Unlocker — fires on first user interaction
     useEffect(() => {
@@ -45,6 +66,9 @@ const MusicPlayer = ({ isEnabled }) => {
     // Sync play/pause state with isEnabled and unlock status
     useEffect(() => {
         if (!audioRef.current) return;
+
+        // When the URL changes, we must call .load() to ensure the browser switches the stream
+        audioRef.current.load();
 
         if (isEnabled && currentUrl && unlocked) {
             audioRef.current.play().catch(e => {

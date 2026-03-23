@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useRates } from '../context/RateContext';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Lock, LogOut, TrendingUp, Settings, Video, MessageSquare, Play, Trash2, Save, RefreshCw, CheckCircle2, AlertCircle, Music, Upload, Youtube, HardDrive } from 'lucide-react';
+import { Lock, LogOut, TrendingUp, Settings, Video, MessageSquare, Play, Pause, Trash2, Save, RefreshCw, CheckCircle2, AlertCircle, Music, Upload, Youtube, HardDrive } from 'lucide-react';
 
 const AdminPage = () => {
     const { rates, rawRates, adj, showModified, settingsLoaded, videosLoaded, updateSettings, updateVideos, refreshRates, loading, error, ticker: contextTicker, videos: contextVideos, isMusicEnabled, toggleMusic, homeAudio, ratesAudio } = useRates();
@@ -19,6 +19,106 @@ const AdminPage = () => {
     const [homeAudioInput, setHomeAudioInput] = useState('');
     const [ratesAudioInput, setRatesAudioInput] = useState('');
     const [audioSaving, setAudioSaving] = useState(false);
+    const [previewingUrl, setPreviewingUrl] = useState('');
+    const [previewAudio, setPreviewAudio] = useState(null);
+    const [isPreviewLoading, setIsPreviewLoading] = useState(false);
+
+    const getDirectAudioUrl = (url) => {
+        if (!url) return '';
+        let cleaned = url.trim();
+        // Google Drive Link Helper
+        if (cleaned.includes('drive.google.com')) {
+            // Find anything that looks like a drive ID (25+ characters of a-z, A-Z, 0-9, _, -)
+            const idMatch = cleaned.match(/[-\w]{25,}/);
+            if (idMatch) {
+                // export=media is often better for streaming in newer browsers
+                return `https://drive.google.com/uc?id=${idMatch[0]}&export=media`;
+            }
+        }
+        // Dropbox Link Helper
+        if (cleaned.includes('dropbox.com')) {
+            return cleaned.replace('www.dropbox.com', 'dl.dropboxusercontent.com').replace('?dl=0', '').replace('?dl=1', '');
+        }
+        return cleaned;
+    };
+
+    const togglePreview = (url) => {
+        if (!url) return;
+
+        const directUrl = getDirectAudioUrl(url);
+
+        if (previewingUrl === url && previewAudio) {
+            previewAudio.pause();
+            setPreviewingUrl('');
+            setPreviewAudio(null);
+            return;
+        }
+
+        if (previewAudio) {
+            previewAudio.pause();
+        }
+
+        const audio = new Audio();
+        audio.preload = 'auto';
+        
+        const tryPlayback = (srcUrl, attempt = 1) => {
+            console.log(`[Admin] Audio Sync - Attempt ${attempt}:`, srcUrl);
+            setIsPreviewLoading(true);
+            audio.src = srcUrl;
+            
+            // Create a timeout promise to forcefully fail this attempt if it hangs
+            const timeoutPromise = new Promise((_, reject) => 
+                setTimeout(() => reject(new Error('TIMEOUT')), 6000)
+            );
+
+            return Promise.race([audio.play(), timeoutPromise]).then(() => {
+                setPreviewingUrl(url);
+                setPreviewAudio(audio);
+                setIsPreviewLoading(false);
+                audio.onended = () => {
+                    setPreviewingUrl('');
+                    setPreviewAudio(null);
+                };
+            }).catch(err => {
+                console.warn(`[Admin] Audio Sync - Attempt ${attempt} failed:`, err.message || err);
+                if (attempt === 1) {
+                    return tryPlayback(srcUrl.replace('export=media', 'export=download'), 2);
+                } else if (attempt === 2) {
+                    return tryPlayback(srcUrl.replace('drive.google.com', 'docs.google.com'), 3);
+                } else if (attempt === 3 && srcUrl.includes('docs.google.com')) {
+                    // Stage 4: Try with confirmation param
+                    return tryPlayback(srcUrl + '&confirm=t', 4);
+                } else if (attempt === 4 && srcUrl.includes('google.com')) {
+                    // Stage 5: Use a high-performance Google CORS proxy as a last resort
+                    // This often bypasses localhost/CORS restrictions entirely
+                    const proxyUrl = `https://images1-focus-opensocial.googleusercontent.com/gadgets/proxy?container=focus&refresh=31536000&url=${encodeURIComponent(srcUrl)}`;
+                    return tryPlayback(proxyUrl, 5);
+                } else {
+                    // Final Fail
+                    setIsPreviewLoading(false);
+                    setPreviewingUrl('FAILED');
+                    setTimeout(() => setPreviewingUrl(''), 3000);
+                    setPreviewAudio(null);
+                    console.error('[Admin] Audio Sync - All formats failed playback.');
+                }
+            });
+        };
+
+        tryPlayback(directUrl);
+
+        audio.onerror = (e) => {
+            // Error handling is mostly covered by tryPlayback.catch
+            console.error('Audio Error Event:', e);
+        };
+    };
+
+    useEffect(() => {
+        return () => {
+            if (previewAudio) {
+                previewAudio.pause();
+            }
+        };
+    }, [previewAudio]);
 
     useEffect(() => {
         if (settingsLoaded && !isInitialized.ticker) {
@@ -528,21 +628,43 @@ const AdminPage = () => {
                                     <div className="flex flex-col gap-4">
                                         <div className="flex flex-col gap-2">
                                             <label className="text-[10px] font-black text-[#f4cb4c] uppercase tracking-widest ml-1">Home Page Audio URL</label>
-                                            <input
-                                                className="w-full bg-white/10 border border-white/10 text-white px-4 py-3 rounded-xl font-poppins text-xs outline-none focus:ring-1 focus:ring-[#f4cb4c]/40 placeholder:text-white/20"
-                                                placeholder="https://example.com/music/home.mp3"
-                                                value={homeAudioInput}
-                                                onChange={e => setHomeAudioInput(e.target.value)}
-                                            />
+                                            <div className="relative flex items-center">
+                                                <input
+                                                    className="w-full bg-white/10 border border-white/10 text-white px-4 py-3 pr-12 rounded-xl font-poppins text-xs outline-none focus:ring-1 focus:ring-[#f4cb4c]/40 placeholder:text-white/20"
+                                                    placeholder="https://example.com/music/home.mp3"
+                                                    value={homeAudioInput}
+                                                    onChange={e => setHomeAudioInput(e.target.value)}
+                                                />
+                                                 {homeAudioInput && (
+                                                    <button
+                                                        onClick={() => togglePreview(homeAudioInput)}
+                                                        className={`absolute right-3 p-1.5 rounded-lg transition-all ${previewingUrl === 'FAILED' ? 'bg-red-500/20 text-red-500' : 'bg-[#f4cb4c]/20 hover:bg-[#f4cb4c]/30 text-[#f4cb4c]'}`}
+                                                        title="Preview Audio"
+                                                    >
+                                                        {previewingUrl === homeAudioInput ? <Pause size={14} /> : previewingUrl === 'FAILED' ? <AlertCircle size={14} /> : isPreviewLoading ? <RefreshCw size={14} className="animate-spin" /> : <Play size={14} />}
+                                                    </button>
+                                                )}
+                                            </div>
                                         </div>
                                         <div className="flex flex-col gap-2">
                                             <label className="text-[10px] font-black text-[#f4cb4c] uppercase tracking-widest ml-1">Rates Page Audio URL</label>
-                                            <input
-                                                className="w-full bg-white/10 border border-white/10 text-white px-4 py-3 rounded-xl font-poppins text-xs outline-none focus:ring-1 focus:ring-[#f4cb4c]/40 placeholder:text-white/20"
-                                                placeholder="https://example.com/music/rates.mp3"
-                                                value={ratesAudioInput}
-                                                onChange={e => setRatesAudioInput(e.target.value)}
-                                            />
+                                            <div className="relative flex items-center">
+                                                <input
+                                                    className="w-full bg-white/10 border border-white/10 text-white px-4 py-3 pr-12 rounded-xl font-poppins text-xs outline-none focus:ring-1 focus:ring-[#f4cb4c]/40 placeholder:text-white/20"
+                                                    placeholder="https://example.com/music/rates.mp3"
+                                                    value={ratesAudioInput}
+                                                    onChange={e => setRatesAudioInput(e.target.value)}
+                                                />
+                                                 {ratesAudioInput && (
+                                                    <button
+                                                        onClick={() => togglePreview(ratesAudioInput)}
+                                                        className={`absolute right-3 p-1.5 rounded-lg transition-all ${previewingUrl === 'FAILED' ? 'bg-red-500/20 text-red-500' : 'bg-[#f4cb4c]/20 hover:bg-[#f4cb4c]/30 text-[#f4cb4c]'}`}
+                                                        title="Preview Audio"
+                                                    >
+                                                        {previewingUrl === ratesAudioInput ? <Pause size={14} /> : previewingUrl === 'FAILED' ? <AlertCircle size={14} /> : <Play size={14} />}
+                                                    </button>
+                                                )}
+                                            </div>
                                         </div>
                                         <button
                                             onClick={saveAudioUrls}

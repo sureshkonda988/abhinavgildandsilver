@@ -10,10 +10,10 @@ const POTENTIAL_IDS = ['rbgold'];
 
 const CORS_PROXIES = [
     url => `https://api.allorigins.win/raw?url=${encodeURIComponent(url)}`,
-    url => `https://corsproxy.io/?${encodeURIComponent(url)}`,
-    url => `https://corsproxy.org/?${encodeURIComponent(url)}`,
-    url => `https://api.allorigins.win/get?url=${encodeURIComponent(url)}`,
     url => `https://api.codetabs.com/v1/proxy?quest=${encodeURIComponent(url)}`,
+    url => `https://corsproxy.io/?${encodeURIComponent(url)}`,
+    url => `https://api.allorigins.win/get?url=${encodeURIComponent(url)}`,
+    url => `https://thingproxy.freeboard.io/fetch/${url}`,
 ];
 
 const INITIAL_SPOT_CONFIG = [
@@ -180,6 +180,10 @@ export const RateProvider = ({ children }) => {
             setShowModified(payload.showModified);
         }
         if (payload.ticker !== undefined) setTicker(payload.ticker);
+        
+        // Update local audio state if provided in payload
+        if (payload.homeAudio !== undefined) setHomeAudio(payload.homeAudio);
+        if (payload.ratesAudio !== undefined) setRatesAudio(payload.ratesAudio);
 
         // 2. Prepare the full payload for MongoDB sync using the newly evaluated adj
         try {
@@ -190,7 +194,9 @@ export const RateProvider = ({ children }) => {
                 stockOverrides: newAdj.stockOverrides,
                 ratesPage: newAdj.ratesPage,
                 ticker: payload.ticker !== undefined ? payload.ticker : ticker,
-                showModified: payload.showModified !== undefined ? payload.showModified : showModified
+                showModified: payload.showModified !== undefined ? payload.showModified : showModified,
+                homeAudio: payload.homeAudio !== undefined ? payload.homeAudio : homeAudio,
+                ratesAudio: payload.ratesAudio !== undefined ? payload.ratesAudio : ratesAudio
             };
 
             const res = await fetch(`${API_BASE}/rates/settings`, {
@@ -206,7 +212,7 @@ export const RateProvider = ({ children }) => {
         }
     };
 
-    const fetchWithTimeout = async (url, ms = 2000) => {
+    const fetchWithTimeout = async (url, ms = 4000) => {
         const controller = new AbortController();
         const id = setTimeout(() => controller.abort(), ms);
         try {
@@ -374,7 +380,7 @@ export const RateProvider = ({ children }) => {
                 // Local Development: Use Vite Proxy (/api-rates -> bcast.rbgoldspot.com)
                 try {
                     const localUrl = `/api-rates/${POTENTIAL_IDS[0]}?_=${iterationTimestamp}`;
-                    const res = await fetchWithTimeout(localUrl, 3000);
+                    const res = await fetchWithTimeout(localUrl, 5000);
                     if (res.ok) {
                         const text = await res.text();
                         if (text && text.length > 20) {
