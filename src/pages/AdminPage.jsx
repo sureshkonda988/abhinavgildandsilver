@@ -240,16 +240,18 @@ const AdminPage = () => {
             return;
         }
 
-        // 3MB limit for MongoDB document efficiency (safe limit is 16MB)
-        if (file.size > 10 * 1024 * 1024) {
-            alert('Audio file too large. Please keep it under 10MB.');
+        const MAX_KB = 3000;
+        if (file.size > MAX_KB * 1024) {
+            alert(`Audio file too large. Please keep it under the ${MAX_KB} KB limit.`);
             return;
         }
 
         setAudioSaving(true);
         const reader = new FileReader();
         reader.onload = async (event) => {
-            const base64 = event.target.result;
+            let base64 = event.target.result;
+            // Neatly pin the original filename onto the end of the base64 string as a hash
+            base64 = base64 + '#' + encodeURIComponent(file.name);
             const success = await updateSettings({ [type === 'home' ? 'homeAudio' : 'ratesAudio']: base64 });
             if (success) {
                 if (type === 'home') setHomeAudioInput(base64);
@@ -687,7 +689,7 @@ const AdminPage = () => {
 
                                 <div className="mt-8">
                                     <h4 className="text-sm font-poppins font-black text-white/80 uppercase tracking-widest mb-2">Background Music Source</h4>
-                                    <p className="text-[9px] font-bold text-white/30 uppercase tracking-widest mb-5">Paste a direct MP3 URL, YouTube link, or upload a file (e.g. Google Drive, Dropbox, YouTube)</p>
+                                    <p className="text-[9px] font-bold text-white/30 uppercase tracking-widest mb-5">Paste a direct MP3 URL, YouTube link, or upload a strictly small audio file (Max 3000 KB limit)</p>
                                     <div className="flex flex-col gap-4">
                                         <div className="flex flex-col gap-2">
                                             <label className="text-[10px] font-black text-[#f4cb4c] uppercase tracking-widest ml-1">Home Page Audio URL</label>
@@ -695,7 +697,7 @@ const AdminPage = () => {
                                                 <input
                                                     className="w-full bg-white/10 border border-white/10 text-white px-4 py-3 pr-24 rounded-xl font-poppins text-xs outline-none focus:ring-1 focus:ring-[#f4cb4c]/40 placeholder:text-white/20"
                                                     placeholder="https://example.com/music/home.mp3"
-                                                    value={homeAudioInput ? (homeAudioInput.startsWith('data:') ? 'Uploaded File (Base64)' : homeAudioInput) : ''}
+                                                    value={homeAudioInput ? (homeAudioInput.startsWith('data:') ? (homeAudioInput.includes('#') ? decodeURIComponent(homeAudioInput.split('#').pop()) : 'Uploaded File (Base64)') : homeAudioInput) : ''}
                                                     onChange={e => setHomeAudioInput(e.target.value)}
                                                 />
                                                 <div className="absolute right-3 flex items-center gap-1">
@@ -721,7 +723,7 @@ const AdminPage = () => {
                                                 <input
                                                     className="w-full bg-white/10 border border-white/10 text-white px-4 py-3 pr-24 rounded-xl font-poppins text-xs outline-none focus:ring-1 focus:ring-[#f4cb4c]/40 placeholder:text-white/20"
                                                     placeholder="https://example.com/music/rates.mp3"
-                                                    value={ratesAudioInput ? (ratesAudioInput.startsWith('data:') ? 'Uploaded File (Base64)' : ratesAudioInput) : ''}
+                                                    value={ratesAudioInput ? (ratesAudioInput.startsWith('data:') ? (ratesAudioInput.includes('#') ? decodeURIComponent(ratesAudioInput.split('#').pop()) : 'Uploaded File (Base64)') : ratesAudioInput) : ''}
                                                     onChange={e => setRatesAudioInput(e.target.value)}
                                                 />
                                                 <div className="absolute right-3 flex items-center gap-1">

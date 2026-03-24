@@ -90,9 +90,6 @@ export const RateProvider = ({ children }) => {
         const nextValue = !isMusicEnabled;
         setIsMusicEnabled(nextValue);
         localStorage.setItem('abhinav_music_enabled', nextValue.toString());
-        
-        // Persist globally to MongoDB
-        updateSettings({ isMusicEnabled: nextValue });
     };
 
     // Use a ref for settings synchronization to avoid infinite loops if needed
@@ -126,10 +123,8 @@ export const RateProvider = ({ children }) => {
                     if (data.ticker) setTicker(data.ticker);
                     if (data.homeAudio !== undefined) setHomeAudio(data.homeAudio);
                     if (data.ratesAudio !== undefined) setRatesAudio(data.ratesAudio);
-                    if (data.isMusicEnabled !== undefined) {
-                        setIsMusicEnabled(data.isMusicEnabled);
-                        localStorage.setItem('abhinav_music_enabled', data.isMusicEnabled.toString());
-                    }
+                    // We no longer sync `isMusicEnabled` from MongoDB so visitors always default to Paused/Off.
+                    // Only their local interaction will toggle it.
                     setSettingsLoaded(true);
                 }
             }
