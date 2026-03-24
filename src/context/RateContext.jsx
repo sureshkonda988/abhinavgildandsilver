@@ -23,9 +23,9 @@ const INITIAL_SPOT_CONFIG = [
 ];
 
 const INITIAL_RTGS_CONFIG = [
-    { id: '945', name: 'Gold 999 (10 grams)' },
+    { id: '945', name: 'Gold 999 (100 grams)' },
     { id: '2966', name: 'Silver 999 (30 KGS)' },
-    { id: '2987', name: 'Silver 999 (5 KGS)' }
+    { id: '2987', name: 'Silver 999 (30 KGS)' }
 ];
 
 const getPlaceholders = () => {
