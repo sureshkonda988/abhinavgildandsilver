@@ -104,7 +104,7 @@ const Hero = () => {
                                                         <span
                                                             className="font-black font-poppins text-center tracking-tighter md:tracking-normal text-[14px] md:text-[34px] leading-none text-slate-900"
                                                         >
-                                                            {item.sell !== '-' ? <><span style={{ fontFamily: 'Inter, system-ui, sans-serif' }}>₹</span>{fmt(item.sell)}</> : '—'}
+                                                            {item.sell !== '-' ? <><span style={{ fontFamily: 'Inter, system-ui, sans-serif' }}>₹</span>{fmt(item.sell * (item.factor || 1))}</> : '—'}
                                                         </span>
                                                     </motion.div>
                                                 </div>
