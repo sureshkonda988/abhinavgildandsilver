@@ -165,7 +165,7 @@ const AppLayout = () => {
                   initial={{ opacity: 1 }}
                   animate={{ opacity: 1 }}
                   transition={{ duration: 0.5 }}
-                  src={['/alerts', '/videos'].includes(location.pathname) ? "/Untitled design (31).webp" : location.pathname === '/rates' ? "/Untitled (A2 (Landscape)).webp" : "/Untitled design (21).webp"}
+                  src={['/alerts', '/videos'].includes(location.pathname) ? "/Untitled design (31).webp" : "/Untitled design (21).webp"}
                   alt="Abhinav Gold & Silver Header Mobile"
                   className={`${['/alerts', '/videos'].includes(location.pathname) ? 'w-[50%] mx-auto py-4 mt-16 max-w-[200px]' : location.pathname === '/rates' ? 'w-full h-auto' : 'w-full min-h-[220px]'} h-auto md:hidden ${location.pathname === '/rates' ? '' : 'object-cover'} object-center block`}
                 />
