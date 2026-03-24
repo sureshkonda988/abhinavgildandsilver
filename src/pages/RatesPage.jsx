@@ -8,7 +8,7 @@ const RatesPage = () => {
 
     const fmt = (val) => {
         if (typeof val !== 'number') return '-';
-        return val.toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+        return val.toLocaleString('en-IN', { minimumFractionDigits: 0, maximumFractionDigits: 0 });
     };
 
     const getKaratClass = (key, field) => {
@@ -30,25 +30,23 @@ const RatesPage = () => {
 
             <div className="flex flex-col gap-3">
                 <div className="relative">
-                    <h1 className="text-xl font-poppins font-black text-white/80 mt-2 md:mt-0 mb-3 text-center uppercase tracking-tighter drop-shadow-luxury px-2 md:w-full leading-none">
-                        Live Retail Rates with GST
-                    </h1>
+                    <div className="flex justify-center mb-3">
+                        <h1 className="text-white/90 font-poppins font-bold text-sm md:text-lg uppercase tracking-wider text-center drop-shadow-luxury">
+                            Live Retail Rates with GST
+                        </h1>
+                    </div>
                     
                     <div className="flex flex-col gap-4">
                         {/* Gold Rates Table */}
                         <div className="flex flex-col w-[95%] min-w-[210px] md:max-w-[480px] max-w-[450px] mx-auto md:ml-auto md:mr-4">
-                            <div className="gradient-luxury px-3 py-2 md:px-4 md:py-1.5 rounded-t-xl shadow-lg flex justify-between items-center">
-                                <h2 className="text-white font-poppins font-bold text-[12px] md:text-[14px] uppercase tracking-widest">Gold Rates</h2>
-                                <span className="text-white/40 text-[9px] md:text-[10px] font-black uppercase tracking-widest bg-white/5 px-2 py-1 rounded-full">GST INCL</span>
+                            <div className="gradient-luxury px-3 py-2 md:px-4 md:py-2.5 rounded-t-xl shadow-lg flex justify-between items-center text-white font-poppins font-black text-[10px] md:text-[13px] uppercase tracking-widest">
+                                <span className="w-1/3 text-left">PURITY</span>
+                                <h2 className="w-1/3 text-center text-[12px] md:text-[16px]">Gold Rates</h2>
+                                <span className="w-1/3 text-right">RATES</span>
                             </div>
                             <div className="glass rounded-b-xl overflow-hidden shadow-luxury">
                                 <table className="w-full text-left">
-                                    <thead className="bg-white/10 border-b border-white/10">
-                                        <tr>
-                                            <th className="px-3 py-2 md:px-4 md:py-1 text-[10px] md:text-[12px] font-black text-white/80 uppercase tracking-widest">Purity</th>
-                                            <th className="px-3 py-2 md:px-4 md:py-1 text-[10px] md:text-[12px] font-black text-white/80 uppercase tracking-widest text-right">Price</th>
-                                        </tr>
-                                    </thead>
+                                    {/* Sub-header row removed as per requirement - consolidated into pink bar above */}
                                     <tbody className="divide-y divide-white/5">
                                         {rates.ratesPagePurities.map((gold, idx) => {
                                             const gSellVal = gold?.sell !== '-' && gold?.sell !== undefined ? fmt(gold.sell) : '-';

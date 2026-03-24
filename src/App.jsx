@@ -87,8 +87,7 @@ const AppLayout = () => {
   const criticalImages = React.useMemo(() => {
     const images = ['/Untitled design (31).webp', '/Untitled design (14).webp'];
     if (isHomePage) {
-      images.push('/Untitled design (41).webp');
-      images.push('/Untitled design (42).webp');
+      images.push('/Untitled design (2).png');
       images.push('/Abhinav web.psd.webp');
       images.push('/Untitled design (25).webp');
       images.push('/ChatGPT Image Mar 17, 2026, 10_58_54 AM.webp');
@@ -121,7 +120,7 @@ const AppLayout = () => {
         backgroundColor: isHomePage ? '#FFFFFF' : '#fafafb',
         ...(!isAdminPage ? {
           backgroundImage: isHomePage
-            ? 'url("/WhatsApp Image 2026-03-24 at 3.29.23 PM.webp")'
+            ? 'url("/Untitled design.jpg")'
             : location.pathname === '/alerts'
               ? 'url("/WhatsApp Image 2026-03-12 at 2.19.24 PM.webp")'
               : location.pathname === '/videos'
@@ -147,7 +146,7 @@ const AppLayout = () => {
                   initial={{ opacity: 1 }}
                   animate={{ opacity: 1 }}
                   transition={{ duration: 0.5 }}
-                  src="/Untitled design (42).webp"
+                  src="/Untitled design (2).png"
                   alt="Abhinav Gold & Silver Header Mobile"
                   className="w-full h-auto md:hidden object-contain object-center block"
                 />
@@ -155,7 +154,7 @@ const AppLayout = () => {
                   initial={{ opacity: 1 }}
                   animate={{ opacity: 1 }}
                   transition={{ duration: 0.5 }}
-                  src="/Untitled design (41).webp"
+                  src="/Untitled design (2).png"
                   alt="Abhinav Gold & Silver Header Desktop"
                   className="w-full h-auto hidden md:block object-cover object-center block"
                 />
