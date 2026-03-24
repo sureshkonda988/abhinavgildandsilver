@@ -63,6 +63,8 @@ const MusicPlayer = ({ isEnabled }) => {
 
     const currentUrl = cleanAudioLink(isHomePage ? homeAudio : isRatesPage ? ratesAudio : '');
 
+    const audioRef = useRef(null);
+
     // Aggressive Autoplay Unlocker — fires on first user interaction
     useEffect(() => {
         const unlockAudio = () => {
@@ -89,14 +91,28 @@ const MusicPlayer = ({ isEnabled }) => {
         }
     }, [isEnabled, unlocked]);
 
+    const isYouTube = currentUrl && currentUrl.includes('youtube.com');
+
+    // Handle native audio playback separately from ReactPlayer
+    useEffect(() => {
+        if (!isYouTube && audioRef.current) {
+            if (playing) {
+                audioRef.current.play().catch(e => console.log('Native Audio Play Warning:', e.message));
+            } else {
+                audioRef.current.pause();
+            }
+        }
+    }, [playing, currentUrl, isYouTube]);
+
     if (!currentUrl) return null;
 
     return (
         <div style={{ position: 'fixed', bottom: 0, right: 0, opacity: 0.01, pointerEvents: 'none', width: '1px', height: '1px', overflow: 'hidden', zIndex: -1 }}>
-            <ReactPlayer
-                url={currentUrl}
-                playing={playing}
-                loop={true}
+            {isYouTube ? (
+                <ReactPlayer
+                    url={currentUrl}
+                    playing={playing}
+                    loop={true}
                 volume={1}
                 muted={false}
                 onError={(e) => console.log('MusicPlayer Error:', e)}
@@ -114,7 +130,16 @@ const MusicPlayer = ({ isEnabled }) => {
                         }
                     }
                 }}
-            />
+                />
+            ) : (
+                <audio
+                    ref={audioRef}
+                    src={currentUrl}
+                    loop={true}
+                    onPlay={() => console.log('MusicPlayer: Native Audio Started')}
+                    onError={(e) => console.log('MusicPlayer Native Error', e)}
+                />
+            )}
         </div>
     );
 };
