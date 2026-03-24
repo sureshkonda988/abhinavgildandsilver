@@ -87,7 +87,7 @@ const AppLayout = () => {
   const criticalImages = React.useMemo(() => {
     const images = ['/Untitled design (31).webp', '/Untitled design (14).webp'];
     if (isHomePage) {
-      images.push('/mh.png');
+      images.push('/mh.webp');
       images.push('/Abhinav web.psd.webp');
       images.push('/Untitled design (25).webp');
       images.push('/ChatGPT Image Mar 17, 2026, 10_58_54 AM.webp');
@@ -146,7 +146,7 @@ const AppLayout = () => {
                   initial={{ opacity: 1 }}
                   animate={{ opacity: 1 }}
                   transition={{ duration: 0.5 }}
-                  src="/mh.png"
+                  src="/mh.webp"
                   alt="Abhinav Gold & Silver Header Mobile"
                   className="w-full h-auto md:hidden object-contain object-center block"
                 />
@@ -154,7 +154,7 @@ const AppLayout = () => {
                   initial={{ opacity: 1 }}
                   animate={{ opacity: 1 }}
                   transition={{ duration: 0.5 }}
-                  src="/mh.png"
+                  src="/mh.webp"
                   alt="Abhinav Gold & Silver Header Desktop"
                   className="w-full h-auto hidden md:block object-cover object-center block"
                 />
