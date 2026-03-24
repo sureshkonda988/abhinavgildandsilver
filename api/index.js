@@ -36,37 +36,10 @@ const upload = multer({
 mongoose.connect(process.env.MONGODB_URI)
     .then(() => {
         console.log('Connected to MongoDB');
-        startRatePolling();
     })
-    .catch(err => console.error('MongoDB connection error:', err));
-
-// --- Rate Polling Service ---
+// --- Proxy Helper ---
 const RB_GOLD_URL = 'https://bcast.rbgoldspot.com:7768/VOTSBroadcastStreaming/Services/xml/GetLiveRateByTemplateID/rbgold';
 
-async function startRatePolling() {
-    console.log("Starting server-side rate polling loop...");
-
-    const poll = async () => {
-        try {
-            const text = await fetchRaw(RB_GOLD_URL);
-            if (text && text.length > 50) {
-                await LiveRate.findOneAndUpdate(
-                    { key: 'current_rates' },
-                    { rawText: text, timestamp: new Date() },
-                    { upsert: true, new: true }
-                );
-            }
-        } catch (e) {
-            console.error("Poll Error:", e.message);
-        }
-        // Poll every 1 second
-        setTimeout(poll, 1000);
-    };
-
-    poll();
-}
-
-// --- Proxy Helper ---
 const fetchRaw = (targetUrl) => new Promise((resolve, reject) => {
     try {
         const lib = targetUrl.startsWith('https') ? https : http;

@@ -569,7 +569,7 @@ export const RateProvider = ({ children }) => {
             // This ensures all devices are in sync with admin changes
             // DECOUPLED to avoid blocking the fast rate loop
             const now = Date.now();
-            if (now - lastSettingsFetch.current > 3000) {
+            if (now - lastSettingsFetch.current > 15000) {
                 lastSettingsFetch.current = now;
                 syncSettingsWithMongoDB().catch(e => console.error("Background settings sync failed", e));
             }
