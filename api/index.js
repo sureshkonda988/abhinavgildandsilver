@@ -135,13 +135,29 @@ app.get('/api/rates/settings', async (req, res) => {
     res.setHeader('Expires', '0');
 
     try {
-        let settings = await RateSettings.findOne({ key: 'global_settings' });
+        let settings = await RateSettings.findOne({ key: 'global_settings' }).select('-homeAudio -ratesAudio');
         if (!settings) {
             settings = await RateSettings.create({ key: 'global_settings' });
         }
         res.json(settings);
     } catch (error) {
         res.status(500).json({ message: 'Error fetching settings', error: error.message });
+    }
+});
+
+// 1.5 Get ONLY the massive audio base64 strings (to fetch exactly once on load)
+app.get('/api/rates/audio', async (req, res) => {
+    // Enable caching for audio so browsers definitely don't redownload it aggressively
+    res.setHeader('Cache-Control', 'public, max-age=3600');
+    try {
+        await connectDB();
+        let settings = await RateSettings.findOne({ key: 'global_settings' }).select('homeAudio ratesAudio');
+        if (!settings) {
+            settings = { homeAudio: '', ratesAudio: '' };
+        }
+        res.json({ homeAudio: settings.homeAudio, ratesAudio: settings.ratesAudio });
+    } catch (error) {
+        res.status(500).json({ message: 'Error fetching audio', error: error.message });
     }
 });
 

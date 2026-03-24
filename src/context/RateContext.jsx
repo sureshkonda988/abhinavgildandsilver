@@ -121,8 +121,6 @@ export const RateProvider = ({ children }) => {
                     });
                     if (data.showModified !== undefined) setShowModified(data.showModified);
                     if (data.ticker) setTicker(data.ticker);
-                    if (data.homeAudio !== undefined) setHomeAudio(data.homeAudio);
-                    if (data.ratesAudio !== undefined) setRatesAudio(data.ratesAudio);
                     // We no longer sync `isMusicEnabled` from MongoDB so visitors always default to Paused/Off.
                     // Only their local interaction will toggle it.
                     setSettingsLoaded(true);
@@ -133,10 +131,29 @@ export const RateProvider = ({ children }) => {
         }
     };
 
+    const fetchAudioUrls = async () => {
+        try {
+            const res = await fetch(`${API_BASE}/rates/audio`, {
+                headers: {
+                    'Cache-Control': 'no-cache',
+                    'Pragma': 'no-cache'
+                }
+            });
+            if (res.ok) {
+                const data = await res.json();
+                if (data.homeAudio !== undefined) setHomeAudio(data.homeAudio);
+                if (data.ratesAudio !== undefined) setRatesAudio(data.ratesAudio);
+            }
+        } catch (error) {
+            console.error("Failed to fetch audio URLs from MongoDB:", error);
+        }
+    };
+
     // Initial fetch on mount
     useEffect(() => {
         syncSettingsWithMongoDB();
         syncVideosWithMongoDB();
+        fetchAudioUrls();
     }, []);
 
     const syncVideosWithMongoDB = async () => {
