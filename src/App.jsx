@@ -38,7 +38,7 @@ const Preloader = () => (
     />
     <div className="absolute inset-0 bg-black/20" /> {/* Subtle overlay for better contrast */}
     <motion.img
-      src="/Untitled design (31).webp"
+      src="/logo mo.png"
       alt="Abhinav Loading"
       animate={{
         scale: [1, 1.1, 1],
@@ -85,15 +85,16 @@ const AppLayout = () => {
 
   // Critical images to preload based on viewport
   const criticalImages = React.useMemo(() => {
-    const images = ['/Untitled design (31).webp', '/Untitled design (14).webp'];
+    const images = ['/logo mo.png', '/bg-internal.webp'];
     if (isHomePage) {
+      images.push('/header-home.webp');
       images.push('/mh.webp');
       images.push('/Abhinav web.psd.webp');
       images.push('/Untitled design (25).webp');
       images.push('/ChatGPT Image Mar 17, 2026, 10_58_54 AM.webp');
       images.push('/Untitled design (38).webp');
     } else if (location.pathname === '/rates') {
-      images.push('/Untitled design (30).webp');
+      images.push('/header-rates-desktop.webp');
     }
     return images;
   }, [isHomePage]);
@@ -115,24 +116,50 @@ const AppLayout = () => {
 
   return (
     <main
-      className="min-h-screen Selection:bg-magenta-100 Selection:text-magenta-900 relative"
+      className={`min-h-screen Selection:bg-magenta-100 Selection:text-magenta-900 relative responsive-bg ${isHomePage ? 'home-bg' : ''}`}
       style={{
         backgroundColor: isHomePage ? '#FFFFFF' : '#fafafb',
         ...(!isAdminPage ? {
-          backgroundImage: isHomePage
-            ? 'url("/Untitled design.webp")'
-            : location.pathname === '/alerts'
-              ? 'url("/WhatsApp Image 2026-03-12 at 2.19.24 PM.webp")'
-              : location.pathname === '/videos'
-                ? 'url("/Untitled design (10).webp")'
-                : 'url("/Untitled design (14).webp")',
-          backgroundAttachment: 'fixed',
-          backgroundPosition: 'center',
-          backgroundRepeat: 'no-repeat',
-          backgroundSize: 'cover'
+          // Main background is now handled by the .bg-container div below for better control
+          backgroundColor: isHomePage ? 'transparent' : '#fafafb',
         } : {})
       }}
     >
+      {/* Responsive Background Layer */}
+      {!isAdminPage && (
+        <div className="bg-container">
+          {/* Desktop/Common Backgrounds */}
+          {isHomePage ? (
+            <img 
+              src="/bg-home-desktop.webp" 
+              alt="Home Desktop Background" 
+              className="responsive-bg-img hidden md:block" 
+            />
+          ) : (
+            <img 
+              src={
+                location.pathname === '/alerts'
+                  ? "/bg-alerts.webp"
+                  : location.pathname === '/videos'
+                    ? "/bg-videos.webp"
+                    : "/bg-internal.webp"
+              } 
+              alt="Internal Background" 
+              className="responsive-bg-img"
+              key={location.pathname}
+            />
+          )}
+
+          {/* Home Mobile Background */}
+          {isHomePage && (
+            <img 
+              src="/bg-home-mobile.webp" 
+              alt="Home Mobile Background" 
+              className="responsive-bg-img md:hidden"
+            />
+          )}
+        </div>
+      )}
       
 
       {/* Header and Ticker Grouped to prevent gaps */}
@@ -146,7 +173,7 @@ const AppLayout = () => {
                   initial={{ opacity: 1 }}
                   animate={{ opacity: 1 }}
                   transition={{ duration: 0.5 }}
-                  src="/mh.webp"
+                  src="/header-home.webp"
                   alt="Abhinav Gold & Silver Header Mobile"
                   className="w-full h-auto md:hidden object-contain object-center block"
                 />
@@ -154,7 +181,7 @@ const AppLayout = () => {
                   initial={{ opacity: 1 }}
                   animate={{ opacity: 1 }}
                   transition={{ duration: 0.5 }}
-                  src="/mh.webp"
+                  src="/header-home.webp"
                   alt="Abhinav Gold & Silver Header Desktop"
                   className="w-full h-auto hidden md:block object-cover object-center block"
                 />
@@ -165,7 +192,7 @@ const AppLayout = () => {
                   initial={{ opacity: 1 }}
                   animate={{ opacity: 1 }}
                   transition={{ duration: 0.5 }}
-                  src={['/alerts', '/videos'].includes(location.pathname) ? "/Untitled design (31).webp" : "/Untitled design (21).webp"}
+                  src={['/alerts', '/videos'].includes(location.pathname) ? "/logo mo.png" : "/header-internal-mobile.webp"}
                   alt="Abhinav Gold & Silver Header Mobile"
                   className={`${['/alerts', '/videos'].includes(location.pathname) ? 'w-[50%] mx-auto py-4 mt-16 max-w-[200px]' : location.pathname === '/rates' ? 'w-full h-auto' : 'w-full min-h-[220px]'} h-auto md:hidden ${location.pathname === '/rates' ? '' : 'object-cover'} object-center block`}
                 />
@@ -173,7 +200,7 @@ const AppLayout = () => {
                   initial={{ opacity: 1 }}
                   animate={{ opacity: 1 }}
                   transition={{ duration: 0.5 }}
-                  src={['/alerts', '/videos'].includes(location.pathname) ? "/Untitled design (31).webp" : "/Untitled design (30).webp"}
+                  src={['/alerts', '/videos'].includes(location.pathname) ? "/logo mo.png" : "/header-rates-desktop.webp"}
                   alt="Abhinav Gold & Silver Header Desktop"
                   className={`${['/alerts', '/videos'].includes(location.pathname) ? 'w-[30%] mx-auto py-6 max-w-[250px]' : location.pathname === '/rates' ? 'w-full h-auto' : 'w-full min-h-[350px]'} h-auto hidden md:block ${location.pathname === '/rates' ? '' : 'object-cover'} object-center block`}
                 />
@@ -217,7 +244,11 @@ const AppLayout = () => {
 
 
       {/* Desktop Footer — hidden on Admin, Desktop Only */}
-      {!isAdminPage && <Footer />}
+      {!isAdminPage && (
+        <div className={location.pathname === '/alerts' ? 'block' : 'hidden md:block'}>
+          <Footer />
+        </div>
+      )}
     </main>
   );
 };

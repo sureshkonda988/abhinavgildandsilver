@@ -24,7 +24,6 @@ const INITIAL_SPOT_CONFIG = [
 
 const INITIAL_RTGS_CONFIG = [
     { id: '945', name: 'Gold 999 (100 grams)', factor: 10 },
-    { id: '945', name: 'Gold 999 (500 grams)', factor: 50 },
     { id: '2966', name: 'Silver 999 (30 KGS)', factor: 1 },
     { id: '2987', name: 'Silver 999 (5 KGS)', factor: 1 }
 ];
@@ -45,6 +44,7 @@ export const RateProvider = ({ children }) => {
     const lastFetchStartTime = React.useRef(0);
     const failureCount = React.useRef(0);
     const lastSettingsFetch = React.useRef(0);
+    const sessionHighLow = React.useRef({}); // { id: { high: N, low: N } }
 
     // Proxy rotation state
     const currentProxyIndex = React.useRef(0);
@@ -303,7 +303,28 @@ export const RateProvider = ({ children }) => {
         const rtgs = INITIAL_RTGS_CONFIG.map(conf => {
             const it = dataMap[conf.id] || (conf.name && dataMap[conf.name.toLowerCase()]);
             if (!it) return { ...conf, buy: '-', sell: '-', stock: false };
-            return { id: it.id, name: conf.name, buy: it.bid, sell: it.ask, stock: it.stock, low: it.low, high: it.high, factor: conf.factor || 1 };
+
+            // Session-based High/Low tracking for Sell (ask) rates
+            const sellPrice = it.ask;
+            if (typeof sellPrice === 'number') {
+                const current = sessionHighLow.current[conf.id] || { high: -Infinity, low: Infinity };
+                if (sellPrice > current.high) current.high = sellPrice;
+                if (sellPrice < current.low) current.low = sellPrice;
+                sessionHighLow.current[conf.id] = current;
+            }
+
+            const sh = sessionHighLow.current[conf.id];
+            
+            return { 
+                id: it.id, 
+                name: conf.name, 
+                buy: it.bid, 
+                sell: it.ask, 
+                stock: it.stock, 
+                low: sh ? sh.low : it.low, 
+                high: sh ? sh.high : it.high, 
+                factor: conf.factor || 1 
+            };
         });
 
         console.log("[DEBUG] Parsed RTGS (Inventory):", rtgs.filter(r => r.sell !== '-').length, "items found.");

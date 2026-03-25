@@ -105,6 +105,41 @@
   .header-box-premium {
     @apply inline-flex items-center justify-center px-4 py-2 rounded-xl bg-slate-900/40 border border-white/20 text-white font-playfair font-black text-[10px] md:text-sm tracking-[0.2em] shadow-lg backdrop-blur-md;
   }
+
+  .bg-container {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: -1;
+    overflow: hidden;
+    background-color: #000;
+  }
+
+  .responsive-bg-img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.5s ease;
+  }
+
+  .responsive-bg {
+    /* Base wrapper styles - but no background-image here anymore */
+    position: relative;
+    z-index: 10;
+  }
+
+  .home-bg {
+    background-color: transparent !important;
+  }
+
+  @media (max-width: 767px) {
+    .home-bg {
+      /* Show the image background through */
+      background-color: transparent !important;
+    }
+  }
 }
 
 @keyframes float {

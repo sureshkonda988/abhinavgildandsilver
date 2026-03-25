@@ -31,9 +31,9 @@ const Navigation = () => {
                         {/* Logo */}
                         <Link to="/" className="flex items-center gap-3 group">
                             <img 
-                                src="/Untitled design (31).webp" 
-                                alt="Abhinav Logo" 
-                                className="w-10 h-10 object-contain" 
+                                src="/logo mo.png" 
+                                alt="Abhinav Gold & Silver Logo" 
+                                className="w-8 h-8 md:w-14 md:h-14 object-contain transition-transform duration-500 group-hover:scale-110 drop-shadow-md" 
                             />
                             <div className="flex flex-col">
                                 <span className="text-[#f4cb4c] font-playfair font-black text-xl tracking-tight leading-none uppercase">ABHINAV</span>

@@ -243,8 +243,21 @@ app.post('/api/music/upload', upload.single('file'), (req, res) => {
         const projectRoot = path.resolve(__dirname, '..');
         const musicDir = path.join(projectRoot, 'public', 'music');
         
-        if (!fs.existsSync(musicDir)) {
-            fs.mkdirSync(musicDir, { recursive: true });
+        try {
+            if (!fs.existsSync(musicDir)) {
+                fs.mkdirSync(musicDir, { recursive: true });
+            }
+            // Simple check if writable by trying to write and delete a tiny temp file
+            const testFile = path.join(musicDir, '.write_test');
+            fs.writeFileSync(testFile, 'test');
+            fs.unlinkSync(testFile);
+        } catch (e) {
+            console.error("Music directory not writable:", e.message);
+            return res.status(500).json({ 
+                message: 'Server storage is read-only or permission denied', 
+                error: e.message,
+                path: musicDir
+            });
         }
 
         const filePath = path.join(musicDir, 'background.mp3');
@@ -253,7 +266,12 @@ app.post('/api/music/upload', upload.single('file'), (req, res) => {
         console.log("File uploaded successfully to:", filePath);
         res.json({ message: "Background music uploaded successfully" });
     } catch (error) {
-        res.status(500).json({ message: 'Error uploading music', error: error.message });
+        console.error("Upload error:", error);
+        res.status(500).json({ 
+            message: 'Error uploading music', 
+            error: error.message,
+            stack: error.stack
+        });
     }
 });
 
