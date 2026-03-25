@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { useRates } from '../context/RateContext';
 import { motion, AnimatePresence } from 'framer-motion';
 import ReactPlayer from 'react-player';
-import { Lock, LogOut, TrendingUp, Settings, Video, MessageSquare, Play, Pause, Trash2, Save, RefreshCw, CheckCircle2, AlertCircle, Music, Upload, Youtube, HardDrive } from 'lucide-react';
+import { Lock, LogOut, TrendingUp, Settings, Video, MessageSquare, Play, Pause, Trash2, Save, RefreshCw, CheckCircle2, AlertCircle, Music, Upload, Youtube, HardDrive, Clock } from 'lucide-react';
 
 const AdminPage = () => {
     const { rates, rawRates, adj, showModified, settingsLoaded, videosLoaded, updateSettings, updateVideos, refreshRates, loading, error, ticker: contextTicker, videos: contextVideos, isMusicEnabled, toggleMusic, homeAudio, ratesAudio } = useRates();
@@ -283,7 +283,7 @@ const AdminPage = () => {
                             initial={{ y: 20, opacity: 0 }}
                             animate={{ y: 0, opacity: 1 }}
                             transition={{ delay: 0.2 }}
-                            src="/logo mo.png" 
+                            src="/logo.webp" 
                             alt="Abhinav Logo" 
                             className="w-48 h-48 md:w-64 md:h-64 object-contain drop-shadow-luxury" 
                         />
@@ -333,7 +333,7 @@ const AdminPage = () => {
     return (
         <div 
             className="min-h-screen pb-32 text-slate-800 bg-fixed bg-center bg-cover"
-            style={{ backgroundImage: "url('/Untitled design (14).webp')" }}
+            style={{ backgroundImage: "url('/bg-internal.webp')" }}
         >
             {/* Player for Previewing YouTube */}
             {previewingUrl && (previewingUrl.includes('youtube.com') || previewingUrl.includes('youtu.be')) && (
@@ -362,7 +362,7 @@ const AdminPage = () => {
             )}
             <div className="bg-black/90 backdrop-blur-md border-b border-white/20 px-6 py-3 flex justify-between items-center sticky top-0 z-30 shadow-md">
                 <div className="flex items-center gap-3">
-                    <img src="/logo mo.png" alt="Abhinav Logo" className="w-10 h-10 object-contain" />
+                    <img src="/logo.webp" alt="Abhinav Logo" className="w-10 h-10 object-contain" />
                     <div className="flex flex-col">
                         <span className="font-playfair font-black text-[#f4cb4c] uppercase tracking-widest text-sm md:text-lg leading-none">ABHINAV</span>
                         <span className="text-[8px] text-[#f4cb4c]/80 font-poppins font-bold tracking-[0.2em] uppercase">Admin Dashboard</span>
@@ -383,6 +383,7 @@ const AdminPage = () => {
                     <TabBtn id="rates" icon={<TrendingUp size={18} />} label="Rates" active={activeTab === 'rates'} onClick={setActiveTab} />
                     <TabBtn id="news" icon={<MessageSquare size={18} />} label="News" active={activeTab === 'news'} onClick={setActiveTab} />
                     <TabBtn id="videos" icon={<Video size={18} />} label="Media" active={activeTab === 'videos'} onClick={setActiveTab} />
+                    <TabBtn id="market" icon={<Clock size={18} />} label="Market" active={activeTab === 'market'} onClick={setActiveTab} />
                     <TabBtn id="settings" icon={<Settings size={18} />} label="Settings" active={activeTab === 'settings'} onClick={setActiveTab} />
                 </div>
 
@@ -683,6 +684,88 @@ const AdminPage = () => {
                                                     <Play size={14} />
                                                 </button>
                                             </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </motion.div>
+                    )}
+
+                    {activeTab === 'market' && (
+                        <motion.div key="market" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }}>
+                            <div className="glass p-4 md:p-8 rounded-[30px] md:rounded-[40px] shadow-luxury border-white/20">
+                                <h3 className="text-lg md:text-xl font-playfair font-black text-[#f4cb4c] uppercase tracking-widest mb-6 border-b border-[#f4cb4c]/20 pb-2">Market Status Settings</h3>
+                                
+                                <div className="grid gap-8">
+                                    <div className="flex flex-col md:flex-row gap-6">
+                                        <div className="flex-1 bg-white/5 p-6 rounded-3xl border border-white/10">
+                                            <span className="text-[10px] font-black text-[#f4cb4c] uppercase tracking-widest mb-4 block">Operation Mode</span>
+                                            <div className="flex gap-3">
+                                                <button
+                                                    onClick={() => updateSettings({ adjFn: (prev) => ({ ...prev, marketStatus: { ...prev.marketStatus, mode: 'regular' } }) })}
+                                                    className={`flex-1 py-3 rounded-xl font-poppins font-black text-[10px] uppercase tracking-widest transition-all ${adj.marketStatus.mode === 'regular' ? 'bg-[#f4cb4c] text-slate-900' : 'bg-white/10 text-white/60'}`}
+                                                >
+                                                    Regular (10am-8pm)
+                                                </button>
+                                                <button
+                                                    onClick={() => updateSettings({ adjFn: (prev) => ({ ...prev, marketStatus: { ...prev.marketStatus, mode: 'modified' } }) })}
+                                                    className={`flex-1 py-3 rounded-xl font-poppins font-black text-[10px] uppercase tracking-widest transition-all ${adj.marketStatus.mode === 'modified' ? 'bg-[#f4cb4c] text-slate-900' : 'bg-white/10 text-white/60'}`}
+                                                >
+                                                    Modified
+                                                </button>
+                                            </div>
+                                        </div>
+
+                                        <div className={`flex-1 bg-white/5 p-6 rounded-3xl border border-white/10 transition-opacity ${adj.marketStatus.mode === 'modified' ? 'opacity-100' : 'opacity-40 pointer-events-none'}`}>
+                                            <span className="text-[10px] font-black text-[#f4cb4c] uppercase tracking-widest mb-4 block">Manual Override</span>
+                                            <div className="flex gap-3">
+                                                <button
+                                                    onClick={() => updateSettings({ adjFn: (prev) => ({ ...prev, marketStatus: { ...prev.marketStatus, modifiedStatus: 'open' } }) })}
+                                                    className={`flex-1 py-3 rounded-xl font-poppins font-black text-[10px] uppercase tracking-widest transition-all ${adj.marketStatus.modifiedStatus === 'open' ? 'bg-green-500 text-white' : 'bg-white/10 text-white/60'}`}
+                                                >
+                                                    Force Open
+                                                </button>
+                                                <button
+                                                    onClick={() => updateSettings({ adjFn: (prev) => ({ ...prev, marketStatus: { ...prev.marketStatus, modifiedStatus: 'closed' } }) })}
+                                                    className={`flex-1 py-3 rounded-xl font-poppins font-black text-[10px] uppercase tracking-widest transition-all ${adj.marketStatus.modifiedStatus === 'closed' ? 'bg-red-500 text-white' : 'bg-white/10 text-white/60'}`}
+                                                >
+                                                    Force Closed
+                                                </button>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div className={`bg-white/5 p-6 rounded-3xl border border-white/10 transition-opacity ${adj.marketStatus.mode === 'modified' ? 'opacity-100' : 'opacity-40 pointer-events-none'}`}>
+                                        <span className="text-[10px] font-black text-[#f4cb4c] uppercase tracking-widest mb-6 block">Custom Timings (24-Hour Format)</span>
+                                        <div className="grid grid-cols-2 gap-8">
+                                            <div className="flex flex-col gap-2">
+                                                <label className="text-[10px] font-bold text-white/40 uppercase tracking-widest ml-2">Opening Time</label>
+                                                <input
+                                                    type="time"
+                                                    value={adj.marketStatus.openTime}
+                                                    onChange={(e) => updateSettings({ adjFn: (prev) => ({ ...prev, marketStatus: { ...prev.marketStatus, openTime: e.target.value } }) })}
+                                                    className="bg-white/10 border border-white/10 text-white px-6 py-3 rounded-xl font-poppins text-lg focus:ring-2 focus:ring-[#f4cb4c] outline-none transition-all"
+                                                />
+                                            </div>
+                                            <div className="flex flex-col gap-2">
+                                                <label className="text-[10px] font-bold text-white/40 uppercase tracking-widest ml-2">Closing Time</label>
+                                                <input
+                                                    type="time"
+                                                    value={adj.marketStatus.closeTime}
+                                                    onChange={(e) => updateSettings({ adjFn: (prev) => ({ ...prev, marketStatus: { ...prev.marketStatus, closeTime: e.target.value } }) })}
+                                                    className="bg-white/10 border border-white/10 text-white px-6 py-3 rounded-xl font-poppins text-lg focus:ring-2 focus:ring-[#f4cb4c] outline-none transition-all"
+                                                />
+                                            </div>
+                                        </div>
+                                    </div>
+                                    
+                                    <div className="bg-[#f4cb4c]/10 border border-[#f4cb4c]/20 p-6 rounded-3xl flex items-start gap-4">
+                                        <AlertCircle className="text-[#f4cb4c] shrink-0 mt-1" size={20} />
+                                        <div className="flex flex-col gap-1">
+                                            <span className="text-[11px] font-black text-[#f4cb4c] uppercase tracking-widest">Timing Note</span>
+                                            <p className="text-[10px] text-white/60 font-bold uppercase leading-relaxed tracking-wider">
+                                                All timings follow India Standard Time (IST). Custom timings in "Modified" mode will only apply if "Manual Override" is set to "Force Open". "Regular" mode consistently follows 10:00 AM to 08:00 PM IST.
+                                            </p>
                                         </div>
                                     </div>
                                 </div>

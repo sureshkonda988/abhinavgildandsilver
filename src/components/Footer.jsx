@@ -47,7 +47,7 @@ const Footer = () => {
                     <div className="flex flex-col gap-6">
                         {/* Hidden Admin Login via Logo */}
                         <Link to="/admin" className="flex items-center gap-3">
-                            <img src="/logo mo.png" alt="Abhinav Logo" className="w-12 h-12 object-contain" />
+                            <img src="/logo.webp" alt="Abhinav Logo" className="w-12 h-12 object-contain" />
                             <div className="flex flex-col">
                                 <span className="text-white font-playfair font-black text-xl tracking-tight leading-none uppercase">ABHINAV</span>
                                 <span className="text-[10px] text-gold-400 font-poppins font-bold tracking-[0.2em] leading-tight">GOLD & SILVER</span>
@@ -126,7 +126,7 @@ const Footer = () => {
                             <Link to="/privacy" className="hover:text-gold-400 transition-colors">Privacy Policy</Link>
                             <Link to="/terms" className="hover:text-gold-400 transition-colors">Terms of Service</Link>
                             <Link to="/admin" className="hover:opacity-80 transition-opacity">
-                                <img src="/logo mo.png" alt="Admin Login" className="w-10 h-10 object-contain grayscale hover:grayscale-0 transition-all" />
+                                <img src="/logo.webp" alt="Admin Login" className="w-10 h-10 object-contain grayscale hover:grayscale-0 transition-all" />
                             </Link>
                         </div>
                         <div className="h-4 w-px bg-white/10 hidden md:block" />

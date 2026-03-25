@@ -38,7 +38,13 @@ const rateSettingsSchema = new mongoose.Schema({
         showModified: { type: Boolean, default: false }
     },
     homeAudio: { type: String, default: '' },
-    ratesAudio: { type: String, default: '' }
+    ratesAudio: { type: String, default: '' },
+    marketStatus: {
+        mode: { type: String, enum: ['regular', 'modified'], default: 'regular' },
+        modifiedStatus: { type: String, enum: ['open', 'closed'], default: 'open' },
+        openTime: { type: String, default: '10:00' },
+        closeTime: { type: String, default: '20:00' }
+    }
 }, { timestamps: true });
 
 const RateSettings = mongoose.model('RateSettings', rateSettingsSchema);

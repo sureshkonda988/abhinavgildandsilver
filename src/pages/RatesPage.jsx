@@ -18,7 +18,7 @@ const RatesPage = () => {
     };
     return (
         <motion.div
-            initial={{ opacity: 0 }}
+            initial={{ opacity: 1 }}
             animate={{ opacity: 1 }}
             className="pb-12 md:pb-8 md:min-h-0 px-4 pt-4 max-w-7xl mx-auto mt-2 md:absolute md:top-24 md:right-4 md:z-40 md:w-full md:max-w-[500px]"
         >

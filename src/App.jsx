@@ -38,7 +38,7 @@ const Preloader = () => (
     />
     <div className="absolute inset-0 bg-black/20" /> {/* Subtle overlay for better contrast */}
     <motion.img
-      src="/logo mo.png"
+      src="/logo.webp"
       alt="Abhinav Loading"
       animate={{
         scale: [1, 1.1, 1],
@@ -85,16 +85,18 @@ const AppLayout = () => {
 
   // Critical images to preload based on viewport
   const criticalImages = React.useMemo(() => {
-    const images = ['/logo mo.png', '/bg-internal.webp'];
+    const images = ['/logo.webp', '/bg-internal.webp', '/bg-ticker.webp'];
     if (isHomePage) {
-      images.push('/header-home.webp');
+      images.push('/desktop-home-header.webp');
+      images.push('/mobile-home-header.webp');
       images.push('/mh.webp');
       images.push('/Abhinav web.psd.webp');
       images.push('/Untitled design (25).webp');
       images.push('/ChatGPT Image Mar 17, 2026, 10_58_54 AM.webp');
       images.push('/Untitled design (38).webp');
     } else if (location.pathname === '/rates') {
-      images.push('/header-rates-desktop.webp');
+      images.push('/desktop-rates-header.webp');
+      images.push('/mobile-rates-header.webp');
     }
     return images;
   }, [isHomePage]);
@@ -173,7 +175,7 @@ const AppLayout = () => {
                   initial={{ opacity: 1 }}
                   animate={{ opacity: 1 }}
                   transition={{ duration: 0.5 }}
-                  src="/header-home.webp"
+                  src="/mobile-home-header.webp"
                   alt="Abhinav Gold & Silver Header Mobile"
                   className="w-full h-auto md:hidden object-contain object-center block"
                 />
@@ -181,7 +183,7 @@ const AppLayout = () => {
                   initial={{ opacity: 1 }}
                   animate={{ opacity: 1 }}
                   transition={{ duration: 0.5 }}
-                  src="/header-home.webp"
+                  src="/desktop-home-header.webp"
                   alt="Abhinav Gold & Silver Header Desktop"
                   className="w-full h-auto hidden md:block object-cover object-center block"
                 />
@@ -192,16 +194,16 @@ const AppLayout = () => {
                   initial={{ opacity: 1 }}
                   animate={{ opacity: 1 }}
                   transition={{ duration: 0.5 }}
-                  src={['/alerts', '/videos'].includes(location.pathname) ? "/logo mo.png" : "/header-internal-mobile.webp"}
-                  alt="Abhinav Gold & Silver Header Mobile"
+                  src={location.pathname === '/rates' ? "/mobile-rates-header.webp" : ['/alerts', '/videos'].includes(location.pathname) ? "/logo.webp" : "/header-internal-mobile.webp"}
+                  alt={['/alerts', '/videos'].includes(location.pathname) ? "Abhinav Gold & Silver Logo" : "Abhinav Gold & Silver Header Mobile"}
                   className={`${['/alerts', '/videos'].includes(location.pathname) ? 'w-[50%] mx-auto py-4 mt-16 max-w-[200px]' : location.pathname === '/rates' ? 'w-full h-auto' : 'w-full min-h-[220px]'} h-auto md:hidden ${location.pathname === '/rates' ? '' : 'object-cover'} object-center block`}
                 />
                 <motion.img
                   initial={{ opacity: 1 }}
                   animate={{ opacity: 1 }}
                   transition={{ duration: 0.5 }}
-                  src={['/alerts', '/videos'].includes(location.pathname) ? "/logo mo.png" : "/header-rates-desktop.webp"}
-                  alt="Abhinav Gold & Silver Header Desktop"
+                  src={location.pathname === '/rates' ? "/desktop-rates-header.webp" : ['/alerts', '/videos'].includes(location.pathname) ? "/logo.webp" : "/header-rates-desktop.webp"}
+                  alt={['/alerts', '/videos'].includes(location.pathname) ? "Abhinav Gold & Silver Logo" : "Abhinav Gold & Silver Header Desktop"}
                   className={`${['/alerts', '/videos'].includes(location.pathname) ? 'w-[30%] mx-auto py-6 max-w-[250px]' : location.pathname === '/rates' ? 'w-full h-auto' : 'w-full min-h-[350px]'} h-auto hidden md:block ${location.pathname === '/rates' ? '' : 'object-cover'} object-center block`}
                 />
               </div>

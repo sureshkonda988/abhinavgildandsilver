@@ -64,6 +64,12 @@ export const RateProvider = ({ children }) => {
             gold: { mode: 'amount', value: 0 },
             silver: { mode: 'amount', value: 0 },
             showModified: false
+        },
+        marketStatus: {
+            mode: 'regular',
+            modifiedStatus: 'open',
+            openTime: '10:00',
+            closeTime: '20:00'
         }
     });
 
@@ -119,6 +125,12 @@ export const RateProvider = ({ children }) => {
                             gold: { mode: 'amount', value: 0 },
                             silver: { mode: 'amount', value: 0 },
                             showModified: false
+                        },
+                        marketStatus: data.marketStatus || {
+                            mode: 'regular',
+                            modifiedStatus: 'open',
+                            openTime: '10:00',
+                            closeTime: '20:00'
                         }
                     });
                     if (data.showModified !== undefined) setShowModified(data.showModified);
@@ -198,6 +210,7 @@ export const RateProvider = ({ children }) => {
                 baseModifications: newAdj.baseModifications,
                 stockOverrides: newAdj.stockOverrides,
                 ratesPage: newAdj.ratesPage,
+                marketStatus: newAdj.marketStatus,
                 ticker: payload.ticker !== undefined ? payload.ticker : ticker,
                 showModified: payload.showModified !== undefined ? payload.showModified : showModified,
                 isMusicEnabled: payload.isMusicEnabled !== undefined ? payload.isMusicEnabled : isMusicEnabled
@@ -777,8 +790,54 @@ export const RateProvider = ({ children }) => {
         return { spot, rtgs, purities, ratesPagePurities, ratesPageSilver };
     }, [rawRates, adj, showModified]);
 
+    const getMarketStatus = () => {
+        const config = adj.marketStatus;
+        if (!config) return { isOpen: true, message: 'Market Open', timings: 'Open 10 AM Closed 8 PM' };
+
+        const now = new Date();
+        const istTime = new Intl.DateTimeFormat('en-US', {
+            timeZone: 'Asia/Kolkata',
+            hour: 'numeric',
+            minute: 'numeric',
+            hour12: false
+        }).format(now);
+
+        const [hours, minutes] = istTime.split(':').map(Number);
+        const currentMinutes = hours * 60 + minutes;
+
+        if (config.mode === 'modified') {
+            const [oH, oM] = config.openTime.split(':').map(Number);
+            const [cH, cM] = config.closeTime.split(':').map(Number);
+            const openMin = oH * 60 + oM;
+            const closeMin = cH * 60 + cM;
+
+            const timeRangeOpen = currentMinutes >= openMin && currentMinutes < closeMin;
+            const isOpen = config.modifiedStatus === 'open' && timeRangeOpen;
+
+            const formatTime = (t) => {
+                const [h, m] = t.split(':').map(Number);
+                const suffix = h >= 12 ? 'PM' : 'AM';
+                const h12 = h % 12 || 12;
+                return `${h12}:${m.toString().padStart(2, '0')} ${suffix}`;
+            };
+
+            return {
+                isOpen,
+                message: isOpen ? 'Market Open' : 'Market Closed',
+                timings: `Open ${formatTime(config.openTime)} Closed ${formatTime(config.closeTime)}`
+            };
+        } else {
+            const isOpen = currentMinutes >= 600 && currentMinutes < 1200;
+            return {
+                isOpen,
+                message: isOpen ? 'Market Open' : 'Market Closed',
+                timings: 'Open 10:00 AM Closed 08:00 PM'
+            };
+        }
+    };
+
     return (
-        <RateContext.Provider value={{ rates, rawRates, loading, error, news, adj, showModified, settingsLoaded, ticker, videos, videosLoaded, isMusicEnabled, toggleMusic, homeAudio, setHomeAudio, ratesAudio, setRatesAudio, updateSettings, updateVideos, refreshRates: fetchAllRates, getPriceClass }}>
+        <RateContext.Provider value={{ rates, rawRates, loading, error, news, adj, showModified, settingsLoaded, ticker, videos, videosLoaded, isMusicEnabled, toggleMusic, homeAudio, setHomeAudio, ratesAudio, setRatesAudio, updateSettings, updateVideos, refreshRates: fetchAllRates, getPriceClass, getMarketStatus }}>
 
             {children}
         </RateContext.Provider>

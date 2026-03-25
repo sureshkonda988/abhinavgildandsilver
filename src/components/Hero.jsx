@@ -141,6 +141,26 @@ const Hero = () => {
                 <Ticker />
             </div>
 
+            {/* Market Status Box - Moved here as requested */}
+            <div className="flex justify-center mt-6 md:mt-8 px-4">
+                {(() => {
+                    const market = useRates().getMarketStatus();
+                    return (
+                        <motion.div 
+                            initial={{ opacity: 0, y: -10 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            className={`px-6 py-2 md:px-10 md:py-4 rounded-[24px] border-2 flex flex-col items-center shadow-lg transition-all duration-500 max-w-lg w-full ${market.isOpen ? 'bg-[#e6f9ec] border-[#1c7c3c] text-[#1c7c3c]' : 'bg-red-50 border-red-500 text-red-700'}`}
+                        >
+                            <div className="flex items-center gap-3">
+                                <div className={`w-2.5 h-2.5 md:w-3.5 md:h-3.5 rounded-full ${market.isOpen ? 'bg-green-500 animate-pulse' : 'bg-red-500'}`} />
+                                <span className="font-poppins font-black text-sm md:text-2xl uppercase tracking-[0.2em]">{market.message}</span>
+                            </div>
+                            <span className="font-poppins font-black text-[9px] md:text-xs uppercase tracking-[0.3em] opacity-60 mt-1">{market.timings} (IST)</span>
+                        </motion.div>
+                    );
+                })()}
+            </div>
+
             {/* Table 2: Market Rates (Bullion Style) */}
             <section className="max-w-3xl mx-auto px-4 md:px-8 w-full mt-10 md:mt-20 mb-8 md:mb-12 relative z-10">
                 <Heading text="LOCAL GOLD AND SILVER RETAIL RATES" />
