@@ -24,6 +24,7 @@ const INITIAL_SPOT_CONFIG = [
 
 const INITIAL_RTGS_CONFIG = [
     { id: '945', name: 'Gold 999 (100 grams)', factor: 10 },
+    { id: '945', name: 'Gold 999 (500 grams)', factor: 50 },
     { id: '2966', name: 'Silver 999 (30 KGS)', factor: 1 },
     { id: '2987', name: 'Silver 999 (5 KGS)', factor: 1 }
 ];
@@ -83,8 +84,9 @@ export const RateProvider = ({ children }) => {
         const persisted = localStorage.getItem('abhinav_music_enabled');
         return persisted === 'true'; // Defaults to false if never set
     });
-    const [homeAudio, setHomeAudio] = useState('');
-    const [ratesAudio, setRatesAudio] = useState('');
+
+    const [homeAudio, setHomeAudio] = useState('/music/background.mp3');
+    const [ratesAudio, setRatesAudio] = useState('/music/background.mp3');
 
     const toggleMusic = () => {
         const nextValue = !isMusicEnabled;
@@ -131,29 +133,10 @@ export const RateProvider = ({ children }) => {
         }
     };
 
-    const fetchAudioUrls = async () => {
-        try {
-            const res = await fetch(`${API_BASE}/rates/audio`, {
-                headers: {
-                    'Cache-Control': 'no-cache',
-                    'Pragma': 'no-cache'
-                }
-            });
-            if (res.ok) {
-                const data = await res.json();
-                if (data.homeAudio !== undefined) setHomeAudio(data.homeAudio);
-                if (data.ratesAudio !== undefined) setRatesAudio(data.ratesAudio);
-            }
-        } catch (error) {
-            console.error("Failed to fetch audio URLs from MongoDB:", error);
-        }
-    };
-
     // Initial fetch on mount
     useEffect(() => {
         syncSettingsWithMongoDB();
         syncVideosWithMongoDB();
-        fetchAudioUrls();
     }, []);
 
     const syncVideosWithMongoDB = async () => {
@@ -207,10 +190,6 @@ export const RateProvider = ({ children }) => {
         }
         if (payload.ticker !== undefined) setTicker(payload.ticker);
         
-        // Update local audio state if provided in payload
-        if (payload.homeAudio !== undefined) setHomeAudio(payload.homeAudio);
-        if (payload.ratesAudio !== undefined) setRatesAudio(payload.ratesAudio);
-
         // 2. Prepare the full payload for MongoDB sync using the newly evaluated adj
         try {
             const body = {
@@ -224,10 +203,6 @@ export const RateProvider = ({ children }) => {
                 isMusicEnabled: payload.isMusicEnabled !== undefined ? payload.isMusicEnabled : isMusicEnabled
             };
             
-            // Only send massive audio fields if they are explicitly being updated
-            if (payload.homeAudio !== undefined) body.homeAudio = payload.homeAudio;
-            if (payload.ratesAudio !== undefined) body.ratesAudio = payload.ratesAudio;
-
             const res = await fetch(`${API_BASE}/rates/settings`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },

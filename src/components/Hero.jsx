@@ -92,7 +92,7 @@ const Hero = () => {
                                                         {item.name.split('(')[0]}
                                                     </span>
                                                     <span className="text-[9px] md:text-[14px] font-bold text-slate-500 font-poppins uppercase tracking-wider mt-0.5 md:mt-1">
-                                                        {item.name.toLowerCase().includes('gold') ? '100 Grams' : '30 KGS'}
+                                                        {item.name.match(/\((.*?)\)/)?.[1] || (item.name.toLowerCase().includes('gold') ? '100 Grams' : '30 KGS')}
                                                     </span>
                                                 </div>
 

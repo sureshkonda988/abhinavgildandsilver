@@ -17,8 +17,6 @@ const AdminPage = () => {
     const [ticker, setTicker] = useState('');
     const [videos, setVideos] = useState([]);
     const [isInitialized, setIsInitialized] = useState({ ticker: false, videos: false });
-    const [homeAudioInput, setHomeAudioInput] = useState('');
-    const [ratesAudioInput, setRatesAudioInput] = useState('');
     const [audioSaving, setAudioSaving] = useState(false);
     const [previewingUrl, setPreviewingUrl] = useState('');
     const [previewAudio, setPreviewAudio] = useState(null);
@@ -163,13 +161,10 @@ const AdminPage = () => {
         }
     }, [contextVideos, videosLoaded, isInitialized.videos]);
 
-    // Sync audio inputs from context when settings load
+    // Removed database-based audio state syncing from context
     useEffect(() => {
-        if (settingsLoaded) {
-            setHomeAudioInput(homeAudio || '');
-            setRatesAudioInput(ratesAudio || '');
-        }
-    }, [homeAudio, ratesAudio, settingsLoaded]);
+        // Just initialize local inputs if needed, though they are mostly for display now
+    }, [settingsLoaded]);
 
 
 
@@ -232,7 +227,7 @@ const AdminPage = () => {
         }
     };
 
-    const handleMusicUpload = async (e, type) => {
+    const handleMusicUpload = async (e) => {
         const file = e.target.files[0];
         if (!file) return;
         if (!file.type.startsWith('audio/')) {
@@ -240,42 +235,32 @@ const AdminPage = () => {
             return;
         }
 
-        const MAX_KB = 3000;
-        if (file.size > MAX_KB * 1024) {
-            alert(`Audio file too large. Please keep it under the ${MAX_KB} KB limit.`);
+        const MAX_MB = 100;
+        if (file.size > MAX_MB * 1024 * 1024) {
+            alert(`Audio file too large. Please keep it under the ${MAX_MB} MB limit.`);
             return;
         }
 
         setAudioSaving(true);
-        const reader = new FileReader();
-        reader.onload = async (event) => {
-            let base64 = event.target.result;
-            // Neatly pin the original filename onto the end of the base64 string as a hash
-            base64 = base64 + '#' + encodeURIComponent(file.name);
-            const success = await updateSettings({ [type === 'home' ? 'homeAudio' : 'ratesAudio']: base64 });
-            if (success) {
-                if (type === 'home') setHomeAudioInput(base64);
-                else setRatesAudioInput(base64);
-                alert(`${type.toUpperCase()} music uploaded and saved!`);
-            } else {
-                alert('Upload failed. Connection error?');
-            }
-            setAudioSaving(false);
-        };
-        reader.onerror = () => {
-            alert('File read error.');
-            setAudioSaving(false);
-        };
-        reader.readAsDataURL(file);
-    };
+        const formData = new FormData();
+        formData.append('file', file);
 
-    const saveAudioUrls = async () => {
-        setAudioSaving(true);
         try {
-            await updateSettings({ homeAudio: homeAudioInput, ratesAudio: ratesAudioInput });
-            alert('Audio links saved!');
-        } catch (e) {
-            alert('Failed to save audio links.');
+            const res = await fetch(`${import.meta.env.VITE_API_BASE || ''}/api/music/upload`, {
+                method: 'POST',
+                body: formData
+            });
+
+            if (res.ok) {
+                alert(`Global background music uploaded and replaced successfully!`);
+                window.location.reload(); // Hard reload to ensure fresh audio paths
+            } else {
+                const data = await res.json();
+                alert(`Upload failed: ${data.message}`);
+            }
+        } catch (error) {
+            console.error('Upload error:', error);
+            alert('Upload failed. Connection error?');
         } finally {
             setAudioSaving(false);
         }
@@ -688,69 +673,26 @@ const AdminPage = () => {
                                 </div>
 
                                 <div className="mt-8">
-                                    <h4 className="text-sm font-poppins font-black text-white/80 uppercase tracking-widest mb-2">Background Music Source</h4>
-                                    <p className="text-[9px] font-bold text-white/30 uppercase tracking-widest mb-5">Paste a direct MP3 URL, YouTube link, or upload a strictly small audio file (Max 3000 KB limit)</p>
-                                    <div className="flex flex-col gap-4">
-                                        <div className="flex flex-col gap-2">
-                                            <label className="text-[10px] font-black text-[#f4cb4c] uppercase tracking-widest ml-1">Home Page Audio URL</label>
-                                            <div className="relative flex items-center">
-                                                <input
-                                                    className="w-full bg-white/10 border border-white/10 text-white px-4 py-3 pr-24 rounded-xl font-poppins text-xs outline-none focus:ring-1 focus:ring-[#f4cb4c]/40 placeholder:text-white/20"
-                                                    placeholder="https://example.com/music/home.mp3"
-                                                    value={homeAudioInput ? (homeAudioInput.startsWith('data:') ? (homeAudioInput.includes('#') ? decodeURIComponent(homeAudioInput.split('#').pop()) : 'Uploaded File (Base64)') : homeAudioInput) : ''}
-                                                    onChange={e => setHomeAudioInput(e.target.value)}
-                                                />
-                                                <div className="absolute right-3 flex items-center gap-1">
-                                                    <label className="p-1.5 bg-white/10 hover:bg-white/20 text-white/60 rounded-lg cursor-pointer transition-all" title="Upload Local File">
-                                                        <Upload size={14} />
-                                                        <input type="file" className="hidden" accept="audio/*" onChange={(e) => handleMusicUpload(e, 'home')} />
-                                                    </label>
-                                                    {homeAudioInput && (
-                                                        <button
-                                                            onClick={() => togglePreview(homeAudioInput)}
-                                                            className={`p-1.5 rounded-lg transition-all ${previewingUrl === 'FAILED' ? 'bg-red-500/20 text-red-500' : 'bg-[#f4cb4c]/20 hover:bg-[#f4cb4c]/30 text-[#f4cb4c]'}`}
-                                                            title="Preview Audio"
-                                                        >
-                                                            {previewingUrl === homeAudioInput ? <Pause size={14} /> : previewingUrl === 'FAILED' ? <AlertCircle size={14} /> : isPreviewLoading ? <RefreshCw size={14} className="animate-spin" /> : <Play size={14} />}
-                                                        </button>
-                                                    )}
-                                                </div>
+                                    <h4 className="text-sm font-poppins font-black text-white/80 uppercase tracking-widest mb-2">Background Music Management</h4>
+                                    <p className="text-[9px] font-bold text-white/30 uppercase tracking-widest mb-5">Upload a new MP3 file to globally replace the current background music. Only one file is stored and active at a time.</p>
+                                    <div className="flex flex-col gap-6">
+                                        <div className="flex bg-white/5 p-6 rounded-3xl border border-white/10 items-center justify-between">
+                                            <div className="flex flex-col gap-1">
+                                                <span className="text-[11px] font-black text-[#f4cb4c] uppercase tracking-widest">Global Background Music</span>
+                                                <span className="text-[9px] text-white/40 font-bold uppercase">/music/background.mp3</span>
+                                            </div>
+                                            <div className="flex items-center gap-3">
+                                                <label className="flex items-center gap-2 px-6 py-3 bg-[#f4cb4c] text-slate-900 rounded-xl font-poppins font-black text-[10px] uppercase tracking-widest cursor-pointer hover:scale-105 transition-all shadow-gold-glow">
+                                                    <Upload size={14} />
+                                                    {audioSaving ? 'Uploading...' : 'Upload Music'}
+                                                    <input type="file" className="hidden" accept="audio/*" onChange={(e) => handleMusicUpload(e)} disabled={audioSaving} />
+                                                </label>
+                                                <audio src="/music/background.mp3" className="hidden" id="admin-preview-music" />
+                                                <button onClick={() => document.getElementById('admin-preview-music').play()} className="p-3 bg-white/10 text-white rounded-xl hover:bg-white/20 transition-all">
+                                                    <Play size={14} />
+                                                </button>
                                             </div>
                                         </div>
-                                        <div className="flex flex-col gap-2">
-                                            <label className="text-[10px] font-black text-[#f4cb4c] uppercase tracking-widest ml-1">Rates Page Audio URL</label>
-                                            <div className="relative flex items-center">
-                                                <input
-                                                    className="w-full bg-white/10 border border-white/10 text-white px-4 py-3 pr-24 rounded-xl font-poppins text-xs outline-none focus:ring-1 focus:ring-[#f4cb4c]/40 placeholder:text-white/20"
-                                                    placeholder="https://example.com/music/rates.mp3"
-                                                    value={ratesAudioInput ? (ratesAudioInput.startsWith('data:') ? (ratesAudioInput.includes('#') ? decodeURIComponent(ratesAudioInput.split('#').pop()) : 'Uploaded File (Base64)') : ratesAudioInput) : ''}
-                                                    onChange={e => setRatesAudioInput(e.target.value)}
-                                                />
-                                                <div className="absolute right-3 flex items-center gap-1">
-                                                    <label className="p-1.5 bg-white/10 hover:bg-white/20 text-white/60 rounded-lg cursor-pointer transition-all" title="Upload Local File">
-                                                        <Upload size={14} />
-                                                        <input type="file" className="hidden" accept="audio/*" onChange={(e) => handleMusicUpload(e, 'rates')} />
-                                                    </label>
-                                                    {ratesAudioInput && (
-                                                        <button
-                                                            onClick={() => togglePreview(ratesAudioInput)}
-                                                            className={`p-1.5 rounded-lg transition-all ${previewingUrl === 'FAILED' ? 'bg-red-500/20 text-red-500' : 'bg-[#f4cb4c]/20 hover:bg-[#f4cb4c]/30 text-[#f4cb4c]'}`}
-                                                            title="Preview Audio"
-                                                        >
-                                                            {previewingUrl === ratesAudioInput ? <Pause size={14} /> : previewingUrl === 'FAILED' ? <AlertCircle size={14} /> : isPreviewLoading ? <RefreshCw size={14} className="animate-spin" /> : <Play size={14} />}
-                                                        </button>
-                                                    )}
-                                                </div>
-                                            </div>
-                                        </div>
-                                        <button
-                                            onClick={saveAudioUrls}
-                                            disabled={audioSaving}
-                                            className="mt-2 flex items-center gap-3 px-8 py-3 bg-[#f4cb4c] text-slate-900 rounded-xl font-poppins font-black uppercase tracking-widest shadow-gold-glow hover:scale-105 transition-all w-full justify-center text-xs disabled:opacity-50"
-                                        >
-                                            <Save size={16} />
-                                            {audioSaving ? 'Saving...' : 'Save Audio Links'}
-                                        </button>
                                     </div>
                                 </div>
                             </div>

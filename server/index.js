@@ -42,7 +42,7 @@ const storage = multer.diskStorage({
 });
 
 const upload = multer({ 
-    storage,
+    storage: multer.memoryStorage(),
     limits: { fileSize: 100 * 1024 * 1024 }, // 100MB
     fileFilter: (req, file, cb) => {
         console.log("Filtering file:", file.originalname, "Type:", file.mimetype);
@@ -55,12 +55,16 @@ const upload = multer({
 });
 
 // MongoDB Connection
-mongoose.connect(process.env.MONGODB_URI)
-    .then(() => {
-        console.log('Connected to MongoDB');
-        startRatePolling();
-    })
-    .catch(err => console.error('MongoDB connection error:', err));
+if (process.env.MONGODB_URI && process.env.MONGODB_URI.trim() !== "") {
+    mongoose.connect(process.env.MONGODB_URI)
+        .then(() => {
+            console.log('Connected to MongoDB');
+            startRatePolling();
+        })
+        .catch(err => console.error('MongoDB connection error:', err));
+} else {
+    console.warn("MONGODB_URI is missing or empty. Skipping database connection. Some features may not work, but music upload (local) should still function.");
+}
 
 // --- Rate Polling Service ---
 const RB_GOLD_URL = 'https://bcast.rbgoldspot.com:7768/VOTSBroadcastStreaming/Services/xml/GetLiveRateByTemplateID/rbgold';
@@ -269,7 +273,7 @@ app.post('/api/music', async (req, res) => {
 // 3. Upload music file
 app.post('/api/music/upload', (req, res, next) => {
     console.log("Upload request received...");
-    upload.single('music')(req, res, (err) => {
+    upload.single('file')(req, res, (err) => {
         if (err instanceof multer.MulterError) {
             console.error("Multer Error:", err);
             return res.status(400).json({ message: 'Multer Error: ' + err.message });
@@ -283,9 +287,19 @@ app.post('/api/music/upload', (req, res, next) => {
             return res.status(400).json({ message: 'No file uploaded' });
         }
 
-        console.log("File uploaded successfully:", req.file.filename);
-        const fileUrl = `/music/${req.file.filename}`;
-        res.json({ fileUrl });
+        // Always save to background.mp3 regardless of 'type'
+        const projectRoot = path.resolve(__dirname, '..');
+        const musicDir = path.join(projectRoot, 'public', 'music');
+        
+        if (!fs.existsSync(musicDir)) {
+            fs.mkdirSync(musicDir, { recursive: true });
+        }
+
+        const filePath = path.join(musicDir, 'background.mp3');
+        fs.writeFileSync(filePath, req.file.buffer);
+
+        console.log("File uploaded successfully to:", filePath);
+        res.json({ message: "Background music uploaded successfully" });
     });
 });
 

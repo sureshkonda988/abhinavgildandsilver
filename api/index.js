@@ -33,10 +33,14 @@ const upload = multer({
 });
 
 // MongoDB Connection
-mongoose.connect(process.env.MONGODB_URI)
-    .then(() => {
-        console.log('Connected to MongoDB');
-    })
+if (process.env.MONGODB_URI && process.env.MONGODB_URI.trim() !== "") {
+    mongoose.connect(process.env.MONGODB_URI)
+        .then(() => {
+            console.log('Connected to MongoDB');
+        })
+} else {
+    console.warn("MONGODB_URI is missing or empty. Skipping database connection.");
+}
 // --- Proxy Helper ---
 const RB_GOLD_URL = 'https://bcast.rbgoldspot.com:7768/VOTSBroadcastStreaming/Services/xml/GetLiveRateByTemplateID/rbgold';
 
@@ -236,15 +240,19 @@ app.post('/api/music/upload', upload.single('file'), (req, res) => {
             return res.status(400).json({ message: 'Invalid request. Missing file or type.' });
         }
 
-        const musicDir = path.join(__dirname, '../public/music');
+        // Always save to background.mp3 regardless of 'type'
+        const projectRoot = path.resolve(__dirname, '..');
+        const musicDir = path.join(projectRoot, 'public', 'music');
+        
         if (!fs.existsSync(musicDir)) {
             fs.mkdirSync(musicDir, { recursive: true });
         }
 
-        const filePath = path.join(musicDir, `${type}.mp3`);
+        const filePath = path.join(musicDir, 'background.mp3');
         fs.writeFileSync(filePath, req.file.buffer);
 
-        res.json({ message: `${type.toUpperCase()} music uploaded successfully` });
+        console.log("File uploaded successfully to:", filePath);
+        res.json({ message: "Background music uploaded successfully" });
     } catch (error) {
         res.status(500).json({ message: 'Error uploading music', error: error.message });
     }

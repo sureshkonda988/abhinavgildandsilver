@@ -5,63 +5,16 @@ import { useRates } from '../context/RateContext';
 
 const MusicPlayer = ({ isEnabled }) => {
     const location = useLocation();
-    const { homeAudio, ratesAudio } = useRates();
+    // Directly use local files instead of database-managed URLs
+    // Cache buster added to ensure fresh audio if changed
+    const cacheBuster = `?v=${Date.now().toString().slice(-6)}`;
     const [unlocked, setUnlocked] = useState(false);
-    
-    // Track if we should be playing based on props AND user interaction
     const [playing, setPlaying] = useState(false);
 
     const isHomePage = location.pathname === '/' || location.pathname === '/home';
     const isRatesPage = location.pathname === '/rates';
 
-    const getYouTubeId = (url) => {
-        if (!url) return '';
-        if (url.length === 11 && !url.includes('/') && !url.includes('.')) return url;
-        const regExp = /^.*(?:(?:youtu\.be\/|v\/|vi\/|u\/\w\/|embed\/|shorts\/)|(?:(?:watch)?\?v(?:i)?=|\&v(?:i)?=))([^#\&\?]*).*/;
-        const match = url.match(regExp);
-        return (match && match[1].length === 11) ? match[1] : '';
-    };
-
-    const cleanAudioLink = (url) => {
-        if (!url) return '';
-        let cleaned = url.trim();
-
-        // Check if it's a YouTube link
-        const ytId = getYouTubeId(cleaned);
-        if (ytId) {
-            return `https://www.youtube.com/watch?v=${ytId}`;
-        }
-
-        // Google Drive Link Helper
-        if (cleaned.includes('drive.google.com')) {
-            const idMatch = cleaned.match(/[-\w]{25,}/);
-            if (idMatch) {
-                const isLocal = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1' || window.location.hostname.startsWith('192.168.');
-                if (isLocal) {
-                    return `/audio-proxy?id=${idMatch[0]}&export=media`;
-                }
-                return `https://drive.google.com/uc?id=${idMatch[0]}&export=media`;
-            }
-        }
-
-        // Dropbox Link Helper
-        if (cleaned.includes('dropbox.com')) {
-            return cleaned.replace('www.dropbox.com', 'dl.dropboxusercontent.com').replace('?dl=0', '').replace('?dl=1', '');
-        }
-
-        // SndUp Link Helper
-        if (cleaned.includes('sndup.net')) {
-            // Converts https://sndup.net/abcd/ to https://sndup.net/abcd/d
-            const sndupMatch = cleaned.match(/sndup\.net\/([a-zA-Z0-9]+)/);
-            if (sndupMatch) {
-                return `https://sndup.net/${sndupMatch[1]}/d`;
-            }
-        }
-
-        return cleaned;
-    };
-
-    const currentUrl = cleanAudioLink(isHomePage ? homeAudio : isRatesPage ? ratesAudio : '');
+    const currentUrl = `/music/background.mp3${cacheBuster}`;
 
     const audioRef = useRef(null);
 
