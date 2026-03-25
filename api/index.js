@@ -235,9 +235,8 @@ app.post('/api/videos', async (req, res) => {
 // --- Separate Music Routes ---
 app.post('/api/music/upload', upload.single('file'), (req, res) => {
     try {
-        const type = req.body.type; // 'home' or 'rates'
-        if (!['home', 'rates'].includes(type) || !req.file) {
-            return res.status(400).json({ message: 'Invalid request. Missing file or type.' });
+        if (!req.file) {
+            return res.status(400).json({ message: 'Invalid request. Missing file.' });
         }
 
         // Always save to background.mp3 regardless of 'type'

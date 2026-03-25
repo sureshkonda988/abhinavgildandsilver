@@ -287,7 +287,7 @@ app.post('/api/music/upload', (req, res, next) => {
             return res.status(400).json({ message: 'No file uploaded' });
         }
 
-        // Always save to background.mp3 regardless of 'type'
+        // Always save to background.mp3
         const projectRoot = path.resolve(__dirname, '..');
         const musicDir = path.join(projectRoot, 'public', 'music');
         
