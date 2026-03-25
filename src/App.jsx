@@ -34,7 +34,7 @@ const Preloader = () => (
   <div className="fixed inset-0 z-[100] flex items-center justify-center">
     <div 
       className="absolute inset-0 bg-cover bg-center bg-no-repeat"
-      style={{ backgroundImage: 'url("/Untitled design (14).webp")' }}
+      style={{ backgroundImage: 'url("/bg-internal.webp")' }}
     />
     <div className="absolute inset-0 bg-black/20" /> {/* Subtle overlay for better contrast */}
     <motion.img
