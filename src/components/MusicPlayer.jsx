@@ -14,7 +14,7 @@ const MusicPlayer = ({ isEnabled }) => {
     const isHomePage = location.pathname === '/' || location.pathname === '/home';
     const isRatesPage = location.pathname === '/rates';
 
-    const currentUrl = `/music/background.mp3${cacheBuster}`;
+    const currentUrl = isRatesPage ? `/music/rates.mp3${cacheBuster}` : `/music/home.mp3${cacheBuster}`;
 
     const audioRef = useRef(null);
 

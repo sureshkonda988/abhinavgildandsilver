@@ -91,8 +91,7 @@ export const RateProvider = ({ children }) => {
         return persisted === 'true'; // Defaults to false if never set
     });
 
-    const [homeAudio, setHomeAudio] = useState('/music/background.mp3');
-    const [ratesAudio, setRatesAudio] = useState('/music/background.mp3');
+    // (homeAudio and ratesAudio removed as they are now static in MusicPlayer)
 
     const toggleMusic = () => {
         const nextValue = !isMusicEnabled;
@@ -212,8 +211,7 @@ export const RateProvider = ({ children }) => {
                 ratesPage: newAdj.ratesPage,
                 marketStatus: newAdj.marketStatus,
                 ticker: payload.ticker !== undefined ? payload.ticker : ticker,
-                showModified: payload.showModified !== undefined ? payload.showModified : showModified,
-                isMusicEnabled: payload.isMusicEnabled !== undefined ? payload.isMusicEnabled : isMusicEnabled
+                showModified: payload.showModified !== undefined ? payload.showModified : showModified
             };
             
             const res = await fetch(`${API_BASE}/rates/settings`, {
@@ -655,7 +653,7 @@ export const RateProvider = ({ children }) => {
         const adjust = (val, type, customAdj) => {
             const a = customAdj || (type === 'GOLD' ? adj.gold : adj.silver);
             if (!a || typeof val !== 'number') return val;
-            const delta = a.mode === 'amount' ? a.value : (val * a.value) / 100;
+            const delta = a.value || 0;
             return parseFloat((val + delta).toFixed(2));
         };
 
@@ -680,14 +678,14 @@ export const RateProvider = ({ children }) => {
             if (showModified) {
                 // Sell Calculation: Live + SellMod
                 if (sellMod && sellMod.value !== 0) {
-                    const delta = sellMod.mode === 'amount' ? sellMod.value : (liveSell * sellMod.value) / 100;
+                    const delta = sellMod.value || 0;
                     sell = parseFloat((liveSell + delta).toFixed(2));
                 }
 
                 // Buy Calculation: LiveBuy + BuyMod
                 const liveBuy = parseFloat(r.buy) || 0;
                 if (buyOffset) {
-                    const delta = buyOffset.mode === 'amount' ? buyOffset.value : (liveBuy * buyOffset.value) / 100;
+                    const delta = buyOffset.value || 0;
                     buy = parseFloat((liveBuy + delta).toFixed(2));
                 }
 
@@ -723,12 +721,12 @@ export const RateProvider = ({ children }) => {
             if (showModified) {
                 // Sell = KaratBase + GoldSellMod (Flat)
                 const sMod = adj.baseModifications.gold999;
-                const sDelta = sMod.mode === 'amount' ? sMod.value : (live999Sell * sMod.value) / 100;
+                const sDelta = sMod.value || 0;
                 sell = Math.round(karatBase + sDelta);
 
                 // Buy = KaratBase + GoldBuyMod (Flat, ensuring consistent spread)
                 const bMod = adj.gold;
-                const bDelta = bMod.mode === 'amount' ? bMod.value : (live999Sell * bMod.value) / 100;
+                const bDelta = bMod.value || 0;
                 buy = Math.round(karatBase + bDelta);
             } else {
                 sell = karatBase;
@@ -762,7 +760,7 @@ export const RateProvider = ({ children }) => {
             let sell = karatBase;
             if (adj.ratesPage.showModified) {
                 const sMod = adj.ratesPage.gold;
-                const sDelta = sMod.mode === 'amount' ? sMod.value : (karatBase * sMod.value) / 100;
+                const sDelta = sMod.value || 0;
                 sell = Math.round(karatBase + sDelta);
             }
 
@@ -779,7 +777,7 @@ export const RateProvider = ({ children }) => {
         let ratesPageSilverSell = liveSilverSell;
         if (adj.ratesPage.showModified) {
             const sMod = adj.ratesPage.silver;
-            const sDelta = sMod.mode === 'amount' ? sMod.value : (liveSilverSell * sMod.value) / 100;
+            const sDelta = sMod.value || 0;
             ratesPageSilverSell = Math.round(liveSilverSell + sDelta);
         }
 
@@ -837,7 +835,7 @@ export const RateProvider = ({ children }) => {
     };
 
     return (
-        <RateContext.Provider value={{ rates, rawRates, loading, error, news, adj, showModified, settingsLoaded, ticker, videos, videosLoaded, isMusicEnabled, toggleMusic, homeAudio, setHomeAudio, ratesAudio, setRatesAudio, updateSettings, updateVideos, refreshRates: fetchAllRates, getPriceClass, getMarketStatus }}>
+        <RateContext.Provider value={{ rates, rawRates, loading, error, news, adj, showModified, settingsLoaded, ticker, videos, videosLoaded, isMusicEnabled, toggleMusic, updateSettings, updateVideos, refreshRates: fetchAllRates, getPriceClass, getMarketStatus }}>
 
             {children}
         </RateContext.Provider>

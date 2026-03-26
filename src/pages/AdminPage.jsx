@@ -2,11 +2,11 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useRates } from '../context/RateContext';
 import { motion, AnimatePresence } from 'framer-motion';
-import ReactPlayer from 'react-player';
-import { Lock, LogOut, TrendingUp, Settings, Video, MessageSquare, Play, Pause, Trash2, Save, RefreshCw, CheckCircle2, AlertCircle, Music, Upload, Youtube, HardDrive, Clock } from 'lucide-react';
+// ReactPlayer removed as audio preview is gone
+import { Lock, LogOut, TrendingUp, Video, MessageSquare, Play, Pause, Trash2, Save, RefreshCw, CheckCircle2, AlertCircle, Upload, Youtube, HardDrive, Clock } from 'lucide-react';
 
 const AdminPage = () => {
-    const { rates, rawRates, adj, showModified, settingsLoaded, videosLoaded, updateSettings, updateVideos, refreshRates, loading, error, ticker: contextTicker, videos: contextVideos, isMusicEnabled, toggleMusic, homeAudio, ratesAudio } = useRates();
+    const { rates, rawRates, adj, showModified, settingsLoaded, videosLoaded, updateSettings, updateVideos, refreshRates, loading, error, ticker: contextTicker, videos: contextVideos } = useRates();
     const navigate = useNavigate();
     const [isLoggedIn, setIsLoggedIn] = useState(false);
     const [username, setUsername] = useState('');
@@ -17,135 +17,8 @@ const AdminPage = () => {
     const [ticker, setTicker] = useState('');
     const [videos, setVideos] = useState([]);
     const [isInitialized, setIsInitialized] = useState({ ticker: false, videos: false });
-    const [audioSaving, setAudioSaving] = useState(false);
-    const [previewingUrl, setPreviewingUrl] = useState('');
-    const [previewAudio, setPreviewAudio] = useState(null);
-    const [isPreviewLoading, setIsPreviewLoading] = useState(false);
 
-    const getDirectAudioUrl = (url) => {
-        if (!url) return '';
-        let cleaned = url.trim();
-        // Google Drive Link Helper
-        if (cleaned.includes('drive.google.com')) {
-            // Find anything that looks like a drive ID (25+ characters of a-z, A-Z, 0-9, _, -)
-            const idMatch = cleaned.match(/[-\w]{25,}/);
-            if (idMatch) {
-                // export=media is often better for streaming in newer browsers
-                return `https://drive.google.com/uc?id=${idMatch[0]}&export=media`;
-            }
-        }
-        // Dropbox Link Helper
-        if (cleaned.includes('dropbox.com')) {
-            return cleaned.replace('www.dropbox.com', 'dl.dropboxusercontent.com').replace('?dl=0', '').replace('?dl=1', '');
-        }
-        // SndUp Link Helper
-        if (cleaned.includes('sndup.net')) {
-            const sndupMatch = cleaned.match(/sndup\.net\/([a-zA-Z0-9]+)/);
-            if (sndupMatch) {
-                return `https://sndup.net/${sndupMatch[1]}/d`;
-            }
-        }
-        return cleaned;
-    };
-
-    const togglePreview = (url) => {
-        if (!url) return;
-
-        const directUrl = getDirectAudioUrl(url);
-
-        // Check if it's a YouTube URL
-        const isYT = url.includes('youtube.com') || url.includes('youtu.be');
-
-        if (previewingUrl === url) {
-            setPreviewingUrl('');
-            if (previewAudio) {
-                previewAudio.pause();
-                setPreviewAudio(null);
-            }
-            return;
-        }
-
-        if (previewAudio) {
-            previewAudio.pause();
-            setPreviewAudio(null);
-        }
-
-        if (isYT) {
-            setIsPreviewLoading(true);
-            setPreviewingUrl(url);
-            return;
-        }
-
-        const isLocal = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1' || window.location.hostname.startsWith('192.168.');
-        const audio = new Audio();
-        audio.preload = 'auto';
-        
-        const tryPlayback = (srcUrl, attempt = 1) => {
-            let currentSrc = srcUrl;
-            
-            // Stage 0: If local, try the Vite proxy immediately for Google Drive links
-            if (isLocal && attempt === 1 && srcUrl.includes('drive.google.com')) {
-                const idMatch = srcUrl.match(/id=([-\w]{25,})/);
-                if (idMatch) {
-                    currentSrc = `/audio-proxy?id=${idMatch[1]}&export=media`;
-                }
-            }
-
-            console.log(`[Admin] Audio Sync - Attempt ${attempt}:`, currentSrc);
-            setIsPreviewLoading(true);
-            audio.src = currentSrc;
-            
-            // Create a timeout promise to forcefully fail this attempt if it hangs
-            const timeoutPromise = new Promise((_, reject) => 
-                setTimeout(() => reject(new Error('TIMEOUT')), 6000)
-            );
-
-            return Promise.race([audio.play(), timeoutPromise]).then(() => {
-                setPreviewingUrl(url);
-                setPreviewAudio(audio);
-                setIsPreviewLoading(false);
-                audio.onended = () => {
-                    setPreviewingUrl('');
-                    setPreviewAudio(null);
-                };
-            }).catch(err => {
-                console.warn(`[Admin] Audio Sync - Attempt ${attempt} failed:`, err.message || err);
-                if (attempt === 1) {
-                    return tryPlayback(srcUrl.replace('export=media', 'export=download'), 2);
-                } else if (attempt === 2) {
-                    return tryPlayback(srcUrl.replace('drive.google.com', 'docs.google.com'), 3);
-                } else if (attempt === 3 && srcUrl.includes('docs.google.com')) {
-                    // Stage 4: Try with confirmation param
-                    return tryPlayback(srcUrl + '&confirm=t', 4);
-                } else if (attempt === 4 && srcUrl.includes('google.com')) {
-                    // Stage 5: Use a high-performance Google CORS proxy
-                    const proxyUrl = `https://images1-focus-opensocial.googleusercontent.com/gadgets/proxy?container=focus&refresh=31536000&url=${encodeURIComponent(srcUrl)}`;
-                    return tryPlayback(proxyUrl, 5);
-                } else if (attempt === 5 && srcUrl.includes('google.com')) {
-                    // Stage 6: Use AllOrigins as a heavy-duty fallback
-                    const proxyUrl = `https://api.allorigins.win/raw?url=${encodeURIComponent(srcUrl)}`;
-                    return tryPlayback(proxyUrl, 6);
-                } else {
-                    // Final Fail
-                    setIsPreviewLoading(false);
-                    setPreviewingUrl('FAILED');
-                    setTimeout(() => setPreviewingUrl(''), 3000);
-                    setPreviewAudio(null);
-                    console.error('[Admin] Audio Sync - All formats failed playback.');
-                }
-            });
-        };
-
-        tryPlayback(directUrl);
-    };
-
-    useEffect(() => {
-        return () => {
-            if (previewAudio) {
-                previewAudio.pause();
-            }
-        };
-    }, [previewAudio]);
+    // (Audio preview logic removed)
 
     useEffect(() => {
         if (settingsLoaded && !isInitialized.ticker) {
@@ -227,44 +100,7 @@ const AdminPage = () => {
         }
     };
 
-    const handleMusicUpload = async (e) => {
-        const file = e.target.files[0];
-        if (!file) return;
-        if (!file.type.startsWith('audio/')) {
-            alert('Please select a valid audio file.');
-            return;
-        }
-
-        const MAX_MB = 100;
-        if (file.size > MAX_MB * 1024 * 1024) {
-            alert(`Audio file too large. Please keep it under the ${MAX_MB} MB limit.`);
-            return;
-        }
-
-        setAudioSaving(true);
-        const formData = new FormData();
-        formData.append('file', file);
-
-        try {
-            const res = await fetch(`${import.meta.env.VITE_API_BASE || ''}/api/music/upload`, {
-                method: 'POST',
-                body: formData
-            });
-
-            if (res.ok) {
-                alert(`Global background music uploaded and replaced successfully!`);
-                window.location.reload(); 
-            } else {
-                const data = await res.json();
-                alert(`Upload failed: ${data.message}${data.error ? ` (${data.error})` : ''}`);
-            }
-        } catch (error) {
-            console.error('Upload error:', error);
-            alert('Upload failed. Connection error?');
-        } finally {
-            setAudioSaving(false);
-        }
-    };
+    // (Audio upload logic removed)
 
     if (!isLoggedIn) {
         return (
@@ -335,31 +171,7 @@ const AdminPage = () => {
             className="min-h-screen pb-32 text-slate-800 bg-fixed bg-center bg-cover"
             style={{ backgroundImage: "url('/bg-internal.webp')" }}
         >
-            {/* Player for Previewing YouTube */}
-            {previewingUrl && (previewingUrl.includes('youtube.com') || previewingUrl.includes('youtu.be')) && (
-                <div style={{ position: 'fixed', bottom: 10, right: 10, opacity: 0.8, pointerEvents: 'none', width: '80px', height: '45px', overflow: 'hidden', zIndex: 9999, borderRadius: '8px', border: '1px solid white' }}>
-                    <ReactPlayer 
-                        url={previewingUrl} 
-                        playing={!!previewingUrl} 
-                        volume={1}
-                        muted={false}
-                        width="100%"
-                        height="100%"
-                        onReady={() => setIsPreviewLoading(false)}
-                        onStart={() => setIsPreviewLoading(false)}
-                        onEnded={() => setPreviewingUrl('')}
-                        config={{
-                            youtube: {
-                                playerVars: { 
-                                    autoplay: 1,
-                                    mute: 0,
-                                    origin: window.location.origin
-                                }
-                            }
-                        }}
-                    />
-                </div>
-            )}
+            {/* Preview logic removed */}
             <div className="bg-black/90 backdrop-blur-md border-b border-white/20 px-6 py-3 flex justify-between items-center sticky top-0 z-30 shadow-md">
                 <div className="flex items-center gap-3">
                     <img src="/logo.webp" alt="Abhinav Logo" className="w-10 h-10 object-contain" />
@@ -384,7 +196,6 @@ const AdminPage = () => {
                     <TabBtn id="news" icon={<MessageSquare size={18} />} label="News" active={activeTab === 'news'} onClick={setActiveTab} />
                     <TabBtn id="videos" icon={<Video size={18} />} label="Media" active={activeTab === 'videos'} onClick={setActiveTab} />
                     <TabBtn id="market" icon={<Clock size={18} />} label="Market" active={activeTab === 'market'} onClick={setActiveTab} />
-                    <TabBtn id="settings" icon={<Settings size={18} />} label="Settings" active={activeTab === 'settings'} onClick={setActiveTab} />
                 </div>
 
                 {/* Content */}
@@ -643,53 +454,7 @@ const AdminPage = () => {
                         </motion.div>
                     )}
 
-                    {activeTab === 'settings' && (
-                        <motion.div key="settings" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }}>
-                            <div className="glass p-4 md:p-8 rounded-[30px] md:rounded-[40px] shadow-luxury border-white/20">
-                                <h3 className="text-lg md:text-xl font-playfair font-black text-[#f4cb4c] uppercase tracking-widest mb-6 border-b border-[#f4cb4c]/20 pb-2">Application Settings</h3>
-                                
-                                <div className="bg-white/5 backdrop-blur-md p-6 rounded-[24px] border border-white/10 flex items-center justify-between shadow-sm">
-                                    <div className="flex flex-col gap-1">
-                                        <div className="flex items-center gap-2">
-                                            <Music size={18} className="text-[#f4cb4c]" />
-                                            <span className="font-poppins font-black text-white text-sm uppercase tracking-widest">Background Music</span>
-                                        </div>
-                                        <span className="text-[10px] font-bold text-white/40 uppercase tracking-widest">Toggle background music globally</span>
-                                    </div>
-                                    <button
-                                        onClick={toggleMusic}
-                                        className={`w-14 h-8 rounded-full transition-colors relative shadow-inner flex items-center px-1 ${isMusicEnabled ? 'bg-green-500 shadow-green-900/50' : 'bg-red-500 shadow-red-900/50'}`}
-                                    >
-                                        <div className={`w-6 h-6 rounded-full bg-white shadow-md transform transition-transform duration-300 ${isMusicEnabled ? 'translate-x-6' : 'translate-x-0'}`} />
-                                    </button>
-                                </div>
-
-                                <div className="mt-8">
-                                    <h4 className="text-sm font-poppins font-black text-white/80 uppercase tracking-widest mb-2">Background Music Management</h4>
-                                    <p className="text-[9px] font-bold text-white/30 uppercase tracking-widest mb-5">Upload a new MP3 file to globally replace the current background music. Only one file is stored and active at a time.</p>
-                                    <div className="flex flex-col gap-6">
-                                        <div className="flex bg-white/5 p-6 rounded-3xl border border-white/10 items-center justify-between">
-                                            <div className="flex flex-col gap-1">
-                                                <span className="text-[11px] font-black text-[#f4cb4c] uppercase tracking-widest">Global Background Music</span>
-                                                <span className="text-[9px] text-white/40 font-bold uppercase">/music/background.mp3</span>
-                                            </div>
-                                            <div className="flex items-center gap-3">
-                                                <label className="flex items-center gap-2 px-6 py-3 bg-[#f4cb4c] text-slate-900 rounded-xl font-poppins font-black text-[10px] uppercase tracking-widest cursor-pointer hover:scale-105 transition-all shadow-gold-glow">
-                                                    <Upload size={14} />
-                                                    {audioSaving ? 'Uploading...' : 'Upload Music'}
-                                                    <input type="file" className="hidden" accept="audio/*" onChange={(e) => handleMusicUpload(e)} disabled={audioSaving} />
-                                                </label>
-                                                <audio src="/music/background.mp3" className="hidden" id="admin-preview-music" />
-                                                <button onClick={() => document.getElementById('admin-preview-music').play()} className="p-3 bg-white/10 text-white rounded-xl hover:bg-white/20 transition-all">
-                                                    <Play size={14} />
-                                                </button>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </motion.div>
-                    )}
+                    {/* Settings Tab Removed (was only for music management) */}
 
                     {activeTab === 'market' && (
                         <motion.div key="market" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }}>
@@ -826,7 +591,7 @@ const AdjustmentCard = ({ label, item, liveRates = [], targetField = 'sell', onC
                     <div className="flex flex-col gap-2">
                         {liveRates.map((r, i) => {
                             const original = r[targetField] || 0;
-                            const delta = item.mode === 'amount' ? item.value : (original * item.value) / 100;
+                            const delta = item.value || 0;
                             const modified = original + delta;
                             return (
                                 <div key={i} className="flex flex-col gap-1">
@@ -846,18 +611,9 @@ const AdjustmentCard = ({ label, item, liveRates = [], targetField = 'sell', onC
                     </div>
                 </div>
                 <div className="flex flex-col gap-1 min-w-[80px] md:min-w-[100px]">
-                    <button
-                        onClick={() => onChange({ ...item, mode: 'amount' })}
-                        className={`px-2 md:px-3 py-1 rounded-lg text-[8px] md:text-[9px] font-bold transition-all text-right ${item.mode === 'amount' ? 'text-[#f4cb4c] bg-white/10 shadow-sm' : 'text-white/40'}`}
-                    >
-                        <span style={{ fontFamily: 'Inter, system-ui, sans-serif' }}>₹</span> Fixed
-                    </button>
-                    <button
-                        onClick={() => onChange({ ...item, mode: 'percent' })}
-                        className={`px-2 md:px-3 py-1 rounded-lg text-[8px] md:text-[9px] font-bold transition-all text-right ${item.mode === 'percent' ? 'text-[#f4cb4c] bg-white/10 shadow-sm' : 'text-white/40'}`}
-                    >
-                        % Percent
-                    </button>
+                    <div className="px-2 md:px-3 py-1 rounded-lg text-[8px] md:text-[9px] font-bold text-[#f4cb4c] bg-white/10 shadow-sm text-right">
+                        <span style={{ fontFamily: 'Inter, system-ui, sans-serif' }}>₹</span> Fixed Amount
+                    </div>
                 </div>
             </div>
 
