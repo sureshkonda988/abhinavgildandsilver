@@ -33,11 +33,11 @@ const SpotBar = () => {
                             <span className="text-[7px] md:text-[13px] font-bold text-slate-800 uppercase tracking-tight font-poppins mb-1 md:mb-1.5">{item.label}</span>
                             <div
                                 style={{ backgroundColor: bColor }}
-                                className={`border-[1.5px] md:border-2 border-slate-200 rounded-lg md:rounded-xl px-2.5 md:px-8 py-2 md:py-3 flex flex-col items-center ${item.label.includes('USD-INR') ? 'min-w-[110px] md:min-w-[220px]' : 'min-w-[125px] md:min-w-[250px]'} shadow-lg group relative overflow-hidden`}
+                                className={`border-[1.5px] md:border-2 border-slate-200 rounded-lg md:rounded-xl px-1 md:px-8 py-2 md:py-3 flex flex-col items-center ${item.label.includes('USD-INR') ? 'min-w-[115px] md:min-w-[220px]' : 'min-w-[125px] md:min-w-[250px]'} shadow-lg group relative overflow-hidden`}
                             >
                                 <div className="flex items-center gap-1.5 md:gap-2">
                                     <span style={{ fontFamily: 'Inter, system-ui, sans-serif', color: 'black' }} className="text-[9px] md:text-lg font-bold opacity-60">{item.symbol}</span>
-                                    <span style={{ color: 'black' }} className="text-[14px] md:text-4xl font-black font-poppins">{item.value}</span>
+                                    <span style={{ color: 'black' }} className="text-[18px] md:text-4xl font-black font-poppins">{item.value}</span>
                                 </div>
                                 <div className="flex items-center gap-0.5 md:gap-2 text-[7px] md:text-[11px] font-bold text-black/50 font-mono whitespace-nowrap">
                                     <span>H:{item.h}</span><span className="opacity-30">|</span><span>L:{item.l}</span>

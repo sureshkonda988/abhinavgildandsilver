@@ -212,7 +212,7 @@ const AppLayout = () => {
 
             {/* Overlaid Spot Rates Bar - Home page only */}
             {isHomePage && (
-              <div className="absolute bottom-[-50px] md:bottom-[-115px] left-0 w-full z-20 flex justify-center px-1 md:px-0">
+              <div className="absolute bottom-[-40px] md:bottom-[-115px] left-0 w-full z-20 flex justify-center px-1 md:px-0">
                 <SpotBar />
               </div>
             )}
