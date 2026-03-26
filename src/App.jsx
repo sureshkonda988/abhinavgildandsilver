@@ -57,6 +57,7 @@ const useImagePreloader = (imageList) => {
   const [imagesPreloaded, setImagesPreloaded] = React.useState(false);
 
   React.useEffect(() => {
+    setImagesPreloaded(false);
     let isMounted = true;
     const promises = imageList.map((src) => {
       return new Promise((resolve, reject) => {
@@ -99,7 +100,7 @@ const AppLayout = () => {
       images.push('/mobile-rates-header.webp');
     }
     return images;
-  }, [isHomePage]);
+  }, [isHomePage, location.pathname]);
 
   const imagesReady = useImagePreloader(criticalImages);
   const [isLoading, setIsLoading] = React.useState(true);
@@ -196,7 +197,7 @@ const AppLayout = () => {
                   transition={{ duration: 0.5 }}
                   src={location.pathname === '/rates' ? "/mobile-rates-header.webp" : ['/alerts', '/videos'].includes(location.pathname) ? "/logo.webp" : "/header-internal-mobile.webp"}
                   alt={['/alerts', '/videos'].includes(location.pathname) ? "Abhinav Gold & Silver Logo" : "Abhinav Gold & Silver Header Mobile"}
-                  className={`${['/alerts', '/videos'].includes(location.pathname) ? 'w-[50%] mx-auto py-4 mt-16 max-w-[200px]' : location.pathname === '/rates' ? 'w-full h-auto' : 'w-full min-h-[220px]'} h-auto md:hidden ${location.pathname === '/rates' ? '' : 'object-cover'} object-center block`}
+                  className={`${['/alerts', '/videos'].includes(location.pathname) ? 'w-[50%] mx-auto py-2 mt-12 max-w-[200px]' : location.pathname === '/rates' ? 'w-full h-auto' : 'w-full min-h-[180px]'} h-auto md:hidden ${location.pathname === '/rates' ? '' : 'object-cover'} object-center block`}
                 />
                 <motion.img
                   initial={{ opacity: 1 }}
@@ -211,7 +212,7 @@ const AppLayout = () => {
 
             {/* Overlaid Spot Rates Bar - Home page only */}
             {isHomePage && (
-              <div className="absolute bottom-[-125px] md:bottom-[-115px] left-0 w-full z-20 flex justify-center px-1 md:px-0">
+              <div className="absolute bottom-[-50px] md:bottom-[-115px] left-0 w-full z-20 flex justify-center px-1 md:px-0">
                 <SpotBar />
               </div>
             )}

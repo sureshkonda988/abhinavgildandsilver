@@ -13,6 +13,8 @@ import multer from 'multer';
 import path from 'path';
 import { fileURLToPath } from 'url';
 import fs from 'fs';
+import swaggerUi from 'swagger-ui-express';
+import swaggerJsdoc from 'swagger-jsdoc';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -27,6 +29,28 @@ app.use(cors());
 app.use(express.json({ limit: '100mb' }));
 app.use(express.urlencoded({ limit: '100mb', extended: true }));
 app.use('/music', express.static(path.join(__dirname, '../public/music')));
+
+// Swagger Configuration
+const swaggerOptions = {
+    definition: {
+        openapi: '3.0.0',
+        info: {
+            title: 'Abhinav Gold & Silver API',
+            version: '1.0.0',
+            description: 'API documentation for the Abhinav Gold & Silver website backend',
+        },
+        servers: [
+            {
+                url: `http://localhost:${PORT}`,
+                description: 'Local development server',
+            },
+        ],
+    },
+    apis: ['./server/index.js'], // Path to the API docs
+};
+
+const swaggerSpec = swaggerJsdoc(swaggerOptions);
+app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 
 // Multer Storage Configuration
 const storage = multer.diskStorage({
@@ -104,8 +128,17 @@ const fetchRaw = (targetUrl) => new Promise((resolve, reject) => {
     req.on('timeout', () => { req.destroy(); reject(new Error('Timeout')); });
 });
 
-// Routes
-// New: Get persisted live rates from MongoDB
+/**
+ * @openapi
+ * /api/rates/live:
+ *   get:
+ *     summary: Get live rates from MongoDB (persisted polling)
+ *     responses:
+ *       200:
+ *         description: Live rates text and timestamp
+ *       404:
+ *         description: No rates found
+ */
 app.get('/api/rates/live', async (req, res) => {
     res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate, proxy-revalidate, s-maxage=0');
     res.setHeader('Pragma', 'no-cache');
@@ -140,7 +173,26 @@ app.get('/api/rates/live', async (req, res) => {
     }
 });
 
-// 0. Server-side rate proxy (no CORS, no rate limits)
+/**
+ * @openapi
+ * /api/rates/proxy:
+ *   get:
+ *     summary: Proxy a request to an external rate URL
+ *     parameters:
+ *       - in: query
+ *         name: url
+ *         schema:
+ *           type: string
+ *         required: true
+ *         description: The target URL to fetch
+ *     responses:
+ *       200:
+ *         description: The raw response text
+ *       400:
+ *         description: No URL provided
+ *       502:
+ *         description: Proxy error
+ */
 app.get('/api/rates/proxy', async (req, res) => {
     const targetUrl = req.query.url;
     if (!targetUrl) return res.status(400).send('No URL provided');
@@ -154,7 +206,15 @@ app.get('/api/rates/proxy', async (req, res) => {
     }
 });
 
-// 1. Get current settings
+/**
+ * @openapi
+ * /api/rates/settings:
+ *   get:
+ *     summary: Get global rate settings
+ *     responses:
+ *       200:
+ *         description: The global settings object
+ */
 app.get('/api/rates/settings', async (req, res) => {
     try {
         let settings = await RateSettings.findOne({ key: 'global_settings' });
@@ -168,7 +228,21 @@ app.get('/api/rates/settings', async (req, res) => {
     }
 });
 
-// 2. Update settings
+/**
+ * @openapi
+ * /api/rates/settings:
+ *   post:
+ *     summary: Update global rate settings
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *     responses:
+ *       200:
+ *         description: The updated settings object
+ */
 app.post('/api/rates/settings', async (req, res) => {
     try {
         const { baseModifications, gold, silver, stockOverrides, ticker, videos, adminPassword, showModified, homeAudio, ratesAudio, isMusicEnabled } = req.body;
@@ -200,7 +274,15 @@ app.post('/api/rates/settings', async (req, res) => {
 
 // --- Separate Video Library Routes ---
 
-// 1. Get all videos
+/**
+ * @openapi
+ * /api/videos:
+ *   get:
+ *     summary: Get all videos from the video library
+ *     responses:
+ *       200:
+ *         description: Array of video objects
+ */
 app.get('/api/videos', async (req, res) => {
     res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate, proxy-revalidate, s-maxage=0');
     res.setHeader('Pragma', 'no-cache');
@@ -217,7 +299,24 @@ app.get('/api/videos', async (req, res) => {
     }
 });
 
-// 2. Update video library
+/**
+ * @openapi
+ * /api/videos:
+ *   post:
+ *     summary: Update the video library
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               list:
+ *                 type: array
+ *     responses:
+ *       200:
+ *         description: The updated video list
+ */
 app.post('/api/videos', async (req, res) => {
     try {
         const { list } = req.body;
@@ -236,7 +335,15 @@ app.post('/api/videos', async (req, res) => {
 
 // --- Music Library Routes ---
 
-// 1. Get music settings
+/**
+ * @openapi
+ * /api/music:
+ *   get:
+ *     summary: Get music settings
+ *     responses:
+ *       200:
+ *         description: The music settings object
+ */
 app.get('/api/music', async (req, res) => {
     res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate, proxy-revalidate, s-maxage=0');
     res.setHeader('Pragma', 'no-cache');
@@ -253,7 +360,21 @@ app.get('/api/music', async (req, res) => {
     }
 });
 
-// 2. Update music settings
+/**
+ * @openapi
+ * /api/music:
+ *   post:
+ *     summary: Update music settings
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *     responses:
+ *       200:
+ *         description: The updated music settings object
+ */
 app.post('/api/music', async (req, res) => {
     try {
         const { homeMusic, ratesMusic } = req.body;
@@ -270,7 +391,25 @@ app.post('/api/music', async (req, res) => {
     }
 });
 
-// 3. Upload music file
+/**
+ * @openapi
+ * /api/music/upload:
+ *   post:
+ *     summary: Upload a new background music file
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         multipart/form-data:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               file:
+ *                 type: string
+ *                 format: binary
+ *     responses:
+ *       200:
+ *         description: Upload success message
+ */
 app.post('/api/music/upload', (req, res, next) => {
     console.log("Upload request received...");
     upload.single('file')(req, res, (err) => {

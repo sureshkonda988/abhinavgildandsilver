@@ -20,7 +20,7 @@ const RatesPage = () => {
         <motion.div
             initial={{ opacity: 1 }}
             animate={{ opacity: 1 }}
-            className="pb-12 md:pb-8 md:min-h-0 px-4 pt-4 max-w-7xl mx-auto mt-2 md:absolute md:top-24 md:right-4 md:z-40 md:w-full md:max-w-[500px]"
+            className="pb-12 md:pb-8 md:min-h-0 px-4 pt-1 max-w-7xl mx-auto mt-1 md:absolute md:top-24 md:right-4 md:z-40 md:w-full md:max-w-[500px]"
         >
             {error && (
                 <div className="max-w-md mx-auto mb-4 bg-red-500/10 border border-red-500/20 text-red-400 p-3 rounded-xl text-center text-xs font-bold uppercase tracking-wider">
@@ -57,7 +57,7 @@ const RatesPage = () => {
                                                     </td>
                                                     <td className="px-3 py-2.5 md:px-4 md:py-2.5 text-right whitespace-nowrap">
                                                         <span
-                                                            className={`font-bold text-[14px] md:text-[32px] ${getKaratClass(gold.key, 'sell')}`}
+                                                            className={`font-bold text-[18px] md:text-[32px] ${getKaratClass(gold.key, 'sell')}`}
                                                         >
                                                             <span style={{ fontFamily: 'Inter, system-ui, sans-serif' }}>₹</span>{gSellVal}
                                                         </span>

@@ -7,7 +7,8 @@ const MusicPlayer = ({ isEnabled }) => {
     const location = useLocation();
     // Directly use local files instead of database-managed URLs
     // Cache buster added to ensure fresh audio if changed
-    const cacheBuster = `?v=${Date.now().toString().slice(-6)}`;
+    // Cache buster stabilized with useMemo to prevent reloads on every render
+    const cacheBuster = React.useMemo(() => `?v=${Date.now().toString().slice(-6)}`, []);
     const [unlocked, setUnlocked] = useState(false);
     const [playing, setPlaying] = useState(false);
 

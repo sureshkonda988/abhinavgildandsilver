@@ -134,10 +134,32 @@
     background-color: transparent !important;
   }
 
-  @media (max-width: 767px) {
+  @media (max-width: 768px) {
     .home-bg {
-      /* Show the image background through */
       background-color: transparent !important;
+    }
+    
+    /* Global mobile resets for spacing */
+    main, section, .container, .section {
+      height: auto !important;
+      min-height: auto !important;
+    }
+
+    .header-box-premium {
+      padding: 6px 10px !important;
+    }
+
+    /* Reduce vertical gaps across components */
+    .gap-10, .gap-12, .gap-16, .gap-20 {
+      gap: 1rem !important;
+    }
+    
+    .mt-10, .mt-12, .mt-16, .mt-20 {
+      margin-top: 1.5rem !important;
+    }
+    
+    .pt-32, .pt-24 {
+      padding-top: 4rem !important;
     }
   }
 }

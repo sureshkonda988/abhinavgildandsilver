@@ -7,7 +7,7 @@ export default function HomeScreen() {
     <SafeAreaView style={styles.container}>
       {/* Assuming your vercel deployment is https://abhanav-website.vercel.app */}
       <WebView 
-        source={{ uri: 'https://abhanav-website.vercel.app' }} 
+        source={{ uri: 'https://abhinavgildandsilver-7f7fr3ydq-sureshs-projects-386c3552.vercel.app' }} 
         style={styles.webview}
       />
     </SafeAreaView>

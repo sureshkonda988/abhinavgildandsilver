@@ -7,7 +7,7 @@ export default function HomeScreen() {
     <SafeAreaView style={styles.container}>
       {/* Assuming the default Vercel URL based on the folder name. Replace with actual URL if different. */}
       <WebView 
-        source={{ uri: 'https://abhanav-website.vercel.app' }} 
+        source={{ uri: 'https://abhinavgildandsilver-7f7fr3ydq-sureshs-projects-386c3552.vercel.app' }} 
         style={styles.webview}
       />
     </SafeAreaView>

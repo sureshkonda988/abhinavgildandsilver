@@ -96,7 +96,7 @@ const Navigation = () => {
                     </nav>
 
                     {/* Mobile View - Buttons removed per user request */}
-                    <div className="lg:hidden pointer-events-none px-4 py-4" />
+                    <div className="lg:hidden pointer-events-none px-4 py-1" />
                 </div>
             </div>
 

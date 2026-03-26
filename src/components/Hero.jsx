@@ -27,7 +27,7 @@ const Hero = () => {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ duration: 1 }}
-            className="w-full inventory-section min-h-[50vh] relative overflow-hidden pt-32 md:pt-30"
+            className="w-full inventory-section min-h-[50vh] relative overflow-hidden pt-8 md:pt-30"
         >
 
             {/* Ambient Background Accents */}
@@ -102,7 +102,7 @@ const Hero = () => {
                                                         className="w-full transition-all duration-300 max-w-[140px] md:max-w-[300px] py-3 md:py-5 px-2 md:px-6 rounded-[14px] md:rounded-[24px] flex items-center justify-center shadow-lg hover:scale-105"
                                                     >
                                                         <span
-                                                            className="font-black font-poppins text-center tracking-tighter md:tracking-normal text-[14px] md:text-[34px] leading-none text-slate-900"
+                                                            className="font-black font-poppins text-center tracking-tighter md:tracking-normal text-[18px] md:text-[34px] leading-none text-slate-900"
                                                         >
                                                             {item.sell !== '-' ? <><span style={{ fontFamily: 'Inter, system-ui, sans-serif' }}>₹</span>{fmt(item.sell * (item.factor || 1))}</> : '—'}
                                                         </span>
@@ -137,7 +137,7 @@ const Hero = () => {
             </section>
 
             {/* Ticker between Table 1 and Table 2 */}
-            <div className="w-full relative z-20 py-0 mt-10 md:mt-16">
+            <div className="w-full relative z-20 py-0 mt-4 md:mt-16">
                 <Ticker />
             </div>
 
@@ -162,7 +162,7 @@ const Hero = () => {
             </div>
 
             {/* Table 2: Market Rates (Bullion Style) */}
-            <section className="max-w-3xl mx-auto px-4 md:px-8 w-full mt-10 md:mt-20 mb-8 md:mb-12 relative z-10">
+            <section className="max-w-3xl mx-auto px-4 md:px-8 w-full mt-6 md:mt-20 mb-8 md:mb-12 relative z-10">
                 <Heading text="LOCAL GOLD AND SILVER RETAIL RATES" />
                 <motion.div
                     initial={{ opacity: 0, y: 50 }}
