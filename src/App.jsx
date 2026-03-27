@@ -171,52 +171,53 @@ const AppLayout = () => {
         <>
           <div className="flex flex-col sticky top-0 w-full z-40 bg-transparent">
             <Navigation />
-            <section className="relative w-full bg-transparent overflow-hidden">
-              {isHomePage ? (
-                <>
-                  <motion.img
-                    initial={{ opacity: 1 }}
-                    animate={{ opacity: 1 }}
-                    transition={{ duration: 0.5 }}
-                    src="/mobile-home-header.webp"
-                    alt="Abhinav Gold & Silver Header Mobile"
-                    className="w-full h-auto md:hidden object-contain object-center block"
-                  />
-                  <motion.img
-                    initial={{ opacity: 1 }}
-                    animate={{ opacity: 1 }}
-                    transition={{ duration: 0.5 }}
-                    src="/desktop-home-header.webp"
-                    alt="Abhinav Gold & Silver Header Desktop"
-                    className="w-full h-auto hidden md:block object-cover object-center block"
-                  />
-                </>
-              ) : (
-                <div className="flex flex-col">
-                  <motion.img
-                    initial={{ opacity: 1 }}
-                    animate={{ opacity: 1 }}
-                    transition={{ duration: 0.5 }}
-                    src={location.pathname === '/rates' ? "/mobile-rates-header.webp" : ['/alerts', '/videos'].includes(location.pathname) ? "/logo.webp" : "/header-internal-mobile.webp"}
-                    alt={['/alerts', '/videos'].includes(location.pathname) ? "Abhinav Gold & Silver Logo" : "Abhinav Gold & Silver Header Mobile"}
-                    className={`${['/alerts', '/videos'].includes(location.pathname) ? 'w-[50%] mx-auto py-2 mt-12 max-w-[200px]' : location.pathname === '/rates' ? 'w-full h-auto' : 'w-full min-h-[180px]'} h-auto md:hidden ${location.pathname === '/rates' ? '' : 'object-cover'} object-center block`}
-                  />
-                  <motion.img
-                    initial={{ opacity: 1 }}
-                    animate={{ opacity: 1 }}
-                    transition={{ duration: 0.5 }}
-                    src={location.pathname === '/rates' ? "/desktop-rates-header.webp" : ['/alerts', '/videos'].includes(location.pathname) ? "/logo.webp" : "/header-rates-desktop.webp"}
-                    alt={['/alerts', '/videos'].includes(location.pathname) ? "Abhinav Gold & Silver Logo" : "Abhinav Gold & Silver Header Desktop"}
-                    className={`${['/alerts', '/videos'].includes(location.pathname) ? 'w-[30%] mx-auto py-6 max-w-[250px]' : location.pathname === '/rates' ? 'w-full h-auto' : 'w-full min-h-[350px]'} h-auto hidden md:block ${location.pathname === '/rates' ? '' : 'object-cover'} object-center block`}
-                  />
-                </div>
-              )}
-            </section>
           </div>
+
+          <section className="relative w-full bg-transparent overflow-hidden">
+            {isHomePage ? (
+              <>
+                <motion.img
+                  initial={{ opacity: 1 }}
+                  animate={{ opacity: 1 }}
+                  transition={{ duration: 0.5 }}
+                  src="/mobile-home-header.webp"
+                  alt="Abhinav Gold & Silver Header Mobile"
+                  className="w-full h-auto md:hidden object-contain object-center block"
+                />
+                <motion.img
+                  initial={{ opacity: 1 }}
+                  animate={{ opacity: 1 }}
+                  transition={{ duration: 0.5 }}
+                  src="/desktop-home-header.webp"
+                  alt="Abhinav Gold & Silver Header Desktop"
+                  className="w-full h-auto hidden md:block object-cover object-center block"
+                />
+              </>
+            ) : (
+              <div className="flex flex-col">
+                <motion.img
+                  initial={{ opacity: 1 }}
+                  animate={{ opacity: 1 }}
+                  transition={{ duration: 0.5 }}
+                  src={location.pathname === '/rates' ? "/mobile-rates-header.webp" : ['/alerts', '/videos'].includes(location.pathname) ? "/logo.webp" : "/header-internal-mobile.webp"}
+                  alt={['/alerts', '/videos'].includes(location.pathname) ? "Abhinav Gold & Silver Logo" : "Abhinav Gold & Silver Header Mobile"}
+                  className={`${['/alerts', '/videos'].includes(location.pathname) ? 'w-[50%] mx-auto py-2 mt-12 max-w-[200px]' : location.pathname === '/rates' ? 'w-full h-auto' : 'w-full min-h-[180px]'} h-auto md:hidden ${location.pathname === '/rates' ? '' : 'object-cover'} object-center block`}
+                />
+                <motion.img
+                  initial={{ opacity: 1 }}
+                  animate={{ opacity: 1 }}
+                  transition={{ duration: 0.5 }}
+                  src={location.pathname === '/rates' ? "/desktop-rates-header.webp" : ['/alerts', '/videos'].includes(location.pathname) ? "/logo.webp" : "/header-rates-desktop.webp"}
+                  alt={['/alerts', '/videos'].includes(location.pathname) ? "Abhinav Gold & Silver Logo" : "Abhinav Gold & Silver Header Desktop"}
+                  className={`${['/alerts', '/videos'].includes(location.pathname) ? 'w-[30%] mx-auto py-6 max-w-[250px]' : location.pathname === '/rates' ? 'w-full h-auto' : 'w-full min-h-[350px]'} h-auto hidden md:block ${location.pathname === '/rates' ? '' : 'object-cover'} object-center block`}
+                />
+              </div>
+            )}
+          </section>
 
           {/* Home Page Spot Rates Bar - Now scrolls with content */}
           {isHomePage && (
-            <div className="relative z-20 flex justify-center items-center gap-2 lg:gap-8 px-1 md:px-0 -mt-2 md:-mt-2">
+            <div className="relative z-20 flex justify-center items-center gap-2 lg:gap-8 px-1 md:px-0 mt-2 md:-mt-2">
               <SpotBar />
               <motion.img 
                 initial={{ opacity: 0, x: 30, scale: 0.8 }}
@@ -224,7 +225,7 @@ const AppLayout = () => {
                 transition={{ duration: 1.2, delay: 0.5 }}
                 src="/Untitled design (3).webp" 
                 alt="" 
-                className="block w-12 md:w-24 lg:w-36 h-auto object-contain drop-shadow-2xl -scale-x-100 -translate-y-24 -translate-x-14 md:translate-x-0 md:-translate-y-16 lg:-translate-y-32" 
+                className="absolute md:relative block w-16 md:w-24 lg:w-36 h-auto object-contain drop-shadow-2xl -scale-x-100 -translate-y-24 -translate-x-20 md:translate-x-0 md:-translate-y-16 lg:-translate-y-32 right-0 md:right-auto" 
               />
             </div>
           )}
