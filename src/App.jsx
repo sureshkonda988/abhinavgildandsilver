@@ -251,6 +251,8 @@ const AppLayout = () => {
         <Route path="/terms" element={<TermsOfService />} />
       </Routes>
 
+      {!isAdminPage && <Footer />}
+
       </main>
 
       {!isAdminPage && <BottomNav />}
