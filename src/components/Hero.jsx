@@ -27,12 +27,13 @@ const Hero = () => {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ duration: 1 }}
-            className="w-full inventory-section min-h-[50vh] relative overflow-hidden pt-8 md:pt-30"
+            className="w-full inventory-section min-h-[50vh] relative overflow-hidden pt-2 md:pt-12"
         >
 
             {/* Ambient Background Accents */}
             <div className="absolute top-0 left-0 w-full h-full opacity-30 pointer-events-none"
                 style={{ background: 'radial-gradient(circle at 10% 20%, #fff, transparent 80%)' }} />
+
 
             {/* Table 1: Live Rates */}
             <section className="max-w-7xl mx-auto px-4 md:px-8 w-full mt-1 relative z-10 mb-2">
@@ -275,21 +276,16 @@ const Hero = () => {
                 </motion.div>
             </section>
 
-
-
-            {/* Music Toggle - Mobile Only (below tables) */}
-            <div className="flex md:hidden justify-center pt-4 pb-6">
+            {/* Music Toggle - Mobile Only (at bottom of content) */}
+            <div className="flex md:hidden justify-center pt-8 pb-12">
                 <button
                     onClick={toggleMusic}
-                    className={`flex items-center gap-2 px-5 py-2.5 rounded-full shadow-lg transition-all border-2 font-poppins font-bold text-xs uppercase tracking-widest ${isMusicEnabled ? 'bg-magenta-600 border-magenta-400 text-white animate-pulse' : 'bg-white/80 border-slate-200 text-slate-700'} hover:scale-105`}
-                    title={isMusicEnabled ? 'Turn Off Music' : 'Turn On Music'}
+                    className={`flex items-center gap-3 px-6 py-3 rounded-full shadow-xl transition-all border-2 font-poppins font-bold text-xs uppercase tracking-widest ${isMusicEnabled ? 'bg-magenta-600 border-magenta-400 text-white' : 'bg-white border-slate-200 text-slate-700'} hover:scale-105 active:scale-95`}
                 >
-                    <Music size={16} />
+                    <Music size={18} strokeWidth={2.5} />
                     {isMusicEnabled ? 'Music On' : 'Music Off'}
                 </button>
             </div>
-
-
         </motion.div>
     );
 };

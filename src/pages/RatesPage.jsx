@@ -78,18 +78,6 @@ const RatesPage = () => {
                     </div>
                 )}
 
-                {/* Music Toggle - Mobile Only (below tables) */}
-                <div className="flex md:hidden justify-center pb-4 mt-4">
-                    <button
-                        onClick={toggleMusic}
-                        className={`flex items-center gap-2 px-5 py-2.5 rounded-full shadow-lg transition-all border-2 font-poppins font-bold text-xs uppercase tracking-widest ${isMusicEnabled ? 'bg-gold-500 border-gold-400 text-white animate-pulse' : 'bg-white/20 border-white/30 text-white'
-                            } hover:scale-105`}
-                        title={isMusicEnabled ? 'Turn Off Music' : 'Turn On Music'}
-                    >
-                        <Music size={16} />
-                        {isMusicEnabled ? 'Music On' : 'Music Off'}
-                    </button>
-                </div>
 
                 {/* QR Codes - Mobile Only */}
                 <div className="flex md:hidden flex-col gap-8 mt-6 pb-8 border-t border-white/10 pt-8">
@@ -137,6 +125,17 @@ const RatesPage = () => {
                         </div>
                     </div>
                 </div>
+            </div>
+
+            {/* Music Toggle - Mobile Only (at bottom of content) */}
+            <div className="flex md:hidden justify-center pt-8 pb-12">
+                <button
+                    onClick={toggleMusic}
+                    className={`flex items-center gap-3 px-6 py-3 rounded-full shadow-xl transition-all border-2 font-poppins font-bold text-xs uppercase tracking-widest ${isMusicEnabled ? 'bg-magenta-600 border-magenta-400 text-white' : 'bg-white border-slate-200 text-slate-700'} hover:scale-105 active:scale-95`}
+                >
+                    <Music size={18} strokeWidth={2.5} />
+                    {isMusicEnabled ? 'Music On' : 'Music Off'}
+                </button>
             </div>
         </motion.div>
     );

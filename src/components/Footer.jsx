@@ -4,7 +4,6 @@ import { Link, useLocation } from 'react-router-dom';
 import { useRates } from '../context/RateContext';
 
 const Footer = () => {
-    const { isMusicEnabled, toggleMusic } = useRates();
     const location = useLocation();
     const currentYear = new Date().getFullYear();
 

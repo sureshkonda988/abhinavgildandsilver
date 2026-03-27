@@ -86,10 +86,7 @@ export const RateProvider = ({ children }) => {
     const [ticker, setTicker] = useState('Welcome to Abhinav Gold & Silver - Quality Purity Guaranteed');
     const [videos, setVideos] = useState([]);
     const [videosLoaded, setVideosLoaded] = useState(false);
-    const [isMusicEnabled, setIsMusicEnabled] = useState(() => {
-        const persisted = localStorage.getItem('abhinav_music_enabled');
-        return persisted === 'true'; // Defaults to false if never set
-    });
+    const [isMusicEnabled, setIsMusicEnabled] = useState(false);
 
     // (homeAudio and ratesAudio removed as they are now static in MusicPlayer)
 
@@ -187,7 +184,7 @@ export const RateProvider = ({ children }) => {
         // Evaluate the new adj correctly against the absolute latest ref state
         // to prevent stale closures and race conditions when typing and clicking fast.
         let newAdj = adjRef.current;
-        
+
         if (payload.adjFn) {
             newAdj = payload.adjFn(adjRef.current);
             setAdj(newAdj);
@@ -200,7 +197,7 @@ export const RateProvider = ({ children }) => {
             setShowModified(payload.showModified);
         }
         if (payload.ticker !== undefined) setTicker(payload.ticker);
-        
+
         // 2. Prepare the full payload for MongoDB sync using the newly evaluated adj
         try {
             const body = {
@@ -213,7 +210,7 @@ export const RateProvider = ({ children }) => {
                 ticker: payload.ticker !== undefined ? payload.ticker : ticker,
                 showModified: payload.showModified !== undefined ? payload.showModified : showModified
             };
-            
+
             const res = await fetch(`${API_BASE}/rates/settings`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
@@ -325,16 +322,16 @@ export const RateProvider = ({ children }) => {
             }
 
             const sh = sessionHighLow.current[conf.id];
-            
-            return { 
-                id: it.id, 
-                name: conf.name, 
-                buy: it.bid, 
-                sell: it.ask, 
-                stock: it.stock, 
-                low: sh ? sh.low : it.low, 
-                high: sh ? sh.high : it.high, 
-                factor: conf.factor || 1 
+
+            return {
+                id: it.id,
+                name: conf.name,
+                buy: it.bid,
+                sell: it.ask,
+                stock: it.stock,
+                low: sh ? sh.low : it.low,
+                high: sh ? sh.high : it.high,
+                factor: conf.factor || 1
             };
         });
 
@@ -389,7 +386,7 @@ export const RateProvider = ({ children }) => {
         // 1. Background News Fetch (Throttled)
         if (Date.now() - lastNewsFetch.current > 300000) {
             (async () => {
-                const newsUrl = isLocal ? '/api-news/rss/news_11.rss' : 'https://www.investing.com/rss/news_11.rss';
+                const newsUrl = isLocal ? '/api-news/rss/news_11.rss' : '';
                 const proxies = isLocal ? [url => url] : CORS_PROXIES;
 
                 for (const p of proxies.slice(0, 3)) {
