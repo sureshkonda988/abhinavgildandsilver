@@ -217,7 +217,9 @@ const AppLayout = () => {
           {/* Home Page Spot Rates Bar - Now scrolls with content */}
           {isHomePage && (
             <div className="relative z-20 flex justify-center items-center gap-2 lg:gap-8 px-1 md:px-0 mt-2 md:-mt-2">
-              <SpotBar />
+              <div className="lg:translate-x-32">
+                <SpotBar />
+              </div>
               {/* Decorative Image - Now Scrollable again */}
               <motion.img 
                 initial={{ opacity: 0, x: 30, scale: 0.8 }}

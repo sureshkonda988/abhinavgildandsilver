@@ -25,3 +25,14 @@ export const BACKEND_KEYS = {
 };
 
 export const DEFAULT_SITE_URL = BASE_URL;
+
+export const IMAGE_ASSETS = {
+  LOGO: `${BASE_URL}/logo.webp`,
+  BG_HOME: `${BASE_URL}/bg-home-mobile.webp`,
+  BG_INTERNAL: `${BASE_URL}/bg-internal.webp`,
+  BG_ALERTS: `${BASE_URL}/bg-alerts.webp`,
+  BG_VIDEOS: `${BASE_URL}/bg-videos.webp`,
+  HOME_HEADER: `${BASE_URL}/mobile-home-header.webp`,
+  RATES_HEADER: `${BASE_URL}/mobile-rates-header.webp`,
+  DECORATIVE_ORNAMENT: `${BASE_URL}/Untitled design (3).webp`,
+};

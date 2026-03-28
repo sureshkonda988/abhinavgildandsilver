@@ -27,29 +27,29 @@ const Navigation = () => {
             <div className="absolute lg:relative top-0 w-full z-50 p-0">
                 <div className="max-w-full mx-auto px-0 py-0">
                     {/* Desktop View (≥1024px) */}
-                    <nav className="hidden lg:flex items-center justify-between bg-[#0b0e14] border-b border-white/5 px-6 py-0.5 shadow-2xl">
+                    <nav className="hidden lg:flex items-center justify-between bg-[#0b0e14] border-b border-white/5 px-6 py-0 shadow-2xl">
                         {/* Logo */}
-                        <Link to="/" className="flex items-center gap-3 group">
+                        <Link to="/" className="flex items-center gap-2 group">
                             <img 
                                 src="/logo.webp" 
                                 alt="Abhinav Gold & Silver Logo" 
-                                className="w-8 h-8 md:w-14 md:h-14 object-contain transition-transform duration-500 group-hover:scale-110 drop-shadow-md" 
+                                className="w-8 h-8 md:w-11 md:h-11 object-contain transition-transform duration-500 group-hover:scale-110 drop-shadow-md" 
                             />
                             <div className="flex flex-col">
-                                <span className="text-[#f4cb4c] font-playfair font-black text-xl tracking-tight leading-none uppercase">ABHINAV</span>
-                                <span className="text-[#f4cb4c] font-poppins font-bold text-[9px] tracking-[0.1em] leading-tight">GOLD & SILVER</span>
+                                <span className="text-[#f4cb4c] font-playfair font-black text-lg tracking-tight leading-none uppercase">ABHINAV</span>
+                                <span className="text-[#f4cb4c] font-poppins font-bold text-[8px] tracking-[0.1em] leading-tight">GOLD & SILVER</span>
                             </div>
                         </Link>
 
                         {/* Navigation Links */}
-                        <div className="flex items-center gap-10">
+                        <div className="flex items-center gap-8">
                             {navItems.map((item) => {
                                 const isActive = location.pathname === item.path;
                                 return (
                                     <Link
                                         key={item.name}
                                         to={item.path}
-                                        className={`font-poppins font-bold text-sm uppercase tracking-widest transition-all relative py-2 ${
+                                        className={`font-poppins font-bold text-[13px] uppercase tracking-widest transition-all relative py-1 ${
                                             isActive ? 'text-white' : 'text-slate-400 hover:text-white'
                                         }`}
                                     >
