@@ -251,7 +251,11 @@ const AppLayout = () => {
         <Route path="/terms" element={<TermsOfService />} />
       </Routes>
 
-      {!isAdminPage && <Footer />}
+      {!isAdminPage && (
+        <div className={location.pathname === '/alerts' ? 'block' : 'hidden md:block'}>
+          <Footer />
+        </div>
+      )}
 
       </main>
 
