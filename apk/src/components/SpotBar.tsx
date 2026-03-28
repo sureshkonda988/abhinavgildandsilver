@@ -53,10 +53,10 @@ const SpotBar = ({ rates }: SpotBarProps) => {
                   <Text style={styles.symbol}>{item.symbol}</Text>
                   <Text style={styles.value}>{item.value}</Text>
                 </View>
-                <View style={styles.hiLoRow}>
-                  <Text style={styles.hiLoText}>H:{item.h}</Text>
-                  <View style={styles.divider} />
-                  <Text style={styles.hiLoText}>L:{item.l}</Text>
+                <View style={[styles.hiLoRow, { backgroundColor: '#bae6fd', borderRadius: 8, paddingHorizontal: 6, paddingVertical: 2, marginTop: 4, width: '100%', justifyContent: 'center' }]}>
+                  <Text style={[styles.hiLoText, { color: '#16a34a' }]}>H:{item.h}</Text>
+                  <View style={[styles.divider, { backgroundColor: 'rgba(0,0,0,0.1)' }]} />
+                  <Text style={[styles.hiLoText, { color: '#dc2626' }]}>L:{item.l}</Text>
                 </View>
               </View>
             </View>
