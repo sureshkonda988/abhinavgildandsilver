@@ -12,6 +12,8 @@ import multer from 'multer';
 import path from 'path';
 import { fileURLToPath } from 'url';
 import fs from 'fs';
+import swaggerUi from 'swagger-ui-express';
+import swaggerJsdoc from 'swagger-jsdoc';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -31,6 +33,27 @@ const upload = multer({
     storage: multer.memoryStorage(), // Switched to memory for simpler handling if needed for other things, but music upload is gone
     limits: { fileSize: 100 * 1024 * 1024 }
 });
+// Swagger Configuration
+const swaggerOptions = {
+    definition: {
+        openapi: '3.0.0',
+        info: {
+            title: 'Abhinav Gold & Silver API',
+            version: '1.0.0',
+            description: 'API documentation for the Abhinav Gold & Silver website backend',
+        },
+        servers: [
+            {
+                url: '/api',
+                description: 'Relative API path',
+            },
+        ],
+    },
+    apis: ['./api/index.js'], // Path to the API docs in production
+};
+
+const swaggerSpec = swaggerJsdoc(swaggerOptions);
+app.use(['/api/api-docs', '/api-docs'], swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 
 // MongoDB Connection
 if (process.env.MONGODB_URI && process.env.MONGODB_URI.trim() !== "") {
