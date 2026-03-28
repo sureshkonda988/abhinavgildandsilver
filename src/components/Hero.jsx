@@ -59,8 +59,8 @@ const Hero = () => {
                             className="flex flex-col gap-1 md:gap-2 mt-2 md:mt-4"
                         >
                             <div className="flex flex-col gap-0 md:gap-0.5">
-                                {/* Header Row Table 1 */}
-                                <div className="px-3 md:px-0 py-1 mb-1 md:mb-3">
+                                 {/* Header Row Table 1 - Hidden on Mobile */}
+                                <div className="hidden md:block px-3 md:px-0 py-1 mb-1 md:mb-3">
                                     <div className="grid grid-cols-[1.2fr_1.4fr_60px] md:grid-cols-[1.2fr_1.5fr_100px] gap-2 md:gap-6 items-center w-full">
                                         <div className="flex justify-start pl-2 md:pl-3">
                                             <span className="inline-flex items-center justify-center px-3 py-0.5 md:px-6 md:py-1.5 rounded-xl bg-transparent border-[1.5px] md:border-2 border-slate-900/20 text-slate-900 font-playfair font-black text-[9px] md:text-lg tracking-widest shadow-sm backdrop-blur-sm">PRODUCTS</span>
@@ -222,8 +222,8 @@ const Hero = () => {
                     className="flex flex-col gap-1 md:gap-2 mt-2 md:mt-4"
                 >
                     <div className="flex flex-col gap-0 md:gap-0.5">
-                        {/* Header Row Table 2 */}
-                        <div className="px-3 md:px-0 py-1 mb-1 md:mb-3">
+                        {/* Header Row Table 2 - Hidden on Mobile */}
+                        <div className="hidden md:block px-3 md:px-0 py-1 mb-1 md:mb-3">
                             <div className="grid grid-cols-[1.2fr_1fr_1fr_1fr] md:grid-cols-[1.2fr_1fr_1fr_1fr] gap-2 md:gap-4 items-center w-full">
                                 <div className="flex justify-start pl-2 md:pl-3">
                                     <span className="inline-flex items-center justify-center px-3 py-0.5 md:px-4 md:py-1.5 rounded-xl bg-transparent border-[1.5px] md:border-2 border-slate-900/20 text-slate-900 font-playfair font-black text-[9px] md:text-base tracking-widest shadow-sm backdrop-blur-sm">PRODUCTS</span>
