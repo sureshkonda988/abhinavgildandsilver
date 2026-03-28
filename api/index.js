@@ -53,7 +53,20 @@ const swaggerOptions = {
 };
 
 const swaggerSpec = swaggerJsdoc(swaggerOptions);
-app.use(['/api/api-docs', '/api-docs'], swaggerUi.serve, swaggerUi.setup(swaggerSpec));
+
+const options = {
+    customCss: '.swagger-ui .topbar { display: none }',
+    customSiteTitle: "Abhinav Gold & Silver API Docs",
+    customJs: [
+        'https://cdnjs.cloudflare.com/ajax/libs/swagger-ui/4.15.5/swagger-ui-bundle.min.js',
+        'https://cdnjs.cloudflare.com/ajax/libs/swagger-ui/4.15.5/swagger-ui-standalone-preset.min.js',
+    ],
+    customCssUrl: [
+        'https://cdnjs.cloudflare.com/ajax/libs/swagger-ui/4.15.5/swagger-ui.min.css',
+    ],
+};
+
+app.use(['/api/api-docs', '/api-docs'], swaggerUi.serve, swaggerUi.setup(swaggerSpec, options));
 
 // MongoDB Connection
 if (process.env.MONGODB_URI && process.env.MONGODB_URI.trim() !== "") {
