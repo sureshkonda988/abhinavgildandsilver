@@ -87,7 +87,7 @@ const Hero = () => {
                                                 whileInView={{ opacity: 1, x: 0 }}
                                                 viewport={{ once: true }}
                                                 transition={{ delay: idx * 0.12 }}
-                                                className="bg-white/10 backdrop-blur-sm rounded-[16px] py-1 md:py-2 md:bg-transparent md:backdrop-blur-none md:rounded-none md:px-0 md:shadow-none md:border-none relative group"
+                                                className="bg-white/10 backdrop-blur-sm rounded-[16px] py-4 md:py-2 md:bg-transparent md:backdrop-blur-none md:rounded-none md:px-0 md:shadow-none md:border-none relative group"
                                             >
                                                 <div className="grid grid-cols-[0.8fr_1.5fr_60px] md:grid-cols-[1.2fr_1.5fr_100px] gap-2 md:gap-6 items-center w-full relative">
                                                     {/* Product Section */}
@@ -106,7 +106,7 @@ const Hero = () => {
                                                     <div className="flex justify-center w-full">
                                                         <motion.div
                                                             style={{ backgroundColor: bColor, borderColor: '#000000', borderWidth: '1.5px' }}
-                                                            className="w-full transition-all duration-300 max-w-[200px] md:max-w-[300px] py-3 md:py-5 px-3 md:px-6 rounded-[14px] md:rounded-[24px] flex items-center justify-center shadow-lg hover:scale-105"
+                                                            className="w-full transition-all duration-300 max-w-[200px] md:max-w-[300px] py-4 md:py-5 px-3 md:px-6 rounded-[14px] md:rounded-[24px] flex items-center justify-center shadow-lg hover:scale-105"
                                                         >
                                                             <span className="font-black font-poppins text-center text-[18px] md:text-[34px] leading-none text-slate-900 tracking-tighter md:tracking-normal">
                                                                 {item.sell !== '-' ? <><span style={{ fontFamily: 'Inter, system-ui, sans-serif' }}>₹</span>{fmt(item.sell * (item.factor || 1))}</> : '—'}
@@ -218,7 +218,7 @@ const Hero = () => {
                                         whileInView={{ opacity: 1, x: 0 }}
                                         viewport={{ once: true }}
                                         transition={{ delay: idx * 0.12 }}
-                                        className="bg-white/10 backdrop-blur-sm rounded-[16px] py-1 md:py-2 md:bg-transparent md:backdrop-blur-none md:rounded-none md:px-0 md:shadow-none md:border-none relative group"
+                                        className="bg-white/10 backdrop-blur-sm rounded-[16px] py-4 md:py-2 md:bg-transparent md:backdrop-blur-none md:rounded-none md:px-0 md:shadow-none md:border-none relative group"
                                     >
                                         <div className="grid grid-cols-[1fr_1.2fr_1.2fr_1.2fr] md:grid-cols-[1.2fr_1fr_1fr_1fr] gap-1 md:gap-4 items-center w-full">
                                             {/* Product Name */}
@@ -237,7 +237,7 @@ const Hero = () => {
                                             <div className="flex justify-center w-full">
                                                 <motion.div
                                                     style={{ backgroundColor: buyColor, borderColor: '#000000', borderWidth: '1.5px' }}
-                                                    className="w-full transition-all duration-300 max-w-[110px] md:max-w-[240px] py-3 md:py-5 px-1 md:px-3 rounded-[12px] md:rounded-[24px] flex items-center justify-center shadow-lg hover:scale-105"
+                                                    className="w-full transition-all duration-300 max-w-[110px] md:max-w-[240px] py-4 md:py-5 px-1 md:px-3 rounded-[12px] md:rounded-[24px] flex items-center justify-center shadow-lg hover:scale-105"
                                                 >
                                                     <span className="font-black font-poppins text-center text-[13px] md:text-[22px] leading-none text-slate-900 tracking-tighter md:tracking-normal">
                                                         {item.buy !== '-' ? <><span style={{ fontFamily: 'Inter, system-ui, sans-serif' }}>₹</span>{fmt(item.buy)}</> : '—'}
@@ -249,7 +249,7 @@ const Hero = () => {
                                             <div className="flex justify-center w-full">
                                                 <motion.div
                                                     style={{ backgroundColor: sellColor, borderColor: '#000000', borderWidth: '1.5px' }}
-                                                    className="w-full transition-all duration-300 max-w-[110px] md:max-w-[240px] py-3 md:py-5 px-1 md:px-3 rounded-[12px] md:rounded-[24px] flex items-center justify-center shadow-lg hover:scale-105"
+                                                    className="w-full transition-all duration-300 max-w-[110px] md:max-w-[240px] py-4 md:py-5 px-1 md:px-3 rounded-[12px] md:rounded-[24px] flex items-center justify-center shadow-lg hover:scale-105"
                                                 >
                                                     <span className="font-black font-poppins text-center text-[13px] md:text-[22px] leading-none text-slate-900 tracking-tighter md:tracking-normal">
                                                         {item.sell !== '-' ? <><span style={{ fontFamily: 'Inter, system-ui, sans-serif' }}>₹</span>{fmt(item.sell)}</> : '—'}
@@ -259,7 +259,7 @@ const Hero = () => {
 
                                             {/* HI/LO Box */}
                                             <div className="flex justify-center w-full">
-                                                <div className="flex-1 max-w-[100px] border-[1.5px] md:border-[2px] border-sky-400 shadow-lg overflow-hidden rounded-[12px] md:rounded-[24px] flex flex-col items-center justify-center" style={{ backgroundColor: '#bae6fd', minHeight: '50px' }}>
+                                                <div className="flex-1 max-w-[100px] border-[1.5px] md:border-[2px] border-sky-400 shadow-lg overflow-hidden rounded-[12px] md:rounded-[24px] flex flex-col items-center justify-center" style={{ backgroundColor: '#bae6fd', minHeight: '65px' }}>
                                                     <div className="flex-1 w-full flex items-center justify-between px-1 md:px-3 border-b border-black/10">
                                                         <span className="text-[7px] md:text-[11px] font-black text-[#16a34a] uppercase">HI</span>
                                                         <span className="text-[9px] md:text-[14px] font-black text-[#16a34a]">
