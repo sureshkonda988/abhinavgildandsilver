@@ -105,6 +105,8 @@ const RatesScreen = () => {
                       <Text style={styles.currency}>₹</Text>{item.sell !== '-' ? fmt(item.sell) : '-'}
                     </Text>
                   </View>
+                ))}
+              </View>
             </View>
 
             {/* Silver Rates Table */}
