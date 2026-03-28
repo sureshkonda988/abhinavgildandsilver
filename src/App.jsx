@@ -84,23 +84,10 @@ const AppLayout = () => {
   const isHomePage = location.pathname === '/';
   const isAdminPage = location.pathname === '/admin';
 
-  // Critical images to preload based on viewport
+  // Only preload ultra-critical small assets and the logo to ensure fast navigation
   const criticalImages = React.useMemo(() => {
-    const images = ['/logo.webp', '/bg-internal.webp', '/bg-ticker.webp'];
-    if (isHomePage) {
-      images.push('/desktop-home-header.webp');
-      images.push('/mobile-home-header.webp');
-      images.push('/mh.webp');
-      images.push('/Abhinav web.psd.webp');
-      images.push('/Untitled design (25).webp');
-      images.push('/ChatGPT Image Mar 17, 2026, 10_58_54 AM.webp');
-      images.push('/Untitled design (38).webp');
-    } else if (location.pathname === '/rates') {
-      images.push('/desktop-rates-header.webp');
-      images.push('/mobile-rates-header.webp');
-    }
-    return images;
-  }, [isHomePage, location.pathname]);
+    return ['/logo.webp', '/bg-internal.webp', '/bg-ticker.webp'];
+  }, []);
 
   const imagesReady = useImagePreloader(criticalImages);
   const [isLoading, setIsLoading] = React.useState(true);
@@ -108,10 +95,19 @@ const AppLayout = () => {
   React.useEffect(() => {
     if (imagesReady) {
       // Small delay for smooth transition
-      const timer = setTimeout(() => setIsLoading(false), 800);
+      const timer = setTimeout(() => setIsLoading(false), 300);
       return () => clearTimeout(timer);
     }
   }, [imagesReady]);
+
+  // Reset loading state briefly on route change to ensure a clean UI transition
+  // and prevent the "stale home page" from persisting during heavy rendering. 
+  React.useEffect(() => {
+    setIsLoading(true);
+    // After 50ms, the new route's content should be ready to render
+    const timer = setTimeout(() => setIsLoading(false), 50);
+    return () => clearTimeout(timer);
+  }, [location.pathname]);
 
   if (isLoading && !isAdminPage) {
     return <Preloader />;
@@ -171,29 +167,32 @@ const AppLayout = () => {
         <>
           <div className="flex flex-col sticky top-0 w-full z-40 bg-transparent">
             <Navigation />
+            {isHomePage && (
+              <div className="relative w-full">
+                <section className="relative w-full bg-transparent overflow-hidden">
+                  <motion.img
+                    initial={{ opacity: 1 }}
+                    animate={{ opacity: 1 }}
+                    transition={{ duration: 0.5 }}
+                    src="/mobile-home-header.webp"
+                    alt="Abhinav Gold & Silver Header Mobile"
+                    className="w-full h-auto md:hidden object-contain object-center block"
+                  />
+                  <motion.img
+                    initial={{ opacity: 1 }}
+                    animate={{ opacity: 1 }}
+                    transition={{ duration: 0.5 }}
+                    src="/desktop-home-header.webp"
+                    alt="Abhinav Gold & Silver Header Desktop"
+                    className="w-full h-auto hidden md:block object-cover object-center block"
+                  />
+                </section>
+              </div>
+            )}
           </div>
 
-          <section className="relative w-full bg-transparent overflow-hidden">
-            {isHomePage ? (
-              <>
-                <motion.img
-                  initial={{ opacity: 1 }}
-                  animate={{ opacity: 1 }}
-                  transition={{ duration: 0.5 }}
-                  src="/mobile-home-header.webp"
-                  alt="Abhinav Gold & Silver Header Mobile"
-                  className="w-full h-auto md:hidden object-contain object-center block"
-                />
-                <motion.img
-                  initial={{ opacity: 1 }}
-                  animate={{ opacity: 1 }}
-                  transition={{ duration: 0.5 }}
-                  src="/desktop-home-header.webp"
-                  alt="Abhinav Gold & Silver Header Desktop"
-                  className="w-full h-auto hidden md:block object-cover object-center block"
-                />
-              </>
-            ) : (
+          {!isHomePage && (
+            <section className="relative w-full bg-transparent overflow-hidden">
               <div className="flex flex-col">
                 <motion.img
                   initial={{ opacity: 1 }}
@@ -212,20 +211,21 @@ const AppLayout = () => {
                   className={`${['/alerts', '/videos'].includes(location.pathname) ? 'w-[30%] mx-auto py-6 max-w-[250px]' : location.pathname === '/rates' ? 'w-full h-auto' : 'w-full min-h-[350px]'} h-auto hidden md:block ${location.pathname === '/rates' ? '' : 'object-cover'} object-center block`}
                 />
               </div>
-            )}
-          </section>
+            </section>
+          )}
 
           {/* Home Page Spot Rates Bar - Now scrolls with content */}
           {isHomePage && (
             <div className="relative z-20 flex justify-center items-center gap-2 lg:gap-8 px-1 md:px-0 mt-2 md:-mt-2">
               <SpotBar />
+              {/* Decorative Image - Now Scrollable again */}
               <motion.img 
                 initial={{ opacity: 0, x: 30, scale: 0.8 }}
                 animate={{ opacity: 1, x: 0, scale: 1 }}
                 transition={{ duration: 1.2, delay: 0.5 }}
                 src="/Untitled design (3).webp" 
                 alt="" 
-                className="absolute md:relative block w-16 md:w-24 lg:w-36 h-auto object-contain drop-shadow-2xl -scale-x-100 -translate-y-24 -translate-x-20 md:translate-x-0 md:-translate-y-16 lg:-translate-y-32 right-0 md:right-auto" 
+                className="absolute md:relative block w-16 md:w-24 lg:w-36 h-auto object-contain drop-shadow-2xl -scale-x-100 -translate-y-24 -translate-x-20 md:translate-x-0 md:-translate-y-16 lg:-translate-y-32 right-0 md:right-auto z-20" 
               />
             </div>
           )}
