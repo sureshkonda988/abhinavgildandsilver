@@ -255,9 +255,6 @@ const AdminPage = () => {
 
                                     <div className="mt-12">
                                         <h3 className="text-lg md:text-xl font-playfair font-black text-[#f4cb4c] uppercase tracking-widest mb-6 border-b border-[#f4cb4c]/20 pb-2">Base Rate Sell Modification</h3>
-                                        <p className="text-[10px] font-bold text-white/40 uppercase tracking-[0.1em] mb-8 max-w-2xl leading-relaxed">
-                                            Modify the base price for Gold 999 and Silver 999. Changing Gold 999 will automatically update the calculated sell prices for all Karats (14K, 18K, etc.).
-                                        </p>
                                         <div className="grid sm:grid-cols-2 gap-4 mb-10">
                                             <AdjustmentCard
                                                 label="Gold Sell Modification"
@@ -286,7 +283,8 @@ const AdminPage = () => {
                                             <div>
                                                 <h3 className="text-lg md:text-xl font-playfair font-black text-[#f4cb4c] uppercase tracking-widest border-b border-[#f4cb4c]/20 pb-2">Rates Page Modification</h3>
                                                 <p className="text-[10px] font-bold text-white/40 uppercase tracking-[0.1em] mt-2 max-w-2xl leading-relaxed">
-                                                    Independent modifications specifically for the Rates Page. These do not affect the Home Page.
+                                                    Independent modifications specifically for the Rates Page. These do not affect the Home Page.<br/><br/>
+                                                    Modify the base price for Gold 999 and Silver 999. Changing Gold 999 will automatically update the calculated sell prices for all Karats (14K, 18K, etc.).
                                                 </p>
                                             </div>
                                             <div className="flex gap-2 w-full md:w-auto">
@@ -529,7 +527,8 @@ const AdminPage = () => {
                                         <div className="flex flex-col gap-1">
                                             <span className="text-[11px] font-black text-[#f4cb4c] uppercase tracking-widest">Timing Note</span>
                                             <p className="text-[10px] text-white/60 font-bold uppercase leading-relaxed tracking-wider">
-                                                All timings follow India Standard Time (IST). Custom timings in "Modified" mode will only apply if "Manual Override" is set to "Force Open". "Regular" mode consistently follows 10:00 AM to 08:00 PM IST.
+                                                All timings follow India Standard Time (IST). Custom timings in "Modified" mode will only apply if "Manual Override" is set to "Force Open". "Regular" mode consistently follows 10:00 AM to 08:00 PM IST.<br/><br/>
+                                                NOTE: The market is automatically forced closed every Sunday in IST, regardless of the settings above.
                                             </p>
                                         </div>
                                     </div>

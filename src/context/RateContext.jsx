@@ -790,6 +790,21 @@ export const RateProvider = ({ children }) => {
         if (!config) return { isOpen: true, message: 'Market Open', timings: 'Open 10 AM Closed 8 PM' };
 
         const now = new Date();
+        
+        // Check if it's Sunday in Indian Standard Time
+        const istDay = new Intl.DateTimeFormat('en-US', {
+            timeZone: 'Asia/Kolkata',
+            weekday: 'short',
+        }).format(now);
+        
+        if (istDay === 'Sun') {
+            return {
+                isOpen: false,
+                message: 'Market Closed (Sunday)',
+                timings: 'Opens Monday 10:00 AM'
+            };
+        }
+
         const istTime = new Intl.DateTimeFormat('en-US', {
             timeZone: 'Asia/Kolkata',
             hour: 'numeric',

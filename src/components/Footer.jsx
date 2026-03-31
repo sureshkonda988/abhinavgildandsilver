@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { MapPin, Phone, Mail, Clock, Instagram, Facebook, Youtube, Chrome, ShieldAlert, Volume2, VolumeX, ShieldCheck, Award, Music } from 'lucide-react';
 import { Link, useLocation } from 'react-router-dom';
 import { useRates } from '../context/RateContext';
@@ -6,6 +6,7 @@ import { useRates } from '../context/RateContext';
 const Footer = () => {
     const location = useLocation();
     const currentYear = new Date().getFullYear();
+    const [showBankDetails, setShowBankDetails] = useState(false);
 
     return (
         <footer className="bg-slate-900 pt-16 pb-8 px-6 text-slate-400 font-poppins relative overflow-hidden">
@@ -19,25 +20,29 @@ const Footer = () => {
                     <div className="flex flex-col gap-6">
                         <h4 className="text-white font-playfair font-bold text-lg mb-2 uppercase tracking-widest text-center lg:text-left">Bank QR</h4>
                         <div className="flex flex-col items-center lg:items-start gap-4">
-                            <a 
-                                href="https://wa.me/919441055916" 
-                                target="_blank" 
-                                rel="noopener noreferrer"
-                                className="bg-white p-2.5 rounded-[22px] shadow-luxury border-2 border-gold-400/30 group relative overflow-hidden w-max block hover:border-gold-400 transition-all"
+                            <button 
+                                onClick={() => setShowBankDetails(!showBankDetails)}
+                                className="bg-white p-2.5 rounded-[22px] shadow-luxury border-2 border-gold-400/30 group relative overflow-hidden w-max block hover:border-gold-400 transition-all cursor-pointer"
                             >
-                                <img src="/qr-code.webp" alt="Scan QR Bank" className="w-24 h-24 object-contain transition-transform duration-500 group-hover:scale-110" />
+                                <img src="/qr-code.webp" alt="Bank QR Code" className="w-24 h-24 object-contain transition-transform duration-500 group-hover:scale-110" />
                                 <div className="absolute inset-0 bg-gold-400/10 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none" />
-                            </a>
-                            <div className="flex flex-col lg:items-start items-center gap-2">
-                                <span className="text-white font-poppins font-black text-[9px] uppercase tracking-[0.2em]">Bank Details</span>
-                                <a 
-                                    href="https://wa.me/919441055916" 
-                                    target="_blank" 
-                                    rel="noopener noreferrer"
-                                    className="text-[8px] bg-gold-400/10 text-gold-400 px-3 py-1 rounded-full border border-gold-400/20 hover:bg-gold-400 hover:text-slate-900 transition-all font-bold uppercase tracking-widest"
-                                >
-                                    Open Link
-                                </a>
+                            </button>
+                            <div className="flex flex-col lg:items-start items-center gap-2 w-full">
+                                <span className="text-gold-400 font-poppins font-black text-[10px] uppercase tracking-[0.2em] mb-1">Bank Details</span>
+                                {!showBankDetails ? (
+                                    <button 
+                                        onClick={() => setShowBankDetails(true)}
+                                        className="text-[8px] bg-gold-400/10 text-gold-400 px-3 py-1 rounded-full border border-gold-400/20 hover:bg-gold-400 hover:text-slate-900 transition-all font-bold uppercase tracking-widest cursor-pointer"
+                                    >
+                                        Show Details
+                                    </button>
+                                ) : (
+                                    <div className="text-[11px] text-slate-200 font-poppins space-y-1.5 text-center lg:text-left bg-white/5 border border-white/10 p-3 rounded-xl w-full">
+                                        <p className="flex flex-col gap-0.5"><span className="text-slate-400 uppercase tracking-widest text-[8px] font-black">Name</span> <span className="font-bold tracking-wide">Abhinav Jewellers</span></p>
+                                        <p className="flex flex-col gap-0.5"><span className="text-slate-400 uppercase tracking-widest text-[8px] font-black">IFSC Code</span> <span className="font-bold tracking-wide">INDB0001882</span></p>
+                                        <p className="flex flex-col gap-0.5"><span className="text-slate-400 uppercase tracking-widest text-[8px] font-black">Account No.</span> <span className="font-bold tracking-wider">259440138353</span></p>
+                                    </div>
+                                )}
                             </div>
                         </div>
                     </div>
