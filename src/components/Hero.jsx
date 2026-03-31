@@ -27,7 +27,7 @@ const Hero = () => {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ duration: 1 }}
-            className="w-full inventory-section min-h-[50vh] relative overflow-hidden pt-2 md:pt-12"
+            className="w-full inventory-section min-h-[50vh] relative overflow-hidden pt-0 md:pt-1"
         >
 
             {/* Ambient Background Accents */}

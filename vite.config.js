@@ -28,7 +28,7 @@ export default defineConfig({
         rewrite: (path) => path.replace(/^\/audio-proxy/, '/uc'),
       },
       '/api': {
-        target: 'http://localhost:5000',
+        target: 'https://www.abhinavgoldandsilver.com',
         changeOrigin: true,
         configure: (proxy, options) => {
           proxy.on('error', (err, req, res) => {

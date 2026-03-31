@@ -20,7 +20,7 @@ const RatesPage = () => {
         <motion.div
             initial={{ opacity: 1 }}
             animate={{ opacity: 1 }}
-            className="pb-12 md:pb-8 md:min-h-0 px-4 pt-1 max-w-7xl mx-auto mt-1 md:absolute md:top-24 md:right-4 md:z-40 md:w-full md:max-w-[500px]"
+            className="pb-12 md:pb-8 md:min-h-0 px-4 pt-1 max-w-7xl mx-auto mt-1 md:absolute md:top-24 md:right-4 md:z-40 md:w-full md:max-w-[700px]"
         >
             {error && (
                 <div className="max-w-md mx-auto mb-4 bg-red-500/10 border border-red-500/20 text-red-400 p-3 rounded-xl text-center text-xs font-bold uppercase tracking-wider">
@@ -31,17 +31,17 @@ const RatesPage = () => {
             <div className="flex flex-col gap-3">
                 <div className="relative">
                     <div className="flex justify-center mb-3">
-                        <h1 className="text-white/90 font-poppins font-bold text-sm md:text-lg uppercase tracking-wider text-center drop-shadow-luxury">
+                        <h1 className="text-white/90 font-poppins font-bold text-sm md:text-xl uppercase tracking-wider text-center drop-shadow-luxury">
                             Live Retail Rates with GST
                         </h1>
                     </div>
                     
                     <div className="flex flex-col gap-4">
                         {/* Gold Rates Table */}
-                        <div className="flex flex-col w-[95%] min-w-[210px] md:max-w-[480px] max-w-[450px] mx-auto md:ml-auto md:mr-4">
-                            <div className="gradient-luxury px-3 py-2 md:px-4 md:py-2.5 rounded-t-xl shadow-lg flex justify-between items-center text-white font-poppins font-black text-[10px] md:text-[13px] uppercase tracking-widest">
+                        <div className="flex flex-col w-[95%] min-w-[210px] md:max-w-[650px] max-w-[100%] mx-auto md:ml-auto md:mr-4">
+                            <div className="gradient-luxury px-3 py-2 md:px-5 md:py-3 rounded-t-xl shadow-lg flex justify-between items-center text-white font-poppins font-black text-[10px] md:text-[16px] uppercase tracking-widest">
                                 <span className="w-1/3 text-left">PURITY</span>
-                                <h2 className="w-1/3 text-center text-[12px] md:text-[16px]">Gold Rates</h2>
+                                <h2 className="w-1/3 text-center text-[12px] md:text-[18px]">Gold Rates</h2>
                                 <span className="w-1/3 text-right">RATES</span>
                             </div>
                             <div className="glass rounded-b-xl overflow-hidden shadow-luxury">
@@ -52,12 +52,12 @@ const RatesPage = () => {
                                             const gSellVal = gold?.sell !== '-' && gold?.sell !== undefined ? fmt(gold.sell) : '-';
                                             return (
                                                 <tr key={idx} className="hover:bg-white/5 transition-colors group">
-                                                    <td className="px-3 py-2.5 md:px-4 md:py-2.5 text-[13px] md:text-[24px] font-bold text-white whitespace-nowrap">
+                                                    <td className="px-3 py-2 md:px-5 md:py-3 text-[13px] md:text-[24px] font-bold text-white whitespace-nowrap">
                                                         {gold.name}
                                                     </td>
-                                                    <td className="px-3 py-2.5 md:px-4 md:py-2.5 text-right whitespace-nowrap">
+                                                    <td className="px-3 py-2 md:px-5 md:py-3 text-right whitespace-nowrap">
                                                         <span
-                                                            className={`font-bold text-[18px] md:text-[32px] ${getKaratClass(gold.key, 'sell')}`}
+                                                            className={`font-bold text-[18px] md:text-[34px] ${getKaratClass(gold.key, 'sell')}`}
                                                         >
                                                             <span style={{ fontFamily: 'Inter, system-ui, sans-serif' }}>₹</span>{gSellVal}
                                                         </span>
