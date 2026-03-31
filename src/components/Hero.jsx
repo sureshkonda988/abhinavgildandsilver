@@ -45,7 +45,7 @@ const Hero = () => {
                         whileInView={{ opacity: 1, x: 0 }}
                         viewport={{ once: true }}
                         transition={{ duration: 1.2, ease: "easeOut" }}
-                        className="hidden lg:block w-72 shrink-0 h-auto"
+                        className="hidden lg:block w-56 shrink-0 h-auto"
                     >
                         <img src="/Untitled design (38).webp" alt="" className="w-full h-auto object-contain opacity-100 hover:scale-105 transition-all duration-700 drop-shadow-lg" title="Gold Decoration" />
                     </motion.div>
@@ -135,7 +135,7 @@ const Hero = () => {
                         whileInView={{ opacity: 1, x: 0 }}
                         viewport={{ once: true }}
                         transition={{ duration: 1.2, ease: "easeOut" }}
-                        className="hidden lg:block w-72 shrink-0 h-auto"
+                        className="hidden lg:block w-56 shrink-0 h-auto"
                     >
                         <img src="/ChatGPT Image Mar 17, 2026, 10_58_54 AM.webp" alt="" className="w-full h-auto object-contain opacity-100 hover:scale-105 transition-all duration-700 drop-shadow-lg" title="Silver Decoration" />
                     </motion.div>

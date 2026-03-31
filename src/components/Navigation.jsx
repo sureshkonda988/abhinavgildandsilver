@@ -42,7 +42,9 @@ const Navigation = () => {
                         </Link>
 
                         {/* Navigation Links */}
-                        <div className="flex items-center gap-8">
+                        <div className="flex items-center gap-6 md:gap-8">
+                            {/* Flag placed to the left of Home button */}
+                            <img src="/flag.webp" alt="India Flag" className="h-5 w-auto object-contain rounded-[2px]" />
                             {navItems.map((item) => {
                                 const isActive = location.pathname === item.path;
                                 return (
