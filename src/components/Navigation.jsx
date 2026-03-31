@@ -36,15 +36,16 @@ const Navigation = () => {
                                 className="w-8 h-8 md:w-11 md:h-11 object-contain transition-transform duration-500 group-hover:scale-110 drop-shadow-md" 
                             />
                             <div className="flex flex-col">
-                                <span className="text-[#f4cb4c] font-playfair font-black text-lg tracking-tight leading-none uppercase">ABHINAV</span>
+                                <div className="flex items-center gap-2">
+                                    <span className="text-[#f4cb4c] font-playfair font-black text-lg tracking-tight leading-none uppercase">ABHINAV</span>
+                                    <img src="/flag.webp" alt="India Flag" className="h-4 md:h-[18px] w-auto object-contain rounded-[2px]" />
+                                </div>
                                 <span className="text-[#f4cb4c] font-poppins font-bold text-[8px] tracking-[0.1em] leading-tight">GOLD & SILVER</span>
                             </div>
                         </Link>
 
                         {/* Navigation Links */}
                         <div className="flex items-center gap-6 md:gap-8">
-                            {/* Flag placed to the left of Home button */}
-                            <img src="/flag.webp" alt="India Flag" className="h-5 w-auto object-contain rounded-[2px]" />
                             {navItems.map((item) => {
                                 const isActive = location.pathname === item.path;
                                 return (
