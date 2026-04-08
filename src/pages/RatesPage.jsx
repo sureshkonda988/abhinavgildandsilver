@@ -38,7 +38,7 @@ const RatesPage = () => {
                     
                     <div className="flex flex-col gap-4">
                         {/* Gold Rates Table */}
-                        <div className="flex flex-col w-[92%] min-w-[210px] md:max-w-[540px] max-w-[100%] ml-auto mr-8 md:mx-auto md:ml-auto md:mr-16">
+                        <div className="flex flex-col w-[92%] min-w-[210px] md:max-w-[540px] max-w-[100%] ml-auto mr-3 md:mx-auto md:ml-auto md:mr-16">
                             <div className="gradient-luxury px-2 py-2 md:px-5 md:py-3 rounded-t-xl shadow-lg flex justify-between items-center text-white font-poppins font-black text-[10px] md:text-[16px] uppercase tracking-widest">
                                 <span className="w-1/2 text-left">PURITY</span>
                                 <span className="w-1/2 text-right pr-1 md:pr-4 tracking-tight md:tracking-widest">Gold Rates</span>
