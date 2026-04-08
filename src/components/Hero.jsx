@@ -108,8 +108,8 @@ const Hero = () => {
                                                             style={{ backgroundColor: bColor, borderColor: '#000000', borderWidth: '1.5px' }}
                                                             className="w-full transition-all duration-300 max-w-[200px] md:max-w-[300px] py-4 md:py-5 px-3 md:px-6 rounded-[14px] md:rounded-[24px] flex items-center justify-center shadow-lg hover:scale-105"
                                                         >
-                                                            <span className="font-black font-poppins text-center text-[18px] md:text-[34px] leading-none text-slate-900 tracking-tighter md:tracking-normal">
-                                                                {item.sell !== '-' ? <><span style={{ fontFamily: 'Inter, system-ui, sans-serif' }}>₹</span>{fmt(item.sell * (item.factor || 1))}</> : '—'}
+                                                            <span className="font-black font-poppins text-center text-[28px] md:text-[38px] leading-none text-slate-900 tracking-tighter md:tracking-normal">
+                                                                {item.sell !== '-' ? <><span style={{ fontFamily: 'Inter, system-ui, sans-serif', marginRight: '6px' }}>₹</span>{fmt(item.sell * (item.factor || 1))}</> : '—'}
                                                             </span>
                                                         </motion.div>
                                                     </div>
