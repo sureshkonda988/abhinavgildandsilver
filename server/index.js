@@ -106,6 +106,76 @@ if (process.env.MONGODB_URI && process.env.MONGODB_URI.trim() !== "") {
 // --- Rate Polling Service ---
 const RB_GOLD_URL = 'https://bcast.rbgoldspot.com:7768/VOTSBroadcastStreaming/Services/xml/GetLiveRateByTemplateID/rbgold';
 
+// Helper to parse XML rates
+const parseRatesFromXml = (xmlText) => {
+    const items = [...xmlText.matchAll(/<RateDetails>(.*?)<\/RateDetails>/gs)];
+    const rates = {};
+    items.forEach(match => {
+        const itemXml = match[1];
+        const id = (itemXml.match(/<SymbolId>(.*?)<\/SymbolId>/) || [])[1];
+        const bid = (itemXml.match(/<Bid>(.*?)<\/Bid>/) || [])[1];
+        const ask = (itemXml.match(/<Ask>(.*?)<\/Ask>/) || [])[1];
+        if (id) {
+            rates[id] = {
+                bid: parseFloat(bid) || 0,
+                ask: parseFloat(ask) || 0
+            };
+        }
+    });
+    return rates;
+};
+
+// Tracks and calculates modified rates + high/low
+const processModifiedRates = (xmlText, settings, existingData) => {
+    const rawData = parseRatesFromXml(xmlText);
+    const now = new Date();
+    const today = new Date(now.getFullYear(), now.getMonth(), now.getDate()).getTime();
+    
+    // Check for daily reset
+    const lastReset = existingData.lastReset ? new Date(existingData.lastReset).getTime() : 0;
+    const shouldReset = today > lastReset;
+    const updatedRates = shouldReset ? {} : (existingData.rates || {});
+    
+    // Modification logic
+    const baseMods = settings.baseModifications || { gold999: { value: 0 }, silver999: { value: 0 } };
+    
+    Object.keys(rawData).forEach(id => {
+        const item = rawData[id];
+        const isGold = id === '945';
+        const isSilver = ['2966', '2987'].includes(id);
+        
+        let modValue = 0;
+        let mode = 'amount';
+        if (isGold) {
+            modValue = baseMods.gold999?.value || 0;
+            mode = baseMods.gold999?.mode || 'amount';
+        } else if (isSilver) {
+            modValue = baseMods.silver999?.value || 0;
+            mode = baseMods.silver999?.mode || 'amount';
+        }
+        
+        let modifiedRate = item.ask;
+        if (modValue !== 0) {
+            if (mode === 'percent') {
+                modifiedRate += modifiedRate * (modValue / 100);
+            } else {
+                modifiedRate += modValue;
+            }
+        }
+        modifiedRate = Math.floor(modifiedRate);
+
+        const current = updatedRates[id] || { rate: modifiedRate, high: modifiedRate, low: modifiedRate };
+        
+        updatedRates[id] = {
+            rate: modifiedRate,
+            high: Math.max(current.high, modifiedRate),
+            low: Math.min(current.low, modifiedRate)
+        };
+    });
+    
+    return { rates: updatedRates, resetDate: shouldReset ? now : existingData.lastReset };
+};
+
 async function startRatePolling() {
     console.log("Starting server-side rate polling loop...");
 
@@ -113,16 +183,26 @@ async function startRatePolling() {
         try {
             const text = await fetchRaw(RB_GOLD_URL);
             if (text && text.length > 50) {
+                const rateDoc = await LiveRate.findOne({ key: 'current_rates' });
+                const settings = await RateSettings.findOne({ key: 'global_settings' }) || { baseModifications: { gold999: { value: 0 }, silver999: { value: 0 } } };
+                
+                const existingData = rateDoc ? { rates: Object.fromEntries(rateDoc.rates || new Map()), lastReset: rateDoc.lastReset } : { rates: {}, lastReset: new Date() };
+                const { rates: calculatedRates, resetDate } = processModifiedRates(text, settings, existingData);
+
                 await LiveRate.findOneAndUpdate(
                     { key: 'current_rates' },
-                    { rawText: text, timestamp: new Date() },
+                    { 
+                        rawText: text, 
+                        timestamp: new Date(),
+                        rates: calculatedRates,
+                        lastReset: resetDate
+                    },
                     { upsert: true, new: true }
                 );
             }
         } catch (e) {
             console.error("Poll Error:", e.message);
         }
-        // Poll every 1 second
         setTimeout(poll, 1000);
     };
 
@@ -145,10 +225,10 @@ const fetchRaw = (targetUrl) => new Promise((resolve, reject) => {
  * @openapi
  * /api/rates/live:
  *   get:
- *     summary: Get live rates from MongoDB (persisted polling)
+ *     summary: Get live rates from MongoDB (persisted polling) + Modified High/Low
  *     responses:
  *       200:
- *         description: Live rates text and timestamp
+ *         description: Live rates text, structured rates, and timestamp
  *       404:
  *         description: No rates found
  */
@@ -158,29 +238,56 @@ app.get('/api/rates/live', async (req, res) => {
     res.setHeader('Expires', '0');
 
     try {
-        let rate = await LiveRate.findOne({ key: 'current_rates' });
+        let rateDoc = await LiveRate.findOne({ key: 'current_rates' });
+        let settings = await RateSettings.findOne({ key: 'global_settings' }) || { baseModifications: { gold999: { value: 0 }, silver999: { value: 0 } } };
+        
         const now = new Date();
-        const isStale = !rate || (now - new Date(rate.timestamp)) > 1500; // Stale if > 1.5s
+        const isStale = !rateDoc || (now - new Date(rateDoc.timestamp)) > 1500; 
 
         if (isStale) {
-            // Lazy Fetch: Trigger fetch immediately if data is stale
             try {
                 const text = await fetchRaw(RB_GOLD_URL);
                 if (text && text.length > 50) {
-                    rate = await LiveRate.findOneAndUpdate(
+                    const existingData = rateDoc ? { rates: Object.fromEntries(rateDoc.rates || new Map()), lastReset: rateDoc.lastReset } : { rates: {}, lastReset: now };
+                    const { rates: calculatedRates, resetDate } = processModifiedRates(text, settings, existingData);
+                    
+                    rateDoc = await LiveRate.findOneAndUpdate(
                         { key: 'current_rates' },
-                        { rawText: text, timestamp: now },
+                        { 
+                            rawText: text, 
+                            timestamp: now,
+                            rates: calculatedRates,
+                            lastReset: resetDate
+                        },
                         { upsert: true, new: true }
                     );
                 }
             } catch (fetchErr) {
                 console.error("Lazy Fetch Error:", fetchErr.message);
-                // Fallback to whatever we have if fetch fails
             }
         }
 
-        if (!rate) return res.status(404).send('No rates found in database');
-        res.json({ text: rate.rawText, timestamp: rate.timestamp });
+        if (!rateDoc) return res.status(404).send('No rates found in database');
+
+        const symbolId = req.query.id;
+        if (symbolId) {
+            const mappedRates = Object.fromEntries(rateDoc.rates || new Map());
+            const data = mappedRates[symbolId];
+            if (data) {
+                return res.json({
+                    rate: data.rate,
+                    high: data.high,
+                    low: data.low
+                });
+            }
+            return res.status(404).json({ message: 'Symbol not found' });
+        }
+
+        res.json({ 
+            text: rateDoc.rawText, 
+            timestamp: rateDoc.timestamp,
+            rates: Object.fromEntries(rateDoc.rates || new Map())
+        });
     } catch (error) {
         res.status(500).json({ message: 'Error fetching live rates', error: error.message });
     }

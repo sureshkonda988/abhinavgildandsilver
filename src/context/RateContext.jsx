@@ -90,10 +90,13 @@ export const RateProvider = ({ children }) => {
 
     // (homeAudio and ratesAudio removed as they are now static in MusicPlayer)
 
+    const setMusicEnabled = (val) => {
+        setIsMusicEnabled(val);
+        localStorage.setItem('abhinav_music_enabled', val.toString());
+    };
+
     const toggleMusic = () => {
-        const nextValue = !isMusicEnabled;
-        setIsMusicEnabled(nextValue);
-        localStorage.setItem('abhinav_music_enabled', nextValue.toString());
+        setMusicEnabled(!isMusicEnabled);
     };
 
     // Use a ref for settings synchronization to avoid infinite loops if needed
@@ -241,7 +244,7 @@ export const RateProvider = ({ children }) => {
         }
     };
 
-    const parseRateText = (text) => {
+    const parseRateText = (text, backendRates = null) => {
         if (!text || typeof text !== 'string') return getPlaceholders();
 
         const cleanText = text.replace(/\r/g, '').trim();
@@ -314,7 +317,9 @@ export const RateProvider = ({ children }) => {
 
             // Session-based High/Low tracking for Sell (ask) rates
             const sellPrice = it.ask;
-            if (typeof sellPrice === 'number') {
+            const bRate = backendRates ? backendRates[conf.id] : null;
+
+            if (typeof sellPrice === 'number' && !bRate) {
                 const current = sessionHighLow.current[conf.id] || { high: -Infinity, low: Infinity };
                 if (sellPrice > current.high) current.high = sellPrice;
                 if (sellPrice < current.low) current.low = sellPrice;
@@ -329,8 +334,8 @@ export const RateProvider = ({ children }) => {
                 buy: it.bid,
                 sell: it.ask,
                 stock: it.stock,
-                low: sh ? sh.low : it.low,
-                high: sh ? sh.high : it.high,
+                low: bRate ? bRate.low : (sh ? sh.low : it.low),
+                high: bRate ? bRate.high : (sh ? sh.high : it.high),
                 factor: conf.factor || 1
             };
         });
@@ -535,7 +540,7 @@ export const RateProvider = ({ children }) => {
                         const json = await res.json();
                         const text = json.text;
                         if (text && text.length > 50) {
-                            const data = parseRateText(text);
+                            const data = parseRateText(text, json.rates);
                             if (currentFetchId > lastProcessedTimestamp.current) {
                                 lastProcessedTimestamp.current = currentFetchId;
                                 const nextPriceMap = {};
@@ -847,7 +852,7 @@ export const RateProvider = ({ children }) => {
     };
 
     return (
-        <RateContext.Provider value={{ rates, rawRates, loading, error, news, adj, showModified, settingsLoaded, ticker, videos, videosLoaded, isMusicEnabled, toggleMusic, updateSettings, updateVideos, refreshRates: fetchAllRates, getPriceClass, getMarketStatus }}>
+        <RateContext.Provider value={{ rates, rawRates, loading, error, news, adj, showModified, settingsLoaded, ticker, videos, videosLoaded, isMusicEnabled, toggleMusic, setMusicEnabled, updateSettings, updateVideos, refreshRates: fetchAllRates, getPriceClass, getMarketStatus }}>
 
             {children}
         </RateContext.Provider>

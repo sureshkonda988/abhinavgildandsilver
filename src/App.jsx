@@ -79,7 +79,7 @@ const useImagePreloader = (imageList) => {
 };
 
 const AppLayout = () => {
-  const { isMusicEnabled } = useRates();
+  const { isMusicEnabled, setMusicEnabled } = useRates();
   const location = useLocation();
   const isHomePage = location.pathname === '/';
   const isAdminPage = location.pathname === '/admin';
@@ -102,8 +102,12 @@ const AppLayout = () => {
 
   // Reset loading state briefly on route change to ensure a clean UI transition
   // and prevent the "stale home page" from persisting during heavy rendering. 
+  // ALSO: Reset music state on every route change per user request.
   React.useEffect(() => {
     setIsLoading(true);
+    // Reset music to OFF on every page transition
+    if (setMusicEnabled) setMusicEnabled(false);
+    
     // After 50ms, the new route's content should be ready to render
     const timer = setTimeout(() => setIsLoading(false), 50);
     return () => clearTimeout(timer);

@@ -10,6 +10,19 @@ const liveRateSchema = new mongoose.Schema({
         type: String,
         required: true
     },
+    rates: {
+        type: Map,
+        of: {
+            rate: Number,
+            high: Number,
+            low: Number
+        },
+        default: {}
+    },
+    lastReset: {
+        type: Date,
+        default: Date.now
+    },
     timestamp: {
         type: Date,
         default: Date.now

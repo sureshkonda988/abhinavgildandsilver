@@ -74,12 +74,14 @@ export const RateProvider = ({ children }) => {
 
     const fetchLiveRates = async () => {
         let xmlText = '';
+        let backendRates = null;
 
         try {
             // Use their own production Node.js backend to bypass SSL/CORS constraints reliably
             const res = await axios.get(`${API_BASE}/rates/live?_=${Date.now()}`, { timeout: 4000 });
             if (res.data && res.data.text) {
                 xmlText = res.data.text;
+                backendRates = res.data.rates;
             } else if (typeof res.data === 'string' && res.data.includes('<RateDetails>')) {
                 xmlText = res.data;
             }
@@ -109,11 +111,27 @@ export const RateProvider = ({ children }) => {
                 const high = (itemXml.match(/<High>(.*?)<\/High>/) || [])[1];
                 const low = (itemXml.match(/<Low>(.*?)<\/Low>/) || [])[1];
 
+                const bRate = backendRates ? backendRates[id] : null;
+
                 const spotConf = INITIAL_SPOT_CONFIG.find(c => c.id === id);
-                if (spotConf) newSpot.push({ ...spotConf, bid, ask, high, low, stock: adjRef.current.stockOverrides?.[id] || false });
+                if (spotConf) newSpot.push({ 
+                    ...spotConf, 
+                    bid, 
+                    ask, 
+                    high: bRate ? bRate.high.toString() : high, 
+                    low: bRate ? bRate.low.toString() : low, 
+                    stock: adjRef.current.stockOverrides?.[id] || false 
+                });
                 
                 const rtgsConf = INITIAL_RTGS_CONFIG.find(c => c.id === id);
-                if (rtgsConf) newRtgs.push({ ...rtgsConf, buy: bid, sell: ask, stock: adjRef.current.stockOverrides?.[id] || false });
+                if (rtgsConf) newRtgs.push({ 
+                    ...rtgsConf, 
+                    buy: bid, 
+                    sell: ask,
+                    high: bRate ? bRate.high : (parseFloat(high) || 0),
+                    low: bRate ? bRate.low : (parseFloat(low) || 0),
+                    stock: adjRef.current.stockOverrides?.[id] || false 
+                });
             });
             
             if (newSpot.length || newRtgs.length) {

@@ -38,12 +38,14 @@ const MusicPlayer = ({ isEnabled }) => {
         };
     }, [unlocked, isEnabled]);
 
-    // Sync play/pause state with isEnabled
+    const isAllowedPage = isHomePage || isRatesPage;
+
+    // Sync play/pause state with isEnabled - Only allow playing on Home and Rates pages
     useEffect(() => {
         if (unlocked) {
-            setPlaying(isEnabled);
+            setPlaying(isEnabled && isAllowedPage);
         }
-    }, [isEnabled, unlocked]);
+    }, [isEnabled, unlocked, isAllowedPage]);
 
     const isYouTube = currentUrl && currentUrl.includes('youtube.com');
 
