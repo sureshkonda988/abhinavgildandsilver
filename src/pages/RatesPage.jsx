@@ -40,8 +40,9 @@ const RatesPage = () => {
                         {/* Gold Rates Table */}
                         <div className="flex flex-col w-[92%] min-w-[210px] md:max-w-[540px] max-w-[100%] ml-auto mr-3 md:mx-auto md:ml-auto md:mr-16">
                             <div className="gradient-luxury px-2 py-2 md:px-5 md:py-3 rounded-t-xl shadow-lg flex justify-between items-center text-white font-poppins font-black text-[10px] md:text-[16px] uppercase tracking-widest">
-                                <span className="w-1/2 text-left">PURITY</span>
-                                <span className="w-1/2 text-right pr-1 md:pr-4 tracking-tight md:tracking-widest">Gold Rates</span>
+                                <span className="w-1/3 text-left">PURITY</span>
+                                <span className="w-1/3 text-right pr-1 md:pr-4 tracking-tight md:tracking-widest">8 Grams</span>
+                                <span className="w-1/3 text-right pr-1 md:pr-4 tracking-tight md:tracking-widest">10 Grams</span>
                             </div>
                             <div className="glass rounded-b-xl overflow-hidden shadow-luxury">
                                 <table className="w-full text-left">
@@ -50,13 +51,20 @@ const RatesPage = () => {
                                         {rates.ratesPagePurities.map((gold, idx) => {
                                             const gSellVal = gold?.sell !== '-' && gold?.sell !== undefined ? fmt(gold.sell) : '-';
                                             return (
-                                                <tr key={idx} className="hover:bg-white/5 transition-colors group">
-                                                    <td className="px-2 py-2 md:px-5 md:py-3 text-[24px] md:text-[34px] font-bold text-white whitespace-nowrap">
+                                        <tr key={idx} className="hover:bg-white/5 transition-colors group">
+                                                    <td className="px-1 py-2 md:px-4 md:py-3 text-[14px] md:text-[20px] font-bold text-white whitespace-nowrap w-1/3">
                                                         {gold.name}
                                                     </td>
-                                                    <td className="px-2 py-2 md:px-5 md:py-3 text-right pr-1 md:pr-4 whitespace-nowrap">
+                                                    <td className="px-1 py-2 md:px-4 md:py-3 text-right whitespace-nowrap w-1/3">
                                                         <span
-                                                            className={`font-bold text-[42px] md:text-[56px] ${getKaratClass(gold.key, 'sell')}`}
+                                                            className={`font-bold text-[18px] md:text-[26px] ${getKaratClass(gold.key, 'sell')}`}
+                                                        >
+                                                            <span style={{ fontFamily: 'Inter, system-ui, sans-serif' }}>₹</span>{gold?.sell8g !== '-' && gold?.sell8g !== undefined ? fmt(gold.sell8g) : '-'}
+                                                        </span>
+                                                    </td>
+                                                    <td className="px-1 py-2 md:px-4 md:py-3 text-right whitespace-nowrap w-1/3">
+                                                        <span
+                                                            className={`font-bold text-[18px] md:text-[26px] ${getKaratClass(gold.key, 'sell')}`}
                                                         >
                                                             <span style={{ fontFamily: 'Inter, system-ui, sans-serif' }}>₹</span>{gSellVal}
                                                         </span>

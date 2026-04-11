@@ -766,10 +766,13 @@ export const RateProvider = ({ children }) => {
                 sell = Math.round(karatBase + sDelta);
             }
 
+            const sell8g = live999Sell !== 0 ? Math.round(sell * 0.8) : '-';
+
             return {
                 name: p.label,
                 key: p.key,
                 sell: live999Sell !== 0 ? sell : '-',
+                sell8g,
                 trend
             };
         });

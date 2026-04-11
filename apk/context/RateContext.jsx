@@ -81,7 +81,9 @@ export const RateProvider = ({ children }) => {
             const res = await axios.get(`${API_BASE}/rates/live?_=${Date.now()}`, { timeout: 4000 });
             if (res.data && res.data.text) {
                 xmlText = res.data.text;
-                backendRates = res.data.rates;
+                // Preferred source for synchronized values:
+                // backend-calculated map expected as: { [id]: { rate, high, low } }
+                backendRates = res.data.rates || null;
             } else if (typeof res.data === 'string' && res.data.includes('<RateDetails>')) {
                 xmlText = res.data;
             }
@@ -103,33 +105,43 @@ export const RateProvider = ({ children }) => {
             let newSpot = [];
             let newRtgs = [];
             
+            const getApiValues = (id) => {
+                const row = backendRates && backendRates[id] ? backendRates[id] : null;
+                if (!row) return null;
+                const rate = Number(row.rate);
+                const high = Number(row.high);
+                const low = Number(row.low);
+                return {
+                    rate: Number.isFinite(rate) ? rate : null,
+                    high: Number.isFinite(high) ? high : null,
+                    low: Number.isFinite(low) ? low : null,
+                };
+            };
+
             items.forEach(match => {
                 const itemXml = match[1];
                 const id = (itemXml.match(/<SymbolId>(.*?)<\/SymbolId>/) || [])[1];
                 const bid = (itemXml.match(/<Bid>(.*?)<\/Bid>/) || [])[1];
                 const ask = (itemXml.match(/<Ask>(.*?)<\/Ask>/) || [])[1];
-                const high = (itemXml.match(/<High>(.*?)<\/High>/) || [])[1];
-                const low = (itemXml.match(/<Low>(.*?)<\/Low>/) || [])[1];
-
-                const bRate = backendRates ? backendRates[id] : null;
+                const apiVals = getApiValues(id);
 
                 const spotConf = INITIAL_SPOT_CONFIG.find(c => c.id === id);
                 if (spotConf) newSpot.push({ 
                     ...spotConf, 
                     bid, 
-                    ask, 
-                    high: bRate ? bRate.high.toString() : high, 
-                    low: bRate ? bRate.low.toString() : low, 
+                    ask: apiVals?.rate != null ? String(apiVals.rate) : ask,
+                    high: apiVals?.high != null ? String(apiVals.high) : '-',
+                    low: apiVals?.low != null ? String(apiVals.low) : '-',
                     stock: adjRef.current.stockOverrides?.[id] || false 
                 });
                 
                 const rtgsConf = INITIAL_RTGS_CONFIG.find(c => c.id === id);
                 if (rtgsConf) newRtgs.push({ 
                     ...rtgsConf, 
-                    buy: bid, 
-                    sell: ask,
-                    high: bRate ? bRate.high : (parseFloat(high) || 0),
-                    low: bRate ? bRate.low : (parseFloat(low) || 0),
+                    buy: bid,
+                    sell: apiVals?.rate != null ? String(apiVals.rate) : ask,
+                    high: apiVals?.high != null ? apiVals.high : 0,
+                    low: apiVals?.low != null ? apiVals.low : 0,
                     stock: adjRef.current.stockOverrides?.[id] || false 
                 });
             });
