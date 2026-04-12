@@ -681,14 +681,14 @@ export const RateProvider = ({ children }) => {
                 // Sell Calculation: Live + SellMod
                 if (sellMod && sellMod.value !== 0) {
                     const delta = sellMod.value || 0;
-                    sell = parseFloat((liveSell + delta).toFixed(2));
+                    sell = liveSell !== 0 ? parseFloat((liveSell + delta).toFixed(2)) : '-';
                 }
 
                 // Buy Calculation: LiveBuy + BuyMod
                 const liveBuy = parseFloat(r.buy) || 0;
                 if (buyOffset) {
                     const delta = buyOffset.value || 0;
-                    buy = parseFloat((liveBuy + delta).toFixed(2));
+                    buy = liveBuy !== 0 ? parseFloat((liveBuy + delta).toFixed(2)) : '-';
                 }
 
             }
