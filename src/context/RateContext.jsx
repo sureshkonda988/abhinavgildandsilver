@@ -9,10 +9,10 @@ const POTENTIAL_ENDPOINTS = [
 const POTENTIAL_IDS = ['rbgold'];
 
 const CORS_PROXIES = [
+    url => `/api/rates/proxy?url=${encodeURIComponent(url)}`,
     url => `https://api.allorigins.win/raw?url=${encodeURIComponent(url)}`,
     url => `https://api.codetabs.com/v1/proxy?quest=${encodeURIComponent(url)}`,
     url => `https://corsproxy.io/?${encodeURIComponent(url)}`,
-    url => `https://api.allorigins.win/get?url=${encodeURIComponent(url)}`,
     url => `https://thingproxy.freeboard.io/fetch/${url}`,
 ];
 
@@ -478,7 +478,7 @@ export const RateProvider = ({ children }) => {
             if (!success) {
                 // PRODUCTION PIPELINE (Phase 1): Attempt direct raw API fetch via proxies first
                 // This ensures truly raw data for the "Live" table
-                const rawUrl = `${POTENTIAL_ENDPOINTS[0]}${POTENTIAL_IDS[0]}`;
+                const rawUrl = `${POTENTIAL_ENDPOINTS[0]}${POTENTIAL_IDS[0]}?_=${iterationTimestamp}`;
                 for (const proxyFn of CORS_PROXIES.slice(0, 3)) {
                     try {
                         const res = await fetchWithTimeout(proxyFn(rawUrl), 4000);
