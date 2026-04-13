@@ -1,10 +1,12 @@
-import React from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { StyleSheet, View, Text, Image, ImageBackground, ScrollView, Dimensions, TouchableOpacity, Linking, Platform } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useRates } from '../../context/RateContext';
 import { LinearGradient } from 'expo-linear-gradient';
+import { RATE_DOWN_COLOR, RATE_UP_COLOR } from '../../constants/rateColors';
 
 const { width } = Dimensions.get('window');
+const DEFAULT_RATE_TEXT_COLOR = '#facc15';
 
 const fmt = (val) => {
     if (typeof val !== 'number') return '-';
@@ -13,13 +15,38 @@ const fmt = (val) => {
 
 export default function RatesScreen() {
     const insets = useSafeAreaInsets();
-    const { displayRates, getPriceClass } = useRates();
+    const { displayRates, rawRates } = useRates();
+    const [sharedTrend, setSharedTrend] = useState('stable');
+    const [trendDebug, setTrendDebug] = useState({ prev: '-', curr: '-' });
+    const prevSellRef = useRef(null);
+    const trendExpiryRef = useRef(0);
 
-    const getKaratClass = (key, field) => {
-        const cls = getPriceClass('purities', key, field);
-        if (cls === 'price-up' || cls === 'price-down') return cls;
-        return 'gold-default';
-    };
+    useEffect(() => {
+        const gold999 = rawRates?.rtgs?.find((r) => r.id === '945' || r.name?.toLowerCase().includes('gold 999'));
+        const curr = Number.parseFloat(gold999?.sell);
+        if (!Number.isFinite(curr)) return;
+
+        const prev = prevSellRef.current;
+        const now = Date.now();
+        if (Number.isFinite(prev)) {
+            if (curr > prev) {
+                setSharedTrend('up');
+                trendExpiryRef.current = now + 5000;
+            } else if (curr < prev) {
+                setSharedTrend('down');
+                trendExpiryRef.current = now + 5000;
+            } else if (now > trendExpiryRef.current) {
+                setSharedTrend('stable');
+            }
+        }
+        setTrendDebug({
+            prev: Number.isFinite(prev) ? prev.toFixed(2) : '-',
+            curr: curr.toFixed(2)
+        });
+        prevSellRef.current = curr;
+    }, [rawRates]);
+
+    const sharedTextColor = sharedTrend === 'up' ? RATE_UP_COLOR : sharedTrend === 'down' ? RATE_DOWN_COLOR : DEFAULT_RATE_TEXT_COLOR;
 
     return (
         <View style={styles.container}>
@@ -33,29 +60,47 @@ export default function RatesScreen() {
 
                     <View style={styles.contentWrap}>
                         <Text style={styles.mainTitle}>Live Retail Rates with GST</Text>
+                        <Text style={styles.debugText}>
+                            Trend: {sharedTrend.toUpperCase()} | Prev: {trendDebug.prev} | Curr: {trendDebug.curr}
+                        </Text>
 
                         {/* Gold Rates Table */}
                         <View style={styles.tableContainer}>
                             <LinearGradient colors={['#C2187A', '#8E0E5A']} start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }} style={styles.tableHeader}>
                                 <Text style={[styles.thText, { flex: 1, textAlign: 'left' }]}>PURITY</Text>
-                                <Text style={[styles.thText, { flex: 1, textAlign: 'right', paddingRight: 4 }]}>Gold Rates</Text>
+                                <Text style={[styles.thText, { flex: 1, textAlign: 'right', paddingRight: 0 }]}>10 GRAMS</Text>
                             </LinearGradient>
                             
                             <View style={styles.tableBody}>
                                 {displayRates.ratesPagePurities.map((gold, idx) => {
                                     const gSellVal = gold?.sell !== '-' && gold?.sell !== undefined ? fmt(gold.sell) : '-';
-                                    const cStyle = getKaratClass(gold.key, 'sell');
-                                    const textColor = cStyle === 'price-up' ? '#4ade80' : cStyle === 'price-down' ? '#f87171' : '#facc15';
 
                                     return (
                                         <View key={idx} style={[styles.tableRow, idx < displayRates.ratesPagePurities.length - 1 && styles.tableRowBorder]}>
                                             <Text style={styles.tdName}>{gold.name}</Text>
-                                            <Text style={[styles.tdPrice, { color: textColor }]}>
+                                            <Text style={[styles.tdPrice, { color: sharedTextColor }]}>
                                                 {gSellVal !== '-' ? `₹${gSellVal}` : '-'}
                                             </Text>
                                         </View>
                                     );
                                 })}
+                            </View>
+                        </View>
+
+                        {/* Navarsu / Kasu Table */}
+                        <View style={styles.tableContainer}>
+                            <LinearGradient colors={['#C2187A', '#8E0E5A']} start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }} style={styles.tableHeader}>
+                                <Text style={[styles.thText, { flex: 1, textAlign: 'left' }]}>8 GRAMS</Text>
+                                <Text style={[styles.thText, { flex: 1, textAlign: 'right', paddingRight: 0 }]}>Navarsu / Kasu</Text>
+                            </LinearGradient>
+                            
+                            <View style={styles.tableBody}>
+                                <View style={styles.tableRow}>
+                                    <Text style={styles.tdName}>22 KT</Text>
+                                    <Text style={[styles.tdPrice, { color: sharedTextColor }]}>
+                                        {displayRates.navarsuRate && displayRates.navarsuRate !== '-' ? `₹${fmt(displayRates.navarsuRate)}` : '-'}
+                                    </Text>
+                                </View>
                             </View>
                         </View>
 
@@ -112,10 +157,25 @@ const styles = StyleSheet.create({
         textShadowOffset: {width: 0, height: 2},
         textShadowRadius: 4
     },
+    debugText: {
+        color: '#fff',
+        fontSize: 11,
+        marginBottom: 10,
+        opacity: 0.9
+    },
+    
+    subTableTitle: {
+        color: '#FFF',
+        fontSize: 18,
+        fontWeight: 'bold',
+        textAlign: 'left',
+        marginBottom: 10,
+        width: '100%',
+    },
     
     tableContainer: {
-        width: '100%',
-        maxWidth: 540,
+        width: '90%',
+        maxWidth: 480,
         marginBottom: 32,
     },
     tableHeader: {
@@ -159,6 +219,7 @@ const styles = StyleSheet.create({
     tdPrice: {
         fontSize: 42,
         fontWeight: 'bold',
+        color: DEFAULT_RATE_TEXT_COLOR
     },
 
     qrSection: {

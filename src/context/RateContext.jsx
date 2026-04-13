@@ -766,13 +766,10 @@ export const RateProvider = ({ children }) => {
                 sell = Math.round(karatBase + sDelta);
             }
 
-            const sell8g = live999Sell !== 0 ? Math.round(sell * 0.8) : '-';
-
             return {
                 name: p.label,
                 key: p.key,
                 sell: live999Sell !== 0 ? sell : '-',
-                sell8g,
                 trend
             };
         });
@@ -790,7 +787,10 @@ export const RateProvider = ({ children }) => {
             sell: liveSilverSell !== 0 ? ratesPageSilverSell : '-'
         };
 
-        return { spot, rtgs, purities, ratesPagePurities, ratesPageSilver };
+        const navarsuRate = ratesPagePurities.find(p => p.key === '22K')?.sell;
+        const navarsuRate8g = navarsuRate && navarsuRate !== '-' ? Math.round(parseFloat(navarsuRate) * 0.8) : '-';
+
+        return { spot, rtgs, purities, ratesPagePurities, ratesPageSilver, navarsuRate: navarsuRate8g };
     }, [rawRates, adj, showModified]);
 
     const getMarketStatus = () => {

@@ -3,6 +3,7 @@ import { StyleSheet, View, Text, Image, ImageBackground, ScrollView, Animated as
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useRates } from '../../context/RateContext';
+import { RATE_DOWN_COLOR, RATE_UP_COLOR } from '../../constants/rateColors';
 
 const { width } = Dimensions.get('window');
 
@@ -71,7 +72,7 @@ export default function HomeScreen() {
 
                         {rtgsFiltered.map((item, idx) => {
                             const pClass = getPriceClass('rtgs', item.id, 'sell');
-                            const bColor = pClass === 'price-up' ? '#4ade80' : pClass === 'price-down' ? '#f87171' : pClass === 'gold-default' ? '#facc15' : pClass === 'silver-default' ? '#CFE9E1' : '#0f172a';
+                            const bColor = pClass === 'price-up' ? RATE_UP_COLOR : pClass === 'price-down' ? RATE_DOWN_COLOR : pClass === 'gold-default' ? '#facc15' : pClass === 'silver-default' ? '#CFE9E1' : '#0f172a';
                             const effStock = item.stock;
 
                             const nameParts = item.name.split('(')[0].trim();
@@ -160,8 +161,8 @@ export default function HomeScreen() {
                             const isSilver = item.name.toLowerCase().includes('silver');
                             const defColor = isSilver ? '#CFE9E1' : '#facc15';
                             
-                            const buyColor = buyClass === 'price-up' ? '#4ade80' : buyClass === 'price-down' ? '#f87171' : defColor;
-                            const sellColor = sellClass === 'price-up' ? '#4ade80' : sellClass === 'price-down' ? '#f87171' : defColor;
+                            const buyColor = buyClass === 'price-up' ? RATE_UP_COLOR : buyClass === 'price-down' ? RATE_DOWN_COLOR : defColor;
+                            const sellColor = sellClass === 'price-up' ? RATE_UP_COLOR : sellClass === 'price-down' ? RATE_DOWN_COLOR : defColor;
 
                             const nameParts = item.name.split('(')[0].trim();
 

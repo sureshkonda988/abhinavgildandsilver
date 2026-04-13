@@ -25,6 +25,11 @@ const getPlaceholders = () => ({
 export const RateProvider = ({ children }) => {
     const [rawRates, setRawRates] = useState(getPlaceholders());
     const [loading, setLoading] = useState(true);
+    const [priceChangeMap, setPriceChangeMap] = useState({});
+    const previousRatesPageValuesRef = useRef({});
+    const ratesPageTrendRef = useRef({});
+    const ratesPagePulseRef = useRef({ dir: 'neutral', expiry: 0 });
+    const rtgsPulseRef = useRef({});
     
     // Website specific state ported:
     const getInitialAdj = () => ({
@@ -147,10 +152,79 @@ export const RateProvider = ({ children }) => {
             });
             
             if (newSpot.length || newRtgs.length) {
-                setRawRates(prev => ({
-                    spot: newSpot.length ? newSpot : prev.spot,
-                    rtgs: newRtgs.length ? newRtgs : prev.rtgs
-                }));
+                const nextPriceMap = {};
+                setRawRates(prev => {
+                    const nextSpot = newSpot.length ? newSpot : prev.spot;
+                    const nextRtgs = newRtgs.length ? newRtgs : prev.rtgs;
+                    const toNum = (val) => {
+                        const num = Number.parseFloat(val);
+                        return Number.isFinite(num) ? num : null;
+                    };
+                    nextRtgs.forEach((nextItem) => {
+                        const prevItem = prev.rtgs.find((r) => r.id === nextItem.id);
+                        if (!prevItem) return;
+                        const prevBuy = toNum(prevItem.buy);
+                        const nextBuy = toNum(nextItem.buy);
+                        const prevSellRow = toNum(prevItem.sell);
+                        const nextSellRow = toNum(nextItem.sell);
+                        const now = Date.now();
+                        const applyPulse = (key, instantDir) => {
+                            const prevPulse = rtgsPulseRef.current[key] || { dir: 'neutral', expiry: 0 };
+                            let dir = prevPulse.dir;
+                            let expiry = prevPulse.expiry;
+                            if (instantDir === 'up' || instantDir === 'down') {
+                                dir = instantDir;
+                                expiry = now + 5000;
+                            } else if (now > expiry) {
+                                dir = 'neutral';
+                                expiry = 0;
+                            }
+                            rtgsPulseRef.current[key] = { dir, expiry };
+                            return dir;
+                        };
+                        if (prevBuy !== null && nextBuy !== null) {
+                            const instant = nextBuy > prevBuy ? 'up' : nextBuy < prevBuy ? 'down' : 'neutral';
+                            nextPriceMap[`rtgs-${nextItem.id}-buy`] = applyPulse(`rtgs-${nextItem.id}-buy`, instant);
+                        }
+                        if (prevSellRow !== null && nextSellRow !== null) {
+                            const instant = nextSellRow > prevSellRow ? 'up' : nextSellRow < prevSellRow ? 'down' : 'neutral';
+                            nextPriceMap[`rtgs-${nextItem.id}-sell`] = applyPulse(`rtgs-${nextItem.id}-sell`, instant);
+                        }
+                    });
+
+                    const prevGold999 = prev.rtgs.find(r => r.id === '945' || r.name?.toLowerCase().includes('gold 999'));
+                    const nextGold999 = nextRtgs.find(r => r.id === '945' || r.name?.toLowerCase().includes('gold 999'));
+                    const prevSell = Number.parseFloat(prevGold999?.sell);
+                    const nextSell = Number.parseFloat(nextGold999?.sell);
+
+                    let dir = 'neutral';
+                    if (Number.isFinite(prevSell) && Number.isFinite(nextSell)) {
+                        if (nextSell > prevSell) dir = 'up';
+                        else if (nextSell < prevSell) dir = 'down';
+                    }
+                    const now = Date.now();
+                    let pulseDir = ratesPagePulseRef.current.dir;
+                    let pulseExpiry = ratesPagePulseRef.current.expiry;
+                    if (dir === 'up' || dir === 'down') {
+                        pulseDir = dir;
+                        pulseExpiry = now + 5000;
+                    } else if (now > pulseExpiry) {
+                        pulseDir = 'neutral';
+                        pulseExpiry = 0;
+                    }
+                    ratesPagePulseRef.current = { dir: pulseDir, expiry: pulseExpiry };
+
+                    ['24K', '22K', '18K', '14K'].forEach((key) => {
+                        nextPriceMap[`purities-${key}-sell`] = pulseDir;
+                    });
+                    nextPriceMap['navarsu-navarsu-sell'] = pulseDir;
+
+                    return {
+                        spot: nextSpot,
+                        rtgs: nextRtgs
+                    };
+                });
+                setPriceChangeMap(nextPriceMap);
             }
         } catch (error) {
             console.error("Rate fetching error:", error.message);
@@ -260,6 +334,22 @@ export const RateProvider = ({ children }) => {
     };
 
     const getPriceClass = (section, id, field) => {
+        const trendKey = `${section}-${id}-${field}`;
+        const dir = priceChangeMap[trendKey];
+        if (dir === 'up') return 'price-up';
+        if (dir === 'down') return 'price-down';
+        if (section === 'purities') {
+            const trend = priceChangeMap[`${section}-${id}-${field}`];
+            if (trend === 'up') return 'price-up';
+            if (trend === 'down') return 'price-down';
+            return 'price-neutral';
+        }
+        if (section === 'navarsu') {
+            const trend = priceChangeMap[`${section}-${id}-${field}`];
+            if (trend === 'up') return 'price-up';
+            if (trend === 'down') return 'price-down';
+            return 'price-neutral';
+        }
         let name = String(id).toLowerCase();
         if (rawRates[section]) {
             const item = rawRates[section].find(r => r.id === id || r.name === id);
@@ -305,6 +395,7 @@ export const RateProvider = ({ children }) => {
             { label: 'Gold 18 KT', key: '18K', factor: 0.75 },
             { label: 'Gold 14 KT', key: '14K', factor: 0.583 }
         ].map(p => {
+            const now = Date.now();
             const rawGold999 = rawRates.rtgs.find(r => r.id === '945' || r.name?.toLowerCase().includes('gold 999'));
             const live999Sell = parseFloat(rawGold999?.sell) || 0;
             const karatBase = Math.round(live999Sell * p.factor);
@@ -315,15 +406,34 @@ export const RateProvider = ({ children }) => {
                 sell = Math.round(karatBase + sDelta);
             }
 
+            const currentValue = live999Sell !== 0 ? Number(sell) : null;
+            const trendKey = `purities-${p.key}-sell`;
+            const trendClass = priceChangeMap[trendKey];
+            const trend = trendClass === 'up' ? 'up' : trendClass === 'down' ? 'down' : 'stable';
+            if (Number.isFinite(currentValue)) {
+                previousRatesPageValuesRef.current[p.key] = currentValue;
+            }
+            ratesPageTrendRef.current[p.key] = { trend, trendExpiry: 0 };
+
             return {
                 name: p.label,
                 key: p.key,
                 sell: live999Sell !== 0 ? sell : '-',
-                trend: 'stable'
+                trend
             };
         });
 
-        return { spot, rtgs, ratesPagePurities };
+        const tenG_22K = ratesPagePurities.find(p => p.key === '22K')?.sell;
+        const navarsuRate = tenG_22K && tenG_22K !== '-' ? Math.round((parseFloat(tenG_22K) / 10) * 8) : '-';
+        const navarsuValue = navarsuRate !== '-' ? Number(navarsuRate) : null;
+        const navarsuTrendClass = priceChangeMap['navarsu-navarsu-sell'];
+        const navarsuTrend = navarsuTrendClass === 'up' ? 'up' : navarsuTrendClass === 'down' ? 'down' : 'stable';
+        if (Number.isFinite(navarsuValue)) {
+            previousRatesPageValuesRef.current.navarsu = navarsuValue;
+        }
+        ratesPageTrendRef.current.navarsu = { trend: navarsuTrend, trendExpiry: 0 };
+
+        return { spot, rtgs, ratesPagePurities, navarsuRate, navarsuTrend };
     };
 
     return (
