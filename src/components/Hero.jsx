@@ -144,7 +144,7 @@ const Hero = () => {
             </section>
 
             {/* Ticker */}
-            <div className="w-full relative z-20 py-0 mt-4 md:mt-16">
+            <div className="w-full relative z-20 py-0 -mt-2 md:mt-6">
                 <Ticker />
             </div>
 

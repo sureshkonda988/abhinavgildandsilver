@@ -9,6 +9,7 @@ import http from 'http';
 import LiveRate from './models/LiveRate.js';
 import Video from './models/Video.js';
 import Music from './models/Music.js';
+import MusicLibrary from './models/MusicLibrary.js';
 import multer from 'multer';
 import path from 'path';
 import { fileURLToPath } from 'url';
@@ -499,9 +500,13 @@ app.post('/api/music', async (req, res) => {
     try {
         const { homeMusic, ratesMusic } = req.body;
 
+        const update = {};
+        if (homeMusic !== undefined) update.homeMusic = homeMusic;
+        if (ratesMusic !== undefined) update.ratesMusic = ratesMusic;
+
         const musicData = await Music.findOneAndUpdate(
             { key: 'music_settings' },
-            { homeMusic, ratesMusic },
+            update,
             { upsert: true, new: true }
         );
 
@@ -560,6 +565,79 @@ app.post('/api/music/upload', (req, res, next) => {
         console.log("File uploaded successfully to:", filePath);
         res.json({ message: "Background music uploaded successfully" });
     });
+});
+
+/**
+ * @openapi
+ * /api/music/library/upload:
+ *   post:
+ *     summary: Upload music to library
+ */
+app.post('/api/music/library/upload', (req, res) => {
+    upload.single('file')(req, res, async (err) => {
+        if (err) return res.status(400).json({ success: false, message: err.message });
+        if (!req.file) return res.status(400).json({ success: false, message: 'No file uploaded' });
+
+        try {
+            const musicDir = path.join(path.resolve(__dirname, '..'), 'public', 'music');
+            if (!fs.existsSync(musicDir)) fs.mkdirSync(musicDir, { recursive: true });
+
+            const filename = Date.now() + path.extname(req.file.originalname);
+            const filePath = path.join(musicDir, filename);
+            
+            fs.writeFileSync(filePath, req.file.buffer);
+
+            const newMusic = await MusicLibrary.create({
+                title: req.body.title || req.file.originalname,
+                filename: filename,
+                url: `/music/${filename}`,
+                uploadedBy: 'Admin'
+            });
+
+            res.json({ success: true, message: 'Music uploaded successfully', data: newMusic });
+        } catch (error) {
+            console.error("Library Upload Error:", error);
+            res.status(500).json({ success: false, message: 'Upload failed: ' + error.message });
+        }
+    });
+});
+
+/**
+ * @openapi
+ * /api/music/library:
+ *   get:
+ *     summary: Get all music from library
+ */
+app.get('/api/music/library', async (req, res) => {
+    try {
+        const music = await MusicLibrary.find().sort({ createdAt: -1 });
+        res.json(music);
+    } catch (error) {
+        res.status(500).json({ success: false, message: error.message });
+    }
+});
+
+/**
+ * @openapi
+ * /api/music/library/{id}:
+ *   delete:
+ *     summary: Delete music from library
+ */
+app.delete('/api/music/library/:id', async (req, res) => {
+    try {
+        const music = await MusicLibrary.findById(req.params.id);
+        if (!music) return res.status(404).json({ success: false, message: 'Music not found' });
+
+        const filePath = path.join(path.resolve(__dirname, '..'), 'public', 'music', music.filename);
+        if (fs.existsSync(filePath)) {
+            fs.unlinkSync(filePath);
+        }
+
+        await MusicLibrary.findByIdAndDelete(req.params.id);
+        res.json({ success: true, message: 'Music deleted successfully' });
+    } catch (error) {
+        res.status(500).json({ success: false, message: error.message });
+    }
 });
 
 if (process.env.NODE_ENV !== 'production') {

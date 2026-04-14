@@ -12,10 +12,29 @@ const MusicPlayer = ({ isEnabled }) => {
     const [unlocked, setUnlocked] = useState(false);
     const [playing, setPlaying] = useState(false);
 
+    const { musicSettings } = useRates();
     const isHomePage = location.pathname === '/' || location.pathname === '/home';
     const isRatesPage = location.pathname === '/rates';
 
-    const currentUrl = isRatesPage ? `/music/rates.mp3${cacheBuster}` : `/music/home.mp3${cacheBuster}`;
+    let currentUrl = '';
+    let isYouTube = false;
+
+    if (musicSettings) {
+        const config = isRatesPage ? musicSettings.ratesMusic : musicSettings.homeMusic;
+        if (config) {
+            if (config.sourceType === 'youtube') {
+                currentUrl = config.videoId;
+                isYouTube = true;
+            } else {
+                currentUrl = config.fileUrl;
+                if (currentUrl && !currentUrl.includes('?')) {
+                    currentUrl += cacheBuster;
+                }
+            }
+        }
+    } else {
+        currentUrl = '';
+    }
 
     const audioRef = useRef(null);
 
@@ -47,7 +66,6 @@ const MusicPlayer = ({ isEnabled }) => {
         }
     }, [isEnabled, unlocked, isAllowedPage]);
 
-    const isYouTube = currentUrl && currentUrl.includes('youtube.com');
 
     // Handle native audio playback separately from ReactPlayer
     useEffect(() => {

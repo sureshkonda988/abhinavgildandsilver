@@ -87,6 +87,7 @@ export const RateProvider = ({ children }) => {
     const [videos, setVideos] = useState([]);
     const [videosLoaded, setVideosLoaded] = useState(false);
     const [isMusicEnabled, setIsMusicEnabled] = useState(false);
+    const [musicSettings, setMusicSettings] = useState(null);
 
     // (homeAudio and ratesAudio removed as they are now static in MusicPlayer)
 
@@ -148,7 +149,20 @@ export const RateProvider = ({ children }) => {
     useEffect(() => {
         syncSettingsWithMongoDB();
         syncVideosWithMongoDB();
+        syncMusicWithMongoDB();
     }, []);
+
+    const syncMusicWithMongoDB = async () => {
+        try {
+            const res = await fetch(`${API_BASE}/music?_=${Date.now()}`);
+            if (res.ok) {
+                const data = await res.json();
+                setMusicSettings(data);
+            }
+        } catch (e) {
+            console.error("Failed to sync music:", e);
+        }
+    };
 
     const syncVideosWithMongoDB = async () => {
         try {
@@ -388,10 +402,16 @@ export const RateProvider = ({ children }) => {
         activeFetchesCount.current++;
         const currentFetchId = Date.now();
 
-        // 1. Background News Fetch (Throttled)
+        // 0. Background Settings Sync (Ticker, Market Status) - Every 1 minute
+        if (Date.now() - lastSettingsFetch.current > 60000) {
+            syncSettingsWithMongoDB();
+            lastSettingsFetch.current = Date.now();
+        }
+
+        // 1. Background News Fetch (Throttled) - Every 5 minutes
         if (Date.now() - lastNewsFetch.current > 300000) {
             (async () => {
-                const newsUrl = isLocal ? '/api-news/rss/news_11.rss' : '';
+                const newsUrl = isLocal ? '/api-news/rss/news_11.rss' : 'https://www.investing.com/rss/news_11.rss';
                 const proxies = isLocal ? [url => url] : CORS_PROXIES;
 
                 for (const p of proxies.slice(0, 3)) {
@@ -789,9 +809,9 @@ export const RateProvider = ({ children }) => {
 
         const navarsuRate = ratesPagePurities.find(p => p.key === '22K')?.sell;
         const navarsuRate8g = navarsuRate && navarsuRate !== '-' ? Math.round(parseFloat(navarsuRate) * 0.8) : '-';
-
-        return { spot, rtgs, purities, ratesPagePurities, ratesPageSilver, navarsuRate: navarsuRate8g };
-    }, [rawRates, adj, showModified]);
+        
+        return { spot, rtgs, purities, ratesPagePurities, ratesPageSilver, navarsuRate: navarsuRate8g, musicSettings, syncMusicWithMongoDB };
+    }, [rawRates, adj, showModified, musicSettings]);
 
     const getMarketStatus = () => {
         const config = adj.marketStatus;

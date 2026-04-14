@@ -3,15 +3,19 @@ import { useNavigate } from 'react-router-dom';
 import { useRates } from '../context/RateContext';
 import { motion, AnimatePresence } from 'framer-motion';
 // ReactPlayer removed as audio preview is gone
-import { Lock, LogOut, TrendingUp, Video, MessageSquare, Play, Pause, Trash2, Save, RefreshCw, CheckCircle2, AlertCircle, Upload, Youtube, HardDrive, Clock } from 'lucide-react';
+import { Lock, LogOut, TrendingUp, Video, MessageSquare, Play, Pause, Trash2, Save, RefreshCw, CheckCircle2, AlertCircle, Upload, Youtube, HardDrive, Clock, Music } from 'lucide-react';
 
 const AdminPage = () => {
-    const { rates, rawRates, adj, showModified, settingsLoaded, videosLoaded, updateSettings, updateVideos, refreshRates, loading, error, ticker: contextTicker, videos: contextVideos } = useRates();
+    const { rates, rawRates, adj, showModified, settingsLoaded, videosLoaded, updateSettings, updateVideos, refreshRates, loading, error, ticker: contextTicker, videos: contextVideos, musicSettings, syncMusicWithMongoDB } = useRates();
     const navigate = useNavigate();
     const [isLoggedIn, setIsLoggedIn] = useState(false);
     const [username, setUsername] = useState('');
     const [password, setPassword] = useState('');
     const [activeTab, setActiveTab] = useState('rates');
+    const [musicLibrary, setMusicLibrary] = useState([]);
+    const [isUploading, setIsUploading] = useState(false);
+    const [uploadTitle, setUploadTitle] = useState('');
+    const [uploadTarget, setUploadTarget] = useState('library'); // 'library', 'homeMusic', or 'ratesMusic'
 
     // Local state for editing, initialized from context
     const [ticker, setTicker] = useState('');
@@ -33,6 +37,115 @@ const AdminPage = () => {
             setIsInitialized(prev => ({ ...prev, videos: true }));
         }
     }, [contextVideos, videosLoaded, isInitialized.videos]);
+
+    useEffect(() => {
+        if (isLoggedIn) {
+            fetchMusicLibrary();
+        }
+    }, [isLoggedIn]);
+
+    const fetchMusicLibrary = async () => {
+        try {
+            const res = await fetch('/api/music/library');
+            if (res.ok) {
+                const data = await res.json();
+                setMusicLibrary(data);
+            }
+        } catch (error) {
+            console.error("Fetch Music Error:", error);
+        }
+    };
+
+    const handleMusicUpload = async (e, directTarget = null) => {
+        const file = e.target.files[0];
+        if (!file) return;
+
+        const target = directTarget || uploadTarget;
+
+        setIsUploading(true);
+        const formData = new FormData();
+        formData.append('file', file);
+        formData.append('title', uploadTitle || file.name);
+
+        try {
+            const res = await fetch('/api/music/library/upload', {
+                method: 'POST',
+                body: formData
+            });
+            const result = await res.json();
+            if (result.success) {
+                if (target !== 'library') {
+                    await setAsBackgroundMusic(result.data, target, true);
+                } else {
+                    alert('Music uploaded successfully!');
+                }
+                setUploadTitle('');
+                fetchMusicLibrary();
+            } else {
+                alert('Upload failed: ' + result.message);
+            }
+        } catch (error) {
+            alert('Upload error: ' + error.message);
+        } finally {
+            setIsUploading(false);
+        }
+    };
+
+    const setAsBackgroundMusic = async (track, type, silent = false) => {
+        try {
+            const res = await fetch('/api/music', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    [type]: {
+                        sourceType: 'local',
+                        fileUrl: track.url,
+                        title: track.title
+                    }
+                })
+            });
+            if (res.ok) {
+                if (syncMusicWithMongoDB) await syncMusicWithMongoDB();
+                if (!silent) alert(`Set as ${type === 'homeMusic' ? 'Home' : 'Rates'} music successfully!`);
+            }
+        } catch (error) {
+            if (!silent) alert('Error setting background music: ' + error.message);
+        }
+    };
+
+    const deleteMusic = async (id) => {
+        if (!confirm('Are you sure you want to delete this music?')) return;
+        try {
+            const res = await fetch(`/api/music/library/${id}`, { method: 'DELETE' });
+            if (res.ok) {
+                setMusicLibrary(prev => prev.filter(m => m._id !== id));
+            }
+        } catch (error) {
+            console.error("Delete Music Error:", error);
+        }
+    };
+
+    const clearBackgroundMusic = async (type) => {
+        try {
+            const res = await fetch('/api/music', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    [type]: {
+                        sourceType: 'local',
+                        fileUrl: '',
+                        title: ''
+                    }
+                })
+            });
+            if (res.ok) {
+                alert(`Cleared ${type === 'homeMusic' ? 'Home' : 'Rates'} music.`);
+                if (window.location.reload) window.location.reload();
+            }
+        } catch (error) {
+            alert('Error clearing music: ' + error.message);
+        }
+    };
 
     // Removed database-based audio state syncing from context
     useEffect(() => {
@@ -195,6 +308,7 @@ const AdminPage = () => {
                     <TabBtn id="rates" icon={<TrendingUp size={18} />} label="Rates" active={activeTab === 'rates'} onClick={setActiveTab} />
                     <TabBtn id="news" icon={<MessageSquare size={18} />} label="News" active={activeTab === 'news'} onClick={setActiveTab} />
                     <TabBtn id="videos" icon={<Video size={18} />} label="Media" active={activeTab === 'videos'} onClick={setActiveTab} />
+                    <TabBtn id="music" icon={<Music size={18} />} label="Music" active={activeTab === 'music'} onClick={setActiveTab} />
                     <TabBtn id="market" icon={<Clock size={18} />} label="Market" active={activeTab === 'market'} onClick={setActiveTab} />
                 </div>
 
@@ -452,7 +566,166 @@ const AdminPage = () => {
                         </motion.div>
                     )}
 
-                    {/* Settings Tab Removed (was only for music management) */}
+                    {activeTab === 'music' && (
+                        <motion.div key="music" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }}>
+                            <div className="glass p-4 md:p-8 rounded-[30px] md:rounded-[40px] shadow-luxury border-white/20">
+                                <h3 className="text-lg md:text-xl font-playfair font-black text-[#f4cb4c] uppercase tracking-widest mb-8 border-b border-[#f4cb4c]/20 pb-2">Music Library</h3>
+                                
+                                <div className="grid md:grid-cols-2 gap-6 mb-10">
+                                    <div className="bg-white/5 p-6 rounded-3xl border border-white/10 relative overflow-hidden group">
+                                        <div className="absolute top-0 right-0 p-3 opacity-10">
+                                            <Music size={40} className="text-[#f4cb4c]" />
+                                        </div>
+                                        <div className="flex justify-between items-start mb-4">
+                                            <span className="text-[10px] font-black text-[#f4cb4c] uppercase tracking-widest block">Active Home Music</span>
+                                            <div className="flex gap-2">
+                                                <input 
+                                                    type="file" 
+                                                    accept="audio/*" 
+                                                    onChange={(e) => handleMusicUpload(e, 'homeMusic')}
+                                                    className="hidden" 
+                                                    id="home-direct-upload"
+                                                />
+                                                <label 
+                                                    htmlFor="home-direct-upload" 
+                                                    className={`cursor-pointer flex items-center gap-2 px-3 py-1.5 rounded-lg transition-all font-poppins font-black text-[9px] uppercase tracking-widest shadow-lg ${isUploading ? 'bg-white/5 text-white/40 pointer-events-none' : 'bg-[#f4cb4c] text-slate-900 hover:scale-105'}`}
+                                                >
+                                                    {isUploading ? <RefreshCw size={12} className="animate-spin" /> : <Upload size={12} />}
+                                                    {isUploading ? '...' : 'Upload'}
+                                                </label>
+                                                {musicSettings?.homeMusic?.title && (
+                                                    <button onClick={() => clearBackgroundMusic('homeMusic')} className="p-1.5 bg-white/10 hover:bg-red-500 hover:text-white rounded-lg transition-all text-[#f4cb4c]" title="Clear Music">
+                                                        <Trash2 size={12} />
+                                                    </button>
+                                                )}
+                                            </div>
+                                        </div>
+                                        <div className="flex items-center gap-3">
+                                            <span className="text-sm font-poppins font-bold text-white truncate">
+                                                {musicSettings?.homeMusic?.title || 'No audio selected'}
+                                            </span>
+                                        </div>
+                                    </div>
+
+                                    <div className="bg-white/5 p-6 rounded-3xl border border-white/10 relative overflow-hidden group">
+                                        <div className="absolute top-0 right-0 p-3 opacity-10">
+                                            <Music size={40} className="text-[#f4cb4c]" />
+                                        </div>
+                                        <div className="flex justify-between items-start mb-4">
+                                            <span className="text-[10px] font-black text-[#f4cb4c] uppercase tracking-widest block">Active Rates Music</span>
+                                            <div className="flex gap-2">
+                                                <input 
+                                                    type="file" 
+                                                    accept="audio/*" 
+                                                    onChange={(e) => handleMusicUpload(e, 'ratesMusic')}
+                                                    className="hidden" 
+                                                    id="rates-direct-upload"
+                                                />
+                                                <label 
+                                                    htmlFor="rates-direct-upload" 
+                                                    className={`cursor-pointer flex items-center gap-2 px-3 py-1.5 rounded-lg transition-all font-poppins font-black text-[9px] uppercase tracking-widest shadow-lg ${isUploading ? 'bg-white/5 text-white/40 pointer-events-none' : 'bg-[#f4cb4c] text-slate-900 hover:scale-105'}`}
+                                                >
+                                                    {isUploading ? <RefreshCw size={12} className="animate-spin" /> : <Upload size={12} />}
+                                                    {isUploading ? '...' : 'Upload'}
+                                                </label>
+                                                {musicSettings?.ratesMusic?.title && (
+                                                    <button onClick={() => clearBackgroundMusic('ratesMusic')} className="p-1.5 bg-white/10 hover:bg-red-500 hover:text-white rounded-lg transition-all text-[#f4cb4c]" title="Clear Music">
+                                                        <Trash2 size={12} />
+                                                    </button>
+                                                )}
+                                            </div>
+                                        </div>
+                                        <div className="flex items-center gap-3">
+                                            <span className="text-sm font-poppins font-bold text-white truncate">
+                                                {musicSettings?.ratesMusic?.title || 'No audio selected'}
+                                            </span>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div className="bg-white/5 p-6 rounded-3xl border border-white/10 mb-10">
+                                    <h4 className="text-[10px] font-black text-[#f4cb4c] uppercase tracking-widest mb-4">Upload New Audio</h4>
+                                    <div className="flex flex-col md:flex-row gap-4">
+                                        <input 
+                                            type="text"
+                                            placeholder="Song Title (Optional)"
+                                            className="flex-1 bg-white/10 border border-white/10 rounded-xl px-4 py-3 text-white font-poppins text-sm outline-none focus:ring-1 focus:ring-[#f4cb4c]"
+                                            value={uploadTitle}
+                                            onChange={(e) => setUploadTitle(e.target.value)}
+                                        />
+                                        <div className="relative flex-1">
+                                            <input 
+                                                type="file" 
+                                                accept="audio/*" 
+                                                onChange={handleMusicUpload}
+                                                className="hidden" 
+                                                id="music-upload"
+                                                disabled={isUploading}
+                                            />
+                                            <label 
+                                                htmlFor="music-upload"
+                                                className={`w-full flex items-center justify-center gap-3 px-6 py-3 rounded-xl font-poppins font-black text-[10px] uppercase tracking-widest transition-all cursor-pointer ${isUploading ? 'bg-white/5 text-white/40 cursor-not-allowed' : 'bg-[#f4cb4c] text-slate-900 shadow-lg'}`}
+                                            >
+                                                {isUploading ? <RefreshCw size={14} className="animate-spin" /> : <Upload size={14} />}
+                                                {isUploading ? 'Uploading...' : 'Choose & Upload File'}
+                                            </label>
+                                        </div>
+                                    </div>
+                                    <p className="text-[9px] text-white/40 font-bold uppercase mt-3 ml-2">Supports .mp3 and .wav files</p>
+                                </div>
+
+                                <div className="grid gap-4">
+                                    {musicLibrary.length === 0 ? (
+                                        <div className="text-center py-10 text-white/40 font-poppins text-xs uppercase tracking-widest">
+                                            No music files uploaded yet
+                                        </div>
+                                    ) : (
+                                        musicLibrary.map((track) => (
+                                            <div key={track._id} className="bg-white/5 p-4 md:p-6 rounded-2xl border border-white/10 flex items-center justify-between group hover:bg-white/10 transition-all">
+                                                <div className="flex items-center gap-4">
+                                                    <div className="w-10 h-10 rounded-xl bg-[#f4cb4c]/10 flex items-center justify-center text-[#f4cb4c]">
+                                                        <Music size={20} />
+                                                    </div>
+                                                    <div className="flex flex-col">
+                                                        <span className="text-sm font-poppins font-bold text-white tracking-tight">{track.title}</span>
+                                                        <div className="flex items-center gap-2">
+                                                            <span className="text-[9px] text-white/40 font-black uppercase">{track.filename}</span>
+                                                            <span className="text-[9px] text-white/20">•</span>
+                                                            <span className="text-[9px] text-white/40 font-black uppercase">
+                                                                {new Date(track.createdAt).toLocaleDateString()}
+                                                            </span>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div className="flex items-center gap-3">
+                                                    <div className="flex flex-col md:flex-row gap-2">
+                                                        <button 
+                                                            onClick={() => setAsBackgroundMusic(track, 'homeMusic')}
+                                                            className="px-3 py-1 bg-white/10 hover:bg-[#f4cb4c] hover:text-slate-900 rounded-lg text-[9px] font-black uppercase tracking-widest transition-all"
+                                                        >
+                                                            Set Home
+                                                        </button>
+                                                        <button 
+                                                            onClick={() => setAsBackgroundMusic(track, 'ratesMusic')}
+                                                            className="px-3 py-1 bg-white/10 hover:bg-[#f4cb4c] hover:text-slate-900 rounded-lg text-[9px] font-black uppercase tracking-widest transition-all"
+                                                        >
+                                                            Set Rates
+                                                        </button>
+                                                    </div>
+                                                    <audio src={track.url} controls className="h-8 max-w-[120px] opacity-40 hover:opacity-100 transition-opacity hidden lg:block" />
+                                                    <button 
+                                                        onClick={() => deleteMusic(track._id)}
+                                                        className="p-2 text-white/20 hover:text-red-500 transition-colors"
+                                                    >
+                                                        <Trash2 size={18} />
+                                                    </button>
+                                                </div>
+                                            </div>
+                                        ))
+                                    )}
+                                </div>
+                            </div>
+                        </motion.div>
+                    )}
 
                     {activeTab === 'market' && (
                         <motion.div key="market" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }}>
