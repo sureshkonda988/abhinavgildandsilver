@@ -414,6 +414,19 @@ export const RateProvider = ({ children }) => {
         const currentFetchId = Date.now();
 
         try {
+            // Periodic News Fetch (Throttle: 30 seconds)
+            const now = Date.now();
+            if (now - lastNewsFetch.current > 30000) {
+                lastNewsFetch.current = now;
+                fetch(`${window.location.origin}/api-news/rss/news.rss?_=${now}`)
+                    .then(r => r.text())
+                    .then(xml => {
+                        const parsedNews = parseNews(xml);
+                        if (parsedNews && parsedNews.length > 0) setNews(parsedNews);
+                    })
+                    .catch(err => console.error("News fetch failed:", err));
+            }
+
             const liveUrl = `${LIVE_RATES_API_URL}?_=${currentFetchId}`;
             const res = await fetchWithTimeout(liveUrl, 5000);
             if (res.ok) {
