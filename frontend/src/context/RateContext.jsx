@@ -7,6 +7,7 @@ import {
 } from '../utils/ratesPageCalculations';
 
 const RateContext = createContext();
+const BACKEND_ORIGIN = (import.meta.env.VITE_API_BASE_URL || 'https://wrinkle-depict-regally.ngrok-free.dev').replace(/\/$/, '');
 
 // Primary/live API endpoint and template ID you requested
 const POTENTIAL_ENDPOINTS = [
@@ -55,7 +56,7 @@ export const RateProvider = ({ children }) => {
     // Proxy rotation state
     const currentProxyIndex = React.useRef(0);
 
-    const API_BASE = '/api';
+    const API_BASE = `${BACKEND_ORIGIN}/api`;
 
     // Robust initial state for adj
     const getInitialAdj = () => ({

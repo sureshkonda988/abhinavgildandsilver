@@ -3,6 +3,8 @@ import { useLocation } from 'react-router-dom';
 import ReactPlayer from 'react-player';
 import { useRates } from '../context/RateContext';
 
+const BACKEND_ORIGIN = (import.meta.env.VITE_API_BASE_URL || 'https://wrinkle-depict-regally.ngrok-free.dev').replace(/\/$/, '');
+
 const MusicPlayer = ({ isEnabled }) => {
     const location = useLocation();
     // Directly use local files instead of database-managed URLs
@@ -27,6 +29,9 @@ const MusicPlayer = ({ isEnabled }) => {
                 isYouTube = true;
             } else {
                 currentUrl = config.fileUrl;
+                if (currentUrl && currentUrl.startsWith('/')) {
+                    currentUrl = `${BACKEND_ORIGIN}${currentUrl}`;
+                }
                 if (currentUrl && !currentUrl.includes('?')) {
                     currentUrl += cacheBuster;
                 }
