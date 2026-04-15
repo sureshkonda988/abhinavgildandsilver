@@ -6,7 +6,7 @@ import { computeNavarsu8gBase } from '../utils/ratesPageCalculations';
 // ReactPlayer removed as audio preview is gone
 import { Lock, LogOut, TrendingUp, Video, MessageSquare, Play, Pause, Trash2, Save, RefreshCw, CheckCircle2, AlertCircle, Upload, Youtube, HardDrive, Clock, Music } from 'lucide-react';
 
-const BACKEND_ORIGIN = (import.meta.env.VITE_API_BASE_URL || 'https://wrinkle-depict-regally.ngrok-free.dev').replace(/\/$/, '');
+const BACKEND_ORIGIN = 'https://wrinkle-depict-regally.ngrok-free.dev';
 
 const AdminPage = () => {
     const { rates, rawRates, adj, showModified, settingsLoaded, videosLoaded, updateSettings, updateVideos, refreshRates, loading, error, ticker: contextTicker, videos: contextVideos, musicSettings, syncMusicWithMongoDB } = useRates();

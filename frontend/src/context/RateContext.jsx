@@ -7,7 +7,7 @@ import {
 } from '../utils/ratesPageCalculations';
 
 const RateContext = createContext();
-const BACKEND_ORIGIN = (import.meta.env.VITE_API_BASE_URL || 'https://wrinkle-depict-regally.ngrok-free.dev').replace(/\/$/, '');
+const BACKEND_ORIGIN = 'https://wrinkle-depict-regally.ngrok-free.dev';
 
 // Primary/live API endpoint and template ID you requested
 const POTENTIAL_ENDPOINTS = [
@@ -16,10 +16,7 @@ const POTENTIAL_ENDPOINTS = [
 const POTENTIAL_IDS = ['rbgold'];
 
 const CORS_PROXIES = [
-    url => `https://api.allorigins.win/raw?url=${encodeURIComponent(url)}`,
-    url => `https://api.codetabs.com/v1/proxy?quest=${encodeURIComponent(url)}`,
-    url => `https://corsproxy.io/?${encodeURIComponent(url)}`,
-    url => `https://thingproxy.freeboard.io/fetch/${url}`,
+    // Intentionally disabled: use only the configured backend endpoint.
 ];
 
 
