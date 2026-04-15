@@ -720,7 +720,7 @@ export const RateProvider = ({ children }) => {
     };
 
     return (
-        <RateContext.Provider value={{ rates, rawRates, loading, error, news, adj, showModified, settingsLoaded, ticker, videos, videosLoaded, isMusicEnabled, toggleMusic, setMusicEnabled, getRateChangeType, getRateColor, previousRates, currentRates, musicSettings, syncMusicWithMongoDB, updateSettings, updateVideos, refreshRates: fetchAllRates, getPriceClass, getMarketStatus }}>
+        <RateContext.Provider value={{ rates, rawRates, loading, error, news, adj, showModified, settingsLoaded, ticker, videos, videosLoaded, isMusicEnabled, toggleMusic, setMusicEnabled, getRateChangeType, getRateColor, previousRates, currentRates, musicSettings, syncMusicWithMongoDB, updateSettings, updateVideos, refreshRates: fetchAllRates, getMarketStatus }}>
 
             {children}
         </RateContext.Provider>
