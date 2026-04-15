@@ -7,7 +7,7 @@ import SpotBar from './SpotBar';
 import Ticker from './Ticker';
 
 const Hero = () => {
-    const { rates, rawRates, loading, error, getPriceClass, isMusicEnabled, toggleMusic, adj } = useRates();
+    const { rates, rawRates, loading, error, getRateChangeType, getRateColor, previousRates, currentRates, isMusicEnabled, toggleMusic, adj } = useRates();
 
     const fmt = (val) => {
         if (typeof val !== 'number') return '-';
@@ -76,8 +76,13 @@ const Hero = () => {
 
                                 <div className="flex flex-col gap-2">
                                     {rawRates.rtgs.filter(item => !(item.name.toLowerCase().includes('silver') && (item.name.toLowerCase().includes('10 kg') || item.name.toLowerCase().includes('5 kg')))).map((item, idx) => {
-                                        const pClass = getPriceClass('rtgs', item.id, 'sell');
-                                        const bColor = pClass === 'price-up' ? '#4ade80' : pClass === 'price-down' ? '#f87171' : pClass === 'gold-default' ? '#facc15' : pClass === 'silver-default' ? '#CFE9E1' : '#0f172a';
+                                        const prevItem = previousRates?.rtgs?.find(r => r.id === item.id);
+                                        const changeType = getRateChangeType(prevItem?.sell, item.sell);
+                                        
+                                        const isSilver = item.name.toLowerCase().includes('silver');
+                                        const defaultColor = isSilver ? '#CFE9E1' : '#facc15';
+                                        
+                                        const bColor = getRateColor(changeType, defaultColor);
                                         const effectiveStock = adj.stockOverrides?.[item.id] !== undefined ? adj.stockOverrides[item.id] : item.stock;
 
                                         return (
@@ -203,13 +208,17 @@ const Hero = () => {
                             ];
 
                             return rtgsItems.map((item, idx) => {
-                                const lookupId = item.refId || item.id;
-                                const buyClass = getPriceClass('rtgs', lookupId, 'buy');
-                                const sellClass = getPriceClass('rtgs', lookupId, 'sell');
+                                const lookupId = item.id;
+                                const prevItem = previousRates?.rtgs?.find(r => r.id === lookupId);
+                                
+                                const buyChange = getRateChangeType(prevItem?.buy, item.buy);
+                                const sellChange = getRateChangeType(prevItem?.sell, item.sell);
+                                
                                 const isSilver = item.name.toLowerCase().includes('silver');
                                 const defaultColor = isSilver ? '#CFE9E1' : '#facc15';
-                                const buyColor = buyClass === 'price-up' ? '#4ade80' : buyClass === 'price-down' ? '#f87171' : buyClass === 'silver-default' ? '#CFE9E1' : buyClass === 'gold-default' ? '#facc15' : defaultColor;
-                                const sellColor = sellClass === 'price-up' ? '#4ade80' : sellClass === 'price-down' ? '#f87171' : sellClass === 'silver-default' ? '#CFE9E1' : sellClass === 'gold-default' ? '#facc15' : defaultColor;
+                                
+                                const buyColor = getRateColor(buyChange, defaultColor);
+                                const sellColor = getRateColor(sellChange, defaultColor);
 
                                 return (
                                     <motion.div

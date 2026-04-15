@@ -2,7 +2,7 @@ import React from 'react';
 import { useRates } from '../context/RateContext';
 
 const SpotBar = () => {
-    const { rates, getPriceClass } = useRates();
+    const { rates, getRateChangeType, getRateColor, previousRates, currentRates } = useRates();
 
     const fmt = (val) => {
         if (typeof val !== 'number') return '-';
@@ -25,8 +25,11 @@ const SpotBar = () => {
         <div className="flex flex-wrap md:flex-nowrap items-center justify-center gap-1 md:gap-1 px-1 md:px-4 py-0.5 md:py-1">
             <div className="flex items-center justify-center gap-1.5 md:gap-3">
                 {items.map((item, idx) => {
-                    const pClass = getPriceClass('spot', item.id, 'ask');
-                    const bColor = pClass === 'price-up' ? '#4ade80' : pClass === 'price-down' ? '#f87171' : item.label.includes('USD-INR') ? '#f8fafc' : item.label.includes('GOLD') ? '#facc15' : '#E5E5E5';
+                    const prevItem = previousRates?.spot?.find(r => r.id === item.id);
+                    const changeType = getRateChangeType(prevItem?.ask, item.value.replace(/,/g, ''));
+                    
+                    const defaultColor = item.label.includes('USD-INR') ? '#f8fafc' : item.label.includes('GOLD') ? '#facc15' : '#E5E5E5';
+                    const bColor = getRateColor(changeType, defaultColor);
                     
                     return (
                         <div key={idx} className="flex flex-col items-center">
@@ -42,7 +45,7 @@ const SpotBar = () => {
                                 <div className="flex items-center gap-0.5 md:gap-2 text-[7px] md:text-[11px] font-bold text-black/50 font-mono whitespace-nowrap">
                                     <span>H:{item.h}</span><span className="opacity-30">|</span><span>L:{item.l}</span>
                                 </div>
-                                {(pClass === 'price-up' || pClass === 'price-down') && <div className="absolute top-0 right-0 w-1 md:w-2 h-full bg-white opacity-20" />}
+                                {(changeType === 'increase' || changeType === 'decrease') && <div className="absolute top-0 right-0 w-1 md:w-2 h-full bg-white opacity-20" />}
                             </div>
                         </div>
                     );

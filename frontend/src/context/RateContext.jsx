@@ -82,6 +82,8 @@ export const RateProvider = ({ children }) => {
     const [showModified, setShowModified] = useState(false);
     const [settingsLoaded, setSettingsLoaded] = useState(false);
     const [priceChangeMap, setPriceChangeMap] = useState({});
+    const [previousRates, setPreviousRates] = useState(null);
+    const [currentRates, setCurrentRates] = useState(null);
     const [ticker, setTicker] = useState('Welcome to Abhinav Gold & Silver - Quality Purity Guaranteed');
     const [videos, setVideos] = useState([]);
     const [videosLoaded, setVideosLoaded] = useState(false);
@@ -144,6 +146,14 @@ export const RateProvider = ({ children }) => {
             console.error("Failed to sync settings:", error);
         }
     };
+
+    // Effect to maintain previous and current rates for color comparison
+    useEffect(() => {
+        if (rawRates) {
+            setPreviousRates(currentRates);
+            setCurrentRates(rawRates);
+        }
+    }, [rawRates]);
 
     // Initial fetch on mount
     useEffect(() => {
@@ -486,22 +496,24 @@ export const RateProvider = ({ children }) => {
         };
     }, []);
 
-    const getPriceClass = (section, id, field) => {
-        const key = `${section}-${id}-${field}`;
-        const dir = priceChangeMap[key];
-        if (dir === 'up') return 'price-up';
-        if (dir === 'down') return 'price-down';
+    const getRateChangeType = (prev, curr) => {
+        const p = parseFloat(prev);
+        const c = parseFloat(curr);
+        if (isNaN(p) || isNaN(c)) return "same";
+        if (c > p) return "increase";
+        if (c < p) return "decrease";
+        return "same";
+    };
 
-        let name = '';
-        if (rawRates[section]) {
-            const item = rawRates[section].find(r => r.id === id || r.name === id);
-            if (item && item.name) name = item.name.toLowerCase();
+    const getRateColor = (changeType, defaultColor = '#0f172a') => {
+        switch (changeType) {
+            case "increase":
+                return "#4ade80"; // Tailwind green-400
+            case "decrease":
+                return "#f87171"; // Tailwind red-400
+            default:
+                return defaultColor;
         }
-
-        if (name.includes('gold') || id === '3101' || id === '945') return 'gold-default';
-        if (name.includes('silver') || id === '3107' || id === '2966' || id === '2987') return 'silver-default';
-
-        return 'price-neutral';
     };
 
     const rates = React.useMemo(() => {
@@ -708,7 +720,7 @@ export const RateProvider = ({ children }) => {
     };
 
     return (
-        <RateContext.Provider value={{ rates, rawRates, loading, error, news, adj, showModified, settingsLoaded, ticker, videos, videosLoaded, isMusicEnabled, toggleMusic, setMusicEnabled, musicSettings, syncMusicWithMongoDB, updateSettings, updateVideos, refreshRates: fetchAllRates, getPriceClass, getMarketStatus }}>
+        <RateContext.Provider value={{ rates, rawRates, loading, error, news, adj, showModified, settingsLoaded, ticker, videos, videosLoaded, isMusicEnabled, toggleMusic, setMusicEnabled, getRateChangeType, getRateColor, previousRates, currentRates, musicSettings, syncMusicWithMongoDB, updateSettings, updateVideos, refreshRates: fetchAllRates, getPriceClass, getMarketStatus }}>
 
             {children}
         </RateContext.Provider>

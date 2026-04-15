@@ -4,22 +4,30 @@ import { motion } from 'framer-motion';
 import { Music } from 'lucide-react';
 
 const RatesPage = () => {
-    const { rates, rawRates, loading, error, getPriceClass, isMusicEnabled, toggleMusic } = useRates();
+    const { rates, rawRates, loading, error, getRateChangeType, getRateColor, previousRates, currentRates, isMusicEnabled, toggleMusic } = useRates();
 
     const fmt = (val) => {
         if (typeof val !== 'number') return '-';
         return val.toLocaleString('en-IN', { minimumFractionDigits: 0, maximumFractionDigits: 0 });
     };
 
-    const sharedTrendClass = getPriceClass('rtgs', '945', 'sell');
-    const silverTrendClass = getPriceClass('rtgs', '2987', 'sell');
-    const getKaratClass = () => {
-        if (sharedTrendClass === 'price-up' || sharedTrendClass === 'price-down') return sharedTrendClass;
-        return 'gold-default';
+    const gold999Id = '945';
+    const silver999Id = '2987';
+    
+    const prevGold = previousRates?.rtgs?.find(r => r.id === gold999Id);
+    const currGold = currentRates?.rtgs?.find(r => r.id === gold999Id);
+    const goldChange = getRateChangeType(prevGold?.sell, currGold?.sell);
+    
+    const prevSilver = previousRates?.rtgs?.find(r => r.id === silver999Id);
+    const currSilver = currentRates?.rtgs?.find(r => r.id === silver999Id);
+    const silverChange = getRateChangeType(prevSilver?.sell, currSilver?.sell);
+
+    const getKaratStyle = () => {
+        return { color: getRateColor(goldChange, '#FFFFFF'), fontWeight: 'bold' };
     };
-    const getSilverClass = () => {
-        if (silverTrendClass === 'price-up' || silverTrendClass === 'price-down') return silverTrendClass;
-        return 'silver-default';
+    
+    const getSilverStyle = () => {
+        return { color: getRateColor(silverChange, '#FFFFFF'), fontWeight: 'bold' };
     };
     return (
         <motion.div
@@ -61,7 +69,8 @@ const RatesPage = () => {
                                                     </td>
                                                     <td className="px-2 py-1.5 md:px-4 md:py-2.5 text-right whitespace-nowrap w-1/2">
                                                         <span
-                                                            className={`font-bold text-[15px] md:text-[22px] ${getKaratClass()}`}
+                                                            className="text-[15px] md:text-[22px]"
+                                                            style={getKaratStyle()}
                                                         >
                                                             <span style={{ fontFamily: 'Inter, system-ui, sans-serif' }}>₹</span>{gSellVal}
                                                         </span>
@@ -88,7 +97,7 @@ const RatesPage = () => {
                                                 Gold 22 KT
                                             </td>
                                             <td className="px-2 py-1.5 md:px-4 md:py-2.5 text-right whitespace-nowrap w-1/2">
-                                                <span className={`font-bold text-[15px] md:text-[22px] ${getKaratClass()}`}>
+                                                <span className="text-[15px] md:text-[22px]" style={getKaratStyle()}>
                                                     <span style={{ fontFamily: 'Inter, system-ui, sans-serif' }}>₹</span>{rates.navarsuRate && rates.navarsuRate !== '-' ? fmt(rates.navarsuRate) : '-'}
                                                 </span>
                                             </td>
@@ -112,7 +121,7 @@ const RatesPage = () => {
                                                 Silver 999
                                             </td>
                                             <td className="px-2 py-1.5 md:px-4 md:py-2.5 text-right whitespace-nowrap w-1/2">
-                                                <span className={`font-bold text-[15px] md:text-[22px] ${getSilverClass()}`}>
+                                                <span className="text-[15px] md:text-[22px]" style={getSilverStyle()}>
                                                     <span style={{ fontFamily: 'Inter, system-ui, sans-serif' }}>₹</span>{rates.ratesPageSilver?.sell && rates.ratesPageSilver.sell !== '-' ? fmt(rates.ratesPageSilver.sell) : '-'}
                                                 </span>
                                             </td>
