@@ -1,0 +1,16 @@
+{
+  "rewrites": [
+    {
+      "source": "/api/:path*",
+      "destination": "https://wrinkle-depict-regally.ngrok-free.dev/api/:path*"
+    },
+    {
+      "source": "/music/:path*",
+      "destination": "https://wrinkle-depict-regally.ngrok-free.dev/music/:path*"
+    },
+    {
+      "source": "/(.*)",
+      "destination": "/index.html"
+    }
+  ]
+}
