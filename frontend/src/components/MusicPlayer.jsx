@@ -62,9 +62,9 @@ const MusicPlayer = ({ isEnabled }) => {
         };
     }, [unlocked, isEnabled]);
 
-    const isAllowedPage = isHomePage || isRatesPage;
+    const isAllowedPage = true;
 
-    // Sync play/pause state with isEnabled - Only allow playing on Home and Rates pages
+    // Sync play/pause state with isEnabled
     useEffect(() => {
         if (unlocked) {
             setPlaying(isEnabled && isAllowedPage);
