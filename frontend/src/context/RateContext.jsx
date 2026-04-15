@@ -8,6 +8,9 @@ import {
 
 const RateContext = createContext();
 const BACKEND_ORIGIN = 'https://wrinkle-depict-regally.ngrok-free.dev';
+const MUSIC_API_URL = `${BACKEND_ORIGIN}/api/music`;
+const SETTINGS_API_URL = `${BACKEND_ORIGIN}/api/rates/settings`;
+const LIVE_RATES_API_URL = `${BACKEND_ORIGIN}/api/rates/live`;
 
 // Primary/live API endpoint and template ID you requested
 const POTENTIAL_ENDPOINTS = [
@@ -115,7 +118,7 @@ export const RateProvider = ({ children }) => {
     const syncSettingsWithMongoDB = async () => {
         try {
             // Disable browser cache for this request explicitly
-            const res = await fetch(`${API_BASE}/rates/settings?_=${Date.now()}`, {
+            const res = await fetch(`${SETTINGS_API_URL}?_=${Date.now()}`, {
                 headers: {
                     'Cache-Control': 'no-cache',
                     'Pragma': 'no-cache'
@@ -161,7 +164,7 @@ export const RateProvider = ({ children }) => {
 
     const syncMusicWithMongoDB = async () => {
         try {
-            const res = await fetch(`${API_BASE}/music?_=${Date.now()}`);
+            const res = await fetch(`${MUSIC_API_URL}?_=${Date.now()}`);
             if (res.ok) {
                 const data = await res.json();
                 setMusicSettings(data);
@@ -449,7 +452,7 @@ export const RateProvider = ({ children }) => {
             if (isLocal) {
                 // Local Development: Use backend live endpoint directly
                 try {
-                    const localUrl = `${API_BASE}/rates/live?_=${iterationTimestamp}`;
+                    const localUrl = `${LIVE_RATES_API_URL}?_=${iterationTimestamp}`;
                     const res = await fetchWithTimeout(localUrl, 5000);
                     if (res.ok) {
                         const json = await res.json();
@@ -568,7 +571,7 @@ export const RateProvider = ({ children }) => {
                 // PRODUCTION PIPELINE (Phase 2): Fall back to MongoDB persistence layer
                 // This ensures availability even if proxies are blocked
                 try {
-                    const res = await fetchWithTimeout(`${API_BASE}/rates/live?_=${iterationTimestamp}`, 3000);
+                    const res = await fetchWithTimeout(`${LIVE_RATES_API_URL}?_=${iterationTimestamp}`, 3000);
                     if (res.ok) {
                         const json = await res.json();
                         const text = json.text;
@@ -652,8 +655,10 @@ export const RateProvider = ({ children }) => {
             } finally {
                 if (active) {
                     const elapsed = Date.now() - startTime;
-                    // Target 800ms pulse for consistent 1s feel
-                    const delay = Math.max(50, 800 - elapsed);
+                    // Use quick polling when healthy, exponential backoff when backend/tunnel is down.
+                    const baseDelay = Math.max(50, 800 - elapsed);
+                    const backoffDelay = Math.min(15000, 800 * Math.pow(2, Math.min(failureCount.current, 5)));
+                    const delay = failureCount.current > 0 ? Math.max(baseDelay, backoffDelay) : baseDelay;
                     timeoutId = setTimeout(runFetch, delay);
                 }
             }
