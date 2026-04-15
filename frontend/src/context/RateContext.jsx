@@ -7,7 +7,7 @@ import {
 } from '../utils/ratesPageCalculations';
 
 const RateContext = createContext();
-const BACKEND_ORIGIN = 'https://wrinkle-depict-regally.ngrok-free.dev';
+const BACKEND_ORIGIN = '';
 const MUSIC_API_URL = `${BACKEND_ORIGIN}/api/music`;
 const SETTINGS_API_URL = `${BACKEND_ORIGIN}/api/rates/settings`;
 const LIVE_RATES_API_URL = `${BACKEND_ORIGIN}/api/rates/live`;
@@ -550,9 +550,9 @@ export const RateProvider = ({ children }) => {
             } finally {
                 if (active) {
                     const elapsed = Date.now() - startTime;
-                    // Use quick polling when healthy, exponential backoff when backend/tunnel is down.
-                    const baseDelay = Math.max(50, 800 - elapsed);
-                    const backoffDelay = Math.min(15000, 800 * Math.pow(2, Math.min(failureCount.current, 5)));
+                    // Use rapid polling and minimize backoff delay to ensure "dam fast" fetching
+                    const baseDelay = Math.max(20, 200 - elapsed);
+                    const backoffDelay = Math.min(2000, 200 * Math.pow(1.5, Math.min(failureCount.current, 3)));
                     const delay = failureCount.current > 0 ? Math.max(baseDelay, backoffDelay) : baseDelay;
                     timeoutId = setTimeout(runFetch, delay);
                 }

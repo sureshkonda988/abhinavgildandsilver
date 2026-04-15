@@ -6,7 +6,27 @@ import { computeNavarsu8gBase } from '../utils/ratesPageCalculations';
 // ReactPlayer removed as audio preview is gone
 import { Lock, LogOut, TrendingUp, Video, MessageSquare, Play, Pause, Trash2, Save, RefreshCw, CheckCircle2, AlertCircle, Upload, Youtube, HardDrive, Clock, Music } from 'lucide-react';
 
-const BACKEND_ORIGIN = 'https://wrinkle-depict-regally.ngrok-free.dev';
+const BACKEND_ORIGIN = '';
+
+const AudioPreview = ({ url }) => {
+    const [blobUrl, setBlobUrl] = useState(null);
+
+    useEffect(() => {
+        if (!url) return;
+        let active = true;
+        fetch(url, { headers: { 'ngrok-skip-browser-warning': 'true' } })
+            .then(res => res.blob())
+            .then(blob => {
+                if (active) setBlobUrl(URL.createObjectURL(blob));
+            })
+            .catch(e => console.error('Error fetching preview blob:', e));
+
+        return () => { active = false; };
+    }, [url]);
+
+    if (!blobUrl) return null;
+    return <audio src={blobUrl} controls className="h-8 max-w-[120px] opacity-40 hover:opacity-100 transition-opacity hidden lg:block" />;
+};
 
 const AdminPage = () => {
     const { rates, rawRates, adj, showModified, settingsLoaded, videosLoaded, updateSettings, updateVideos, refreshRates, loading, error, ticker: contextTicker, videos: contextVideos, musicSettings, syncMusicWithMongoDB } = useRates();
@@ -50,9 +70,7 @@ const AdminPage = () => {
 
     const fetchMusicLibrary = async () => {
         try {
-            const res = await fetch(`${API_BASE}/music/library`, {
-                headers: { 'ngrok-skip-browser-warning': 'true' }
-            });
+            const res = await fetch(`${API_BASE}/music/library`);
             if (res.ok) {
                 const data = await res.json();
                 setMusicLibrary(data);
@@ -76,7 +94,6 @@ const AdminPage = () => {
         try {
             const res = await fetch(`${API_BASE}/music/library/upload`, {
                 method: 'POST',
-                headers: { 'ngrok-skip-browser-warning': 'true' },
                 body: formData
             });
             const result = await res.json();
@@ -102,7 +119,7 @@ const AdminPage = () => {
         try {
             const res = await fetch(`${API_BASE}/music`, {
                 method: 'POST',
-                headers: { 'Content-Type': 'application/json', 'ngrok-skip-browser-warning': 'true' },
+                headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
                     [type]: {
                         sourceType: 'local',
@@ -123,10 +140,7 @@ const AdminPage = () => {
     const deleteMusic = async (id) => {
         if (!confirm('Are you sure you want to delete this music?')) return;
         try {
-            const res = await fetch(`${API_BASE}/music/library/${id}`, { 
-                method: 'DELETE',
-                headers: { 'ngrok-skip-browser-warning': 'true' }
-            });
+            const res = await fetch(`${API_BASE}/music/library/${id}`, { method: 'DELETE' });
             if (res.ok) {
                 setMusicLibrary(prev => prev.filter(m => m._id !== id));
             }
@@ -139,7 +153,7 @@ const AdminPage = () => {
         try {
             const res = await fetch(`${API_BASE}/music`, {
                 method: 'POST',
-                headers: { 'Content-Type': 'application/json', 'ngrok-skip-browser-warning': 'true' },
+                headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
                     [type]: {
                         sourceType: 'local',
@@ -737,7 +751,7 @@ const AdminPage = () => {
                                                             Set Rates
                                                         </button>
                                                     </div>
-                                                    <audio src={track.url} controls className="h-8 max-w-[120px] opacity-40 hover:opacity-100 transition-opacity hidden lg:block" />
+                                                    <AudioPreview url={track.url} />
                                                     <button 
                                                         onClick={() => deleteMusic(track._id)}
                                                         className="p-2 text-white/20 hover:text-red-500 transition-colors"
