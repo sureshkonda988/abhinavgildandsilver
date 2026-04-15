@@ -12,6 +12,10 @@
       "destination": "https://wrinkle-depict-regally.ngrok-free.dev/music/:path*"
     },
     {
+      "source": "/api-news/:path*",
+      "destination": "https://www.investing.com/:path*"
+    },
+    {
       "source": "/(.*)",
       "destination": "/index.html"
     }
