@@ -3,7 +3,7 @@ import { useLocation } from 'react-router-dom';
 import ReactPlayer from 'react-player';
 import { useRates } from '../context/RateContext';
 
-const BACKEND_ORIGIN = '';
+const BACKEND_ORIGIN = 'https://wrinkle-depict-regally.ngrok-free.dev';
 
 const MusicPlayer = ({ isEnabled }) => {
     const location = useLocation();

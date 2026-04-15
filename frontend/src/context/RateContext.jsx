@@ -7,20 +7,11 @@ import {
 } from '../utils/ratesPageCalculations';
 
 const RateContext = createContext();
-const BACKEND_ORIGIN = '';
-const MUSIC_API_URL = `${BACKEND_ORIGIN}/api/music`;
-const SETTINGS_API_URL = `${BACKEND_ORIGIN}/api/rates/settings`;
+const BACKEND_ORIGIN = 'https://wrinkle-depict-regally.ngrok-free.dev';
 const LIVE_RATES_API_URL = `${BACKEND_ORIGIN}/api/rates/live`;
-
-// Primary/live API endpoint and template ID you requested
-const POTENTIAL_ENDPOINTS = [
-    'https://bcast.rbgoldspot.com:7768/VOTSBroadcastStreaming/Services/xml/GetLiveRateByTemplateID/'
-];
-const POTENTIAL_IDS = ['rbgold'];
-
-const CORS_PROXIES = [
-    // Intentionally disabled: use only the configured backend endpoint.
-];
+const SETTINGS_API_URL = `${BACKEND_ORIGIN}/api/rates/settings`;
+const MUSIC_API_URL = `${BACKEND_ORIGIN}/api/music`;
+const API_BASE = '/api';
 
 
 const INITIAL_SPOT_CONFIG = [
@@ -117,7 +108,6 @@ export const RateProvider = ({ children }) => {
     // Use a ref for settings synchronization to avoid infinite loops if needed
     const syncSettingsWithMongoDB = async () => {
         try {
-            // Disable browser cache for this request explicitly
             const res = await fetch(`${SETTINGS_API_URL}?_=${Date.now()}`, {
                 headers: {
                     'Cache-Control': 'no-cache',
@@ -127,7 +117,6 @@ export const RateProvider = ({ children }) => {
             });
             if (res.ok) {
                 const data = await res.json();
-                console.log("[DEBUG] Received settings from backend:", data);
                 if (data) {
                     const ratesPageSettings = normalizeRatesPageSettings(data.ratesPage || {});
                     setAdj({
@@ -152,7 +141,7 @@ export const RateProvider = ({ children }) => {
                 }
             }
         } catch (error) {
-            console.error("Failed to sync settings from MongoDB:", error);
+            console.error("Failed to sync settings:", error);
         }
     };
 
@@ -213,9 +202,6 @@ export const RateProvider = ({ children }) => {
 
 
     const updateSettings = async (payload) => {
-        console.log("[DEBUG] updateSettings called with payload:", payload);
-        // Evaluate the new adj correctly against the absolute latest ref state
-        // to prevent stale closures and race conditions when typing and clicking fast.
         let newAdj = adjRef.current;
 
         if (payload.adjFn) {
@@ -231,7 +217,6 @@ export const RateProvider = ({ children }) => {
         }
         if (payload.ticker !== undefined) setTicker(payload.ticker);
 
-        // 2. Prepare the full payload for MongoDB sync using the newly evaluated adj
         try {
             const body = {
                 gold: newAdj.gold,
@@ -250,13 +235,9 @@ export const RateProvider = ({ children }) => {
                 body: JSON.stringify(body)
             });
             if (!res.ok) throw new Error(`HTTP error! status: ${res.status}`);
-            
-            // Prevent background sync from overwriting our new state immediately
-            lastSettingsFetch.current = Date.now();
-            
             return true;
         } catch (e) {
-            console.error("Failed to sync modifications to MongoDB:", e);
+            console.error("Failed to update settings:", e);
             return false;
         }
     };
@@ -265,7 +246,6 @@ export const RateProvider = ({ children }) => {
         const controller = new AbortController();
         const id = setTimeout(() => controller.abort(), ms);
         try {
-            // Force no-store to prevent any layer of browser/CDN caching from serving stale rates
             const res = await fetch(url, {
                 signal: controller.signal,
                 cache: 'no-store',
@@ -419,119 +399,66 @@ export const RateProvider = ({ children }) => {
     const isLocal = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1' || window.location.hostname.startsWith('192.168.');
 
     const fetchAllRates = async () => {
-        // Safety: Prevent excessive concurrent requests if network is extremely slow
-        if (activeFetchesCount.current >= 10) return;
-
+        if (activeFetchesCount.current >= 5) return;
         activeFetchesCount.current++;
         const currentFetchId = Date.now();
 
-        // 0. Background Settings Sync (Ticker, Market Status) - Every 1 minute
-        if (Date.now() - lastSettingsFetch.current > 60000) {
-            syncSettingsWithMongoDB();
-            lastSettingsFetch.current = Date.now();
-        }
-
-        // 1. Background News Fetch (Throttled) - Every 5 minutes
-        if (Date.now() - lastNewsFetch.current > 300000) {
-            (async () => {
-                const newsUrl = isLocal ? '/api-news/rss/news_11.rss' : 'https://www.investing.com/rss/news_11.rss';
-                const proxies = isLocal ? [url => url] : CORS_PROXIES;
-
-                for (const p of proxies.slice(0, 3)) {
-                    try {
-                        const res = await fetchWithTimeout(p(newsUrl), 4000);
-                        if (res.ok) {
-                            let text = await res.text();
-                            if (text.trim().startsWith('{')) {
-                                try { text = JSON.parse(text).contents || text; } catch (e) { }
-                            }
-                            const parsed = parseNews(text);
-                            if (parsed.length) { setNews(parsed); lastNewsFetch.current = Date.now(); break; }
-                        }
-                    } catch (e) { }
-                }
-            })();
-        }
-
         try {
-            let success = false;
-            const iterationTimestamp = Date.now();
-
-            // PRIMARY PIPELINE: Always fetch direct from the required ngrok live rates endpoint
-            try {
-                const liveUrl = `${LIVE_RATES_API_URL}?_=${iterationTimestamp}`;
-                const res = await fetchWithTimeout(liveUrl, 5000);
-                if (res.ok) {
-                    const json = await res.json();
-                    const text = json?.text || '';
-                    if (text && text.length > 20) {
-                        const data = parseRateText(text, json?.rates || null);
-                        if (currentFetchId > lastProcessedTimestamp.current) {
-                            lastProcessedTimestamp.current = currentFetchId;
-                            const nextPriceMap = {};
-
-                            const recordFieldChange = (section, id, key, oldVal, newVal) => {
-                                const toNum = (v) => (typeof v === 'number' ? v : Number.isFinite(parseFloat(v)) ? parseFloat(v) : null);
-                                const o = toNum(oldVal); const n = toNum(newVal);
-                                if (o === null || n === null) { nextPriceMap[`${section}-${id}-${key}`] = 'neutral'; return; }
-                                if (n > o) nextPriceMap[`${section}-${id}-${key}`] = 'up';
-                                else if (n < o) nextPriceMap[`${section}-${id}-${key}`] = 'down';
-                                else nextPriceMap[`${section}-${id}-${key}`] = 'neutral';
-                            };
-
+            const liveUrl = `${LIVE_RATES_API_URL}?_=${currentFetchId}`;
+            const res = await fetchWithTimeout(liveUrl, 5000);
+            if (res.ok) {
+                const json = await res.json();
+                const text = json?.text || '';
+                if (text && text.length > 20) {
+                    const data = parseRateText(text, json?.rates || null);
+                    if (currentFetchId > lastProcessedTimestamp.current) {
+                        lastProcessedTimestamp.current = currentFetchId;
+                        
+                        // Handle trend calculations
+                        setRawRates(prev => {
                             const calculateTrend = (section, newList, oldList) => {
                                 const now = Date.now();
                                 return newList.map(newItem => {
                                     const oldItem = oldList.find(o => o.id === newItem.id);
                                     if (!oldItem) return { ...newItem, trend: 'stable', trendExpiry: 0 };
+                                    
                                     let change = 0;
                                     const keys = newItem.buy !== undefined ? ['buy', 'sell'] : ['bid', 'ask'];
                                     keys.forEach(key => {
-                                        recordFieldChange(section, newItem.id || newItem.name, key, oldItem[key], newItem[key]);
-                                        const nv = parseFloat(newItem[key]); const ov = parseFloat(oldItem[key]);
+                                        const nv = parseFloat(newItem[key]);
+                                        const ov = parseFloat(oldItem[key]);
                                         if (change === 0 && !isNaN(nv) && !isNaN(ov) && nv !== ov) change = nv > ov ? 1 : -1;
                                     });
+
                                     let trend = oldItem.trend || 'stable';
                                     let trendExpiry = oldItem.trendExpiry || 0;
-                                    if (change !== 0) { trend = change === 1 ? 'up' : 'down'; trendExpiry = now + 5000; }
-                                    else if (now > trendExpiry) { trend = 'stable'; trendExpiry = 0; }
+                                    if (change !== 0) {
+                                        trend = change === 1 ? 'up' : 'down';
+                                        trendExpiry = now + 5000;
+                                    } else if (now > trendExpiry) {
+                                        trend = 'stable';
+                                        trendExpiry = 0;
+                                    }
                                     return { ...newItem, trend, trendExpiry };
                                 });
                             };
 
-                            setRawRates(prev => {
-                                const newFinal = {
-                                    spot: calculateTrend('spot', data.spot, prev.spot),
-                                    rtgs: calculateTrend('rtgs', data.rtgs, prev.rtgs)
-                                };
-                                return newFinal;
-                            });
-                            setPriceChangeMap(nextPriceMap);
-                            setError(null); setLoading(false);
-                        }
+                            return {
+                                spot: calculateTrend('spot', data.spot, prev.spot),
+                                rtgs: calculateTrend('rtgs', data.rtgs, prev.rtgs)
+                            };
+                        });
+                        
+                        setError(null);
+                        setLoading(false);
+                        failureCount.current = 0;
                     }
-                    success = true;
-                    failureCount.current = 0;
                 }
-            } catch (e) {
-                console.warn("MongoDB/live rate fetch failed:", e);
             }
-
-            // SYNC SETTINGS FROM MONGODB (User Requirement #1 & #3)
-            // This ensures all devices are in sync with admin changes
-            // DECOUPLED to avoid blocking the fast rate loop
-            const now = Date.now();
-            if (now - lastSettingsFetch.current > 15000) {
-                lastSettingsFetch.current = now;
-                syncSettingsWithMongoDB().catch(e => console.error("Background settings sync failed", e));
-            }
-
-            if (!success) throw new Error('Refresh failed');
         } catch (e) {
+            console.error("Fetch rates failed:", e);
             failureCount.current++;
-            if (failureCount.current >= 10) { // Increased threshold for stability
-                setError("Syncing...");
-            }
+            if (failureCount.current > 5) setError("Syncing...");
         } finally {
             activeFetchesCount.current--;
         }
@@ -544,24 +471,17 @@ export const RateProvider = ({ children }) => {
         const runFetch = async () => {
             if (!active) return;
             const startTime = Date.now();
-
-            try {
-                await fetchAllRates();
-            } finally {
-                if (active) {
-                    const elapsed = Date.now() - startTime;
-                    // Use rapid polling and minimize backoff delay to ensure "dam fast" fetching
-                    const baseDelay = Math.max(20, 200 - elapsed);
-                    const backoffDelay = Math.min(2000, 200 * Math.pow(1.5, Math.min(failureCount.current, 3)));
-                    const delay = failureCount.current > 0 ? Math.max(baseDelay, backoffDelay) : baseDelay;
-                    timeoutId = setTimeout(runFetch, delay);
-                }
+            await fetchAllRates();
+            if (active) {
+                const elapsed = Date.now() - startTime;
+                const delay = Math.max(100, 800 - elapsed);
+                timeoutId = setTimeout(runFetch, delay);
             }
         };
 
         runFetch();
         return () => {
-            active = false;
+            active = true;
             if (timeoutId) clearTimeout(timeoutId);
         };
     }, []);

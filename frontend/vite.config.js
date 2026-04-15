@@ -20,19 +20,13 @@ export default defineConfig({
       '/api-rates': {
         target: 'https://bcast.rbgoldspot.com:7768',
         changeOrigin: true,
-        secure: false, // Allow self-signed or invalid certificates often found on these broadcast servers
+        secure: false,
         rewrite: (path) => path.replace(/^\/api-rates/, '/VOTSBroadcastStreaming/Services/xml/GetLiveRateByTemplateID'),
       },
       '/api-news': {
         target: 'https://www.investing.com',
         changeOrigin: true,
         rewrite: (path) => path.replace(/^\/api-news/, ''),
-      },
-      '/audio-proxy': {
-        target: 'https://drive.google.com',
-        changeOrigin: true,
-        secure: false,
-        rewrite: (path) => path.replace(/^\/audio-proxy/, '/uc'),
       },
       '/api': {
         target: BACKEND_TARGET,

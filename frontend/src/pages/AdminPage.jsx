@@ -6,7 +6,8 @@ import { computeNavarsu8gBase } from '../utils/ratesPageCalculations';
 // ReactPlayer removed as audio preview is gone
 import { Lock, LogOut, TrendingUp, Video, MessageSquare, Play, Pause, Trash2, Save, RefreshCw, CheckCircle2, AlertCircle, Upload, Youtube, HardDrive, Clock, Music } from 'lucide-react';
 
-const BACKEND_ORIGIN = '';
+const BACKEND_ORIGIN = 'https://wrinkle-depict-regally.ngrok-free.dev';
+const API_BASE = `${BACKEND_ORIGIN}/api`;
 
 const AudioPreview = ({ url }) => {
     const [blobUrl, setBlobUrl] = useState(null);
@@ -39,7 +40,6 @@ const AdminPage = () => {
     const [isUploading, setIsUploading] = useState(false);
     const [uploadTitle, setUploadTitle] = useState('');
     const [uploadTarget, setUploadTarget] = useState('library'); // 'library', 'homeMusic', or 'ratesMusic'
-    const API_BASE = `${BACKEND_ORIGIN}/api`;
 
     // Local state for editing, initialized from context
     const [ticker, setTicker] = useState('');
@@ -70,7 +70,9 @@ const AdminPage = () => {
 
     const fetchMusicLibrary = async () => {
         try {
-            const res = await fetch(`${API_BASE}/music/library`);
+            const res = await fetch(`${API_BASE}/music/library`, {
+                headers: { 'ngrok-skip-browser-warning': 'true' }
+            });
             if (res.ok) {
                 const data = await res.json();
                 setMusicLibrary(data);
@@ -94,6 +96,7 @@ const AdminPage = () => {
         try {
             const res = await fetch(`${API_BASE}/music/library/upload`, {
                 method: 'POST',
+                headers: { 'ngrok-skip-browser-warning': 'true' },
                 body: formData
             });
             const result = await res.json();
@@ -119,7 +122,7 @@ const AdminPage = () => {
         try {
             const res = await fetch(`${API_BASE}/music`, {
                 method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
+                headers: { 'Content-Type': 'application/json', 'ngrok-skip-browser-warning': 'true' },
                 body: JSON.stringify({
                     [type]: {
                         sourceType: 'local',
@@ -140,7 +143,10 @@ const AdminPage = () => {
     const deleteMusic = async (id) => {
         if (!confirm('Are you sure you want to delete this music?')) return;
         try {
-            const res = await fetch(`${API_BASE}/music/library/${id}`, { method: 'DELETE' });
+            const res = await fetch(`${API_BASE}/music/library/${id}`, { 
+                method: 'DELETE',
+                headers: { 'ngrok-skip-browser-warning': 'true' }
+            });
             if (res.ok) {
                 setMusicLibrary(prev => prev.filter(m => m._id !== id));
             }
@@ -153,7 +159,7 @@ const AdminPage = () => {
         try {
             const res = await fetch(`${API_BASE}/music`, {
                 method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
+                headers: { 'Content-Type': 'application/json', 'ngrok-skip-browser-warning': 'true' },
                 body: JSON.stringify({
                     [type]: {
                         sourceType: 'local',
@@ -163,11 +169,10 @@ const AdminPage = () => {
                 })
             });
             if (res.ok) {
-                alert(`Cleared ${type === 'homeMusic' ? 'Home' : 'Rates'} music.`);
-                if (window.location.reload) window.location.reload();
+                if (syncMusicWithMongoDB) await syncMusicWithMongoDB();
             }
         } catch (error) {
-            alert('Error clearing music: ' + error.message);
+            console.error("Clear Background Music Error:", error);
         }
     };
 
