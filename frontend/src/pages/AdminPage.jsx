@@ -50,7 +50,9 @@ const AdminPage = () => {
 
     const fetchMusicLibrary = async () => {
         try {
-            const res = await fetch(`${API_BASE}/music/library`);
+            const res = await fetch(`${API_BASE}/music/library`, {
+                headers: { 'ngrok-skip-browser-warning': 'true' }
+            });
             if (res.ok) {
                 const data = await res.json();
                 setMusicLibrary(data);
@@ -74,6 +76,7 @@ const AdminPage = () => {
         try {
             const res = await fetch(`${API_BASE}/music/library/upload`, {
                 method: 'POST',
+                headers: { 'ngrok-skip-browser-warning': 'true' },
                 body: formData
             });
             const result = await res.json();
@@ -99,7 +102,7 @@ const AdminPage = () => {
         try {
             const res = await fetch(`${API_BASE}/music`, {
                 method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
+                headers: { 'Content-Type': 'application/json', 'ngrok-skip-browser-warning': 'true' },
                 body: JSON.stringify({
                     [type]: {
                         sourceType: 'local',
@@ -120,7 +123,10 @@ const AdminPage = () => {
     const deleteMusic = async (id) => {
         if (!confirm('Are you sure you want to delete this music?')) return;
         try {
-            const res = await fetch(`${API_BASE}/music/library/${id}`, { method: 'DELETE' });
+            const res = await fetch(`${API_BASE}/music/library/${id}`, { 
+                method: 'DELETE',
+                headers: { 'ngrok-skip-browser-warning': 'true' }
+            });
             if (res.ok) {
                 setMusicLibrary(prev => prev.filter(m => m._id !== id));
             }
@@ -133,7 +139,7 @@ const AdminPage = () => {
         try {
             const res = await fetch(`${API_BASE}/music`, {
                 method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
+                headers: { 'Content-Type': 'application/json', 'ngrok-skip-browser-warning': 'true' },
                 body: JSON.stringify({
                     [type]: {
                         sourceType: 'local',
