@@ -6,6 +6,26 @@ import { useRates } from '../context/RateContext';
 
 const VideoCard = ({ video, isActive, position, onClick }) => {
     const [isMuted, setIsMuted] = useState(true);
+    const containerRef = React.useRef(null);
+
+    const toggleFullscreen = (e) => {
+        e.stopPropagation();
+        if (!containerRef.current) return;
+        
+        if (!document.fullscreenElement) {
+            if (containerRef.current.requestFullscreen) {
+                containerRef.current.requestFullscreen();
+            } else if (containerRef.current.webkitRequestFullscreen) {
+                containerRef.current.webkitRequestFullscreen();
+            } else if (containerRef.current.msRequestFullscreen) {
+                containerRef.current.msRequestFullscreen();
+            }
+        } else {
+            if (document.exitFullscreen) {
+                document.exitFullscreen();
+            }
+        }
+    };
 
     // Calculate position and scale based on index distance from activeIndex
     const isNext = position === 1 || position === 2;
@@ -29,6 +49,7 @@ const VideoCard = ({ video, isActive, position, onClick }) => {
 
     return (
         <motion.div
+            ref={containerRef}
             animate={currentVariant}
             variants={variants}
             transition={{ type: 'spring', stiffness: 300, damping: 30 }}
@@ -69,7 +90,7 @@ const VideoCard = ({ video, isActive, position, onClick }) => {
                         <button onClick={(e) => { e.stopPropagation(); setIsMuted(!isMuted); }} className="p-3 bg-black/40 backdrop-blur-md border border-white/20 text-white rounded-full hover:bg-black/60 transition-all">
                             {isMuted ? <VolumeX size={18} /> : <Volume2 size={18} />}
                         </button>
-                        <button className="p-3 bg-black/40 backdrop-blur-md border border-white/20 text-white rounded-full hover:bg-black/60 transition-all">
+                        <button onClick={toggleFullscreen} className="p-3 bg-black/40 backdrop-blur-md border border-white/20 text-white rounded-full hover:bg-black/60 transition-all">
                             <Maximize2 size={18} />
                         </button>
                     </div>
