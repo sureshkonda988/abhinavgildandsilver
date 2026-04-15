@@ -15,7 +15,6 @@ const POTENTIAL_ENDPOINTS = [
 const POTENTIAL_IDS = ['rbgold'];
 
 const CORS_PROXIES = [
-    url => `/api/rates/proxy?url=${encodeURIComponent(url)}`,
     url => `https://api.allorigins.win/raw?url=${encodeURIComponent(url)}`,
     url => `https://api.codetabs.com/v1/proxy?quest=${encodeURIComponent(url)}`,
     url => `https://corsproxy.io/?${encodeURIComponent(url)}`,
@@ -450,14 +449,15 @@ export const RateProvider = ({ children }) => {
             const iterationTimestamp = Date.now();
 
             if (isLocal) {
-                // Local Development: Use Vite Proxy (/api-rates -> bcast.rbgoldspot.com)
+                // Local Development: Use backend live endpoint directly
                 try {
-                    const localUrl = `/api-rates/${POTENTIAL_IDS[0]}?_=${iterationTimestamp}`;
+                    const localUrl = `${API_BASE}/rates/live?_=${iterationTimestamp}`;
                     const res = await fetchWithTimeout(localUrl, 5000);
                     if (res.ok) {
-                        const text = await res.text();
+                        const json = await res.json();
+                        const text = json?.text || '';
                         if (text && text.length > 20) {
-                            const data = parseRateText(text);
+                            const data = parseRateText(text, json?.rates || null);
                             if (currentFetchId > lastProcessedTimestamp.current) {
                                 lastProcessedTimestamp.current = currentFetchId;
                                 const nextPriceMap = {};

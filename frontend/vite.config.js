@@ -2,7 +2,7 @@ import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react'
 import tailwindcss from '@tailwindcss/vite'
 
-const BACKEND_TARGET = 'https://wrinkle-depict-regally.ngrok-free.dev'
+const BACKEND_TARGET = process.env.VITE_BACKEND_PROXY_TARGET || 'https://wrinkle-depict-regally.ngrok-free.dev'
 
 // https://vite.dev/config/
 export default defineConfig({
