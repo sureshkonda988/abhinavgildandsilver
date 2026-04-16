@@ -15,7 +15,7 @@ const HomePage1 = () => {
 
     const Heading = ({ text }) => (
         <div className="flex justify-center mb-2 mt-4 md:mt-0 md:mb-0">
-            <h2 className="text-base sm:text-lg md:text-[26px] font-playfair font-black text-magenta-700 uppercase tracking-tighter sm:tracking-[0.1em] md:tracking-[0.2em] border-b-2 border-magenta-100 pb-0.5 text-center whitespace-nowrap overflow-visible max-w-full px-1">
+            <h2 className="text-base sm:text-lg md:text-[26px] font-playfair font-black text-white uppercase tracking-tighter sm:tracking-[0.1em] md:tracking-[0.2em] border-b-2 border-white/20 pb-0.5 text-center whitespace-nowrap overflow-visible max-w-full px-1">
                 {text}
             </h2>
         </div>
@@ -184,16 +184,16 @@ const HomePage1 = () => {
                         <div className="px-1 md:px-0 py-1 mb-1 md:mb-3">
                             <div className="grid grid-cols-[1fr_1.2fr_1.2fr_1.2fr] md:grid-cols-[1.1fr_1.2fr_1.2fr_1.2fr] gap-1 md:gap-6 items-center w-full">
                                 <div className="flex justify-start pl-1 md:pl-3">
-                                    <span className="inline-flex items-center justify-center px-1 py-0.5 md:px-4 md:py-1.5 rounded-xl bg-transparent border-[1.5px] md:border-2 border-slate-900/20 text-slate-900 font-playfair font-black text-[8px] md:text-base tracking-widest shadow-sm backdrop-blur-sm">PRODUCTS</span>
+                                    <span className="inline-flex items-center justify-center px-1 py-0.5 md:px-4 md:py-1.5 rounded-xl bg-transparent border-[1.5px] md:border-2 border-white/20 text-white font-playfair font-black text-[8px] md:text-base tracking-widest shadow-sm backdrop-blur-sm">PRODUCTS</span>
                                 </div>
                                 <div className="flex justify-center w-full">
-                                    <span className="inline-flex items-center justify-center px-1 py-0.5 md:px-6 md:py-1.5 rounded-xl bg-transparent border-[1.5px] md:border-2 border-slate-900/20 text-slate-900 font-playfair font-black text-[8px] md:text-base tracking-widest shadow-sm backdrop-blur-sm">BUY</span>
+                                    <span className="inline-flex items-center justify-center px-1 py-0.5 md:px-6 md:py-1.5 rounded-xl bg-transparent border-[1.5px] md:border-2 border-white/20 text-white font-playfair font-black text-[8px] md:text-base tracking-widest shadow-sm backdrop-blur-sm">BUY</span>
                                 </div>
                                 <div className="flex justify-center w-full">
-                                    <span className="inline-flex items-center justify-center px-1 py-0.5 md:px-6 md:py-1.5 rounded-xl bg-transparent border-[1.5px] md:border-2 border-slate-900/20 text-slate-900 font-playfair font-black text-[8px] md:text-base tracking-widest shadow-sm backdrop-blur-sm">SELL</span>
+                                    <span className="inline-flex items-center justify-center px-1 py-0.5 md:px-6 md:py-1.5 rounded-xl bg-transparent border-[1.5px] md:border-2 border-white/20 text-white font-playfair font-black text-[8px] md:text-base tracking-widest shadow-sm backdrop-blur-sm">SELL</span>
                                 </div>
                                 <div className="flex justify-center w-full">
-                                    <span className="inline-flex items-center justify-center px-1 py-0.5 md:px-4 md:py-1.5 rounded-xl bg-transparent border-[1.5px] md:border-2 border-slate-900/20 text-slate-900 font-playfair font-black text-[8px] md:text-base tracking-widest shadow-sm backdrop-blur-sm uppercase">HI / LO</span>
+                                    <span className="inline-flex items-center justify-center px-1 py-0.5 md:px-4 md:py-1.5 rounded-xl bg-transparent border-[1.5px] md:border-2 border-white/20 text-white font-playfair font-black text-[8px] md:text-base tracking-widest shadow-sm backdrop-blur-sm uppercase">HI / LO</span>
                                 </div>
                             </div>
                         </div>

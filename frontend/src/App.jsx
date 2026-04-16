@@ -240,7 +240,7 @@ const AppLayout = () => {
                   initial={{ opacity: 0, x: 30, scale: 0.8 }}
                   animate={{ opacity: 1, x: 0, scale: 1 }}
                   transition={{ duration: 1.2, delay: 0.5 }}
-                  src="/Untitled-design-(3).webp" 
+                  src="/Untitled-design-(1).webp" 
                   alt="" 
                   className="absolute md:relative block w-16 md:w-24 lg:w-36 h-auto object-contain drop-shadow-2xl -scale-x-100 -translate-y-24 -translate-x-20 md:translate-x-0 md:-translate-y-16 lg:-translate-y-32 right-0 md:right-auto z-20" 
                 />
