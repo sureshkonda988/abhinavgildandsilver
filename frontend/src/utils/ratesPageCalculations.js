@@ -27,9 +27,13 @@ export const computeGoldTableSell = (gold999Sell, factor, isModified, modifier) 
 };
 
 export const computeSilver10gSell = (silverSell, isModified, modifier) => {
-  const live = Number(silverSell) || 0;
-  if (!live) return '-';
-  if (!isModified) return live;
+  const live1kg = Number(silverSell) || 0;
+  if (!live1kg) return '-';
+  
+  // Convert 1kg rate to 10g rate (divide by 100)
+  const live = live1kg / 100;
+  
+  if (!isModified) return Math.round(live);
   return Math.round(live + (modifier?.value || 0));
 };
 

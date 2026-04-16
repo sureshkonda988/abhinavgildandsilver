@@ -2,11 +2,10 @@ import React from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Check, X, TrendingUp, TrendingDown, Minus, Volume2, VolumeX, Music } from 'lucide-react';
 import { useRates } from '../context/RateContext';
-import SpotBar from './SpotBar';
+import SpotBar from '../components/SpotBar';
+import Ticker from '../components/Ticker';
 
-import Ticker from './Ticker';
-
-const Hero = () => {
+const HomePage1 = () => {
     const { rates, rawRates, loading, error, getRateChangeType, getRateColor, previousRates, currentRates, isMusicEnabled, toggleMusic, adj } = useRates();
 
     const fmt = (val) => {
@@ -110,10 +109,12 @@ const Hero = () => {
                                                     {/* Price Section */}
                                                     <div className="flex justify-center w-full">
                                                         <motion.div
-                                                            style={{ backgroundColor: bColor, borderColor: '#000000', borderWidth: '1.5px' }}
-                                                            className="w-full transition-all duration-300 max-w-[200px] md:max-w-[300px] py-4 md:py-5 px-3 md:px-6 rounded-[14px] md:rounded-[24px] flex items-center justify-center shadow-lg hover:scale-105"
+                                                            className="w-full transition-all duration-300 max-w-[200px] md:max-w-[300px] py-2 md:py-3 flex items-center justify-center hover:scale-105"
                                                         >
-                                                            <span className="font-black font-poppins text-center text-[28px] md:text-[38px] leading-none text-slate-900 tracking-tighter md:tracking-normal">
+                                                            <span 
+                                                                className="font-black font-poppins text-center text-[30px] md:text-[45px] leading-none tracking-tighter md:tracking-normal filter drop-shadow-sm"
+                                                                style={{ color: bColor }}
+                                                            >
                                                                 {item.sell !== '-' ? <><span style={{ fontFamily: 'Inter, system-ui, sans-serif', marginRight: '6px' }}>₹</span>{fmt(item.sell * (item.factor || 1))}</> : '—'}
                                                             </span>
                                                         </motion.div>
@@ -245,10 +246,12 @@ const Hero = () => {
                                             {/* BUY Box */}
                                             <div className="flex justify-center items-stretch w-full">
                                                 <motion.div
-                                                    style={{ backgroundColor: buyColor, borderColor: '#000000', borderWidth: '1.5px' }}
-                                                    className="w-full transition-all duration-300 max-w-[110px] md:max-w-[240px] py-4 md:py-5 px-1 md:px-3 rounded-[12px] md:rounded-[24px] flex items-center justify-center shadow-lg hover:scale-105 overflow-hidden"
+                                                    className="w-full transition-all duration-300 max-w-[110px] md:max-w-[240px] py-2 md:py-3 flex items-center justify-center hover:scale-105 overflow-hidden"
                                                 >
-                                                    <span className="font-black font-poppins text-center text-[22px] md:text-[26px] lg:text-[30px] leading-none text-slate-900 tracking-tighter md:tracking-normal">
+                                                    <span 
+                                                        className="font-black font-poppins text-center text-[24px] md:text-[32px] lg:text-[36px] leading-none tracking-tighter md:tracking-normal filter drop-shadow-sm"
+                                                        style={{ color: buyColor }}
+                                                    >
                                                         {item.buy !== '-' ? <><span style={{ fontFamily: 'Inter, system-ui, sans-serif', marginRight: '5px' }}>₹</span>{fmt(item.buy)}</> : '—'}
                                                     </span>
                                                 </motion.div>
@@ -257,10 +260,12 @@ const Hero = () => {
                                             {/* SELL Box */}
                                             <div className="flex justify-center items-stretch w-full">
                                                 <motion.div
-                                                    style={{ backgroundColor: sellColor, borderColor: '#000000', borderWidth: '1.5px' }}
-                                                    className="w-full transition-all duration-300 max-w-[110px] md:max-w-[240px] py-4 md:py-5 px-1 md:px-3 rounded-[12px] md:rounded-[24px] flex items-center justify-center shadow-lg hover:scale-105 overflow-hidden"
+                                                    className="w-full transition-all duration-300 max-w-[110px] md:max-w-[240px] py-2 md:py-3 flex items-center justify-center hover:scale-105 overflow-hidden"
                                                 >
-                                                    <span className="font-black font-poppins text-center text-[22px] md:text-[26px] lg:text-[30px] leading-none text-slate-900 tracking-tighter md:tracking-normal">
+                                                    <span 
+                                                        className="font-black font-poppins text-center text-[24px] md:text-[32px] lg:text-[36px] leading-none tracking-tighter md:tracking-normal filter drop-shadow-sm"
+                                                        style={{ color: sellColor }}
+                                                    >
                                                         {item.sell !== '-' ? <><span style={{ fontFamily: 'Inter, system-ui, sans-serif', marginRight: '5px' }}>₹</span>{fmt(item.sell)}</> : '—'}
                                                     </span>
                                                 </motion.div>
@@ -268,16 +273,16 @@ const Hero = () => {
 
                                             {/* HI/LO Box */}
                                             <div className="flex justify-center items-stretch w-full">
-                                                <div className="flex-1 max-w-[100px] md:max-w-[180px] border-[1.5px] md:border-[2px] border-sky-400 shadow-lg overflow-hidden rounded-[12px] md:rounded-[24px] flex flex-col items-center justify-center min-h-[70px] md:min-h-[90px]" style={{ backgroundColor: '#bae6fd' }}>
-                                                    <div className="flex-1 w-full flex items-center justify-between px-1 md:px-3 border-b border-black/10">
+                                                <div className="flex-1 max-w-[100px] md:max-w-[180px] flex flex-col items-center justify-center min-h-[70px] md:min-h-[90px]">
+                                                    <div className="flex-1 w-full flex items-center justify-between px-1 md:px-3 border-b border-slate-900/5">
                                                         <span className="text-[7px] md:text-[11px] font-black text-[#16a34a] uppercase">HI</span>
-                                                        <span className="text-[15px] md:text-[18px] lg:text-[22px] font-black text-[#16a34a] leading-none">
+                                                        <span className="text-[15px] md:text-[18px] lg:text-[22px] font-black text-[#16a34a] leading-none filter drop-shadow-sm">
                                                             {item.high !== '-' ? <><span style={{ fontFamily: 'Inter, system-ui, sans-serif', marginRight: '4px' }}>₹</span>{fmt(item.high)}</> : '—'}
                                                         </span>
                                                     </div>
                                                     <div className="flex-1 w-full flex items-center justify-between px-1 md:px-3">
                                                         <span className="text-[7px] md:text-[11px] font-black text-[#dc2626] uppercase">LO</span>
-                                                        <span className="text-[15px] md:text-[18px] lg:text-[22px] font-black text-[#dc2626] leading-none">
+                                                        <span className="text-[15px] md:text-[18px] lg:text-[22px] font-black text-[#dc2626] leading-none filter drop-shadow-sm">
                                                             {item.low !== '-' ? <><span style={{ fontFamily: 'Inter, system-ui, sans-serif', marginRight: '4px' }}>₹</span>{fmt(item.low)}</> : '—'}
                                                         </span>
                                                     </div>
@@ -306,4 +311,4 @@ const Hero = () => {
     );
 };
 
-export default Hero;
+export default HomePage1;

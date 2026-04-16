@@ -8,7 +8,7 @@ const Navigation = () => {
     const { rates, isMusicEnabled, toggleMusic } = useRates();
     const location = useLocation();
     const isRatesPage = location.pathname === '/rates';
-    const isHomePage = location.pathname === '/';
+    const isHomePage = location.pathname === '/' || location.pathname === '/home1';
     const showMusicBtn = isRatesPage || isHomePage;
 
 
@@ -16,7 +16,8 @@ const Navigation = () => {
         { name: 'Home', path: '/' },
         { name: 'Rates', path: '/rates' },
         { name: 'Videos', path: '/videos' },
-        { name: 'Alerts', path: '/alerts' }
+        { name: 'Alerts', path: '/alerts' },
+        { name: 'Home Page 1', path: '/home1' }
     ];
 
 

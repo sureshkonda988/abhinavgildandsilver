@@ -15,6 +15,7 @@ import VideosPage from './pages/VideosPage';
 import AdminPage from './pages/AdminPage';
 import PrivacyPolicy from './pages/PrivacyPolicy';
 import TermsOfService from './pages/TermsOfService';
+import HomePage1 from './pages/HomePage1';
 import { Loader2 } from 'lucide-react';
 import MusicPlayer from './components/MusicPlayer';
 
@@ -81,7 +82,7 @@ const useImagePreloader = (imageList) => {
 const AppLayout = () => {
   const { isMusicEnabled, setMusicEnabled } = useRates();
   const location = useLocation();
-  const isHomePage = location.pathname === '/';
+  const isHomePage = location.pathname === '/' || location.pathname === '/home1';
   const isAdminPage = location.pathname === '/admin';
 
   // Only preload ultra-critical small assets and the logo to ensure fast navigation
@@ -105,7 +106,7 @@ const AppLayout = () => {
   React.useEffect(() => {
     setIsLoading(true);
     // Keep music enabled on pages that support playback, and turn it off elsewhere.
-    const isMusicPage = location.pathname === '/' || location.pathname === '/rates';
+    const isMusicPage = location.pathname === '/' || location.pathname === '/home1' || location.pathname === '/rates';
     if (!isMusicPage && setMusicEnabled) setMusicEnabled(false);
     
     // After 50ms, the new route's content should be ready to render
@@ -231,7 +232,7 @@ const AppLayout = () => {
           {isHomePage && (
             <div className="relative z-20 flex justify-center items-center gap-2 lg:gap-8 px-1 md:px-0 mt-2 md:-mt-2">
               <div className="lg:translate-x-32">
-                <SpotBar />
+                <SpotBar noBoxes={location.pathname === '/home1'} />
               </div>
               {/* Decorative Image - Now Scrollable again */}
               <motion.img 
@@ -251,6 +252,7 @@ const AppLayout = () => {
 
       <Routes>
         <Route path="/" element={<Hero />} />
+        <Route path="/home1" element={<HomePage1 />} />
         <Route path="/rates" element={<RatesPage />} />
         <Route path="/alerts" element={<AlertsPage />} />
         <Route path="/videos" element={<VideosPage />} />

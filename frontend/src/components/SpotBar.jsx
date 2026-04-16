@@ -1,7 +1,7 @@
 import React from 'react';
 import { useRates } from '../context/RateContext';
 
-const SpotBar = () => {
+const SpotBar = ({ noBoxes }) => {
     const { rates, getRateChangeType, getRateColor, previousRates, currentRates } = useRates();
 
     const fmt = (val) => {
@@ -28,24 +28,45 @@ const SpotBar = () => {
                     const prevItem = previousRates?.spot?.find(r => r.id === item.id);
                     const changeType = getRateChangeType(prevItem?.ask, item.value.replace(/,/g, ''));
                     
-                    const defaultColor = item.label.includes('USD-INR') ? '#f8fafc' : item.label.includes('GOLD') ? '#facc15' : '#E5E5E5';
-                    const bColor = getRateColor(changeType, defaultColor);
+                    const defaultColor = item.label.includes('USD-INR') ? '#0f172a' : item.label.includes('GOLD') ? '#facc15' : '#64748b';
+                    // If noBoxes is true, use a darker default for USD-INR and SILVER for visibility on white background
+                    const effectiveDefault = noBoxes 
+                        ? (item.label.includes('USD-INR') ? '#0f172a' : item.label.includes('GOLD') ? '#b8860b' : '#334155') 
+                        : defaultColor;
+
+                    const bColor = getRateColor(changeType, effectiveDefault);
                     
                     return (
                         <div key={idx} className="flex flex-col items-center">
                             <span className="text-[7px] md:text-[13px] font-bold text-slate-800 uppercase tracking-tight font-poppins mb-1 md:mb-1.5">{item.label}</span>
                             <div
-                                style={{ backgroundColor: bColor }}
-                                className={`border-[1.5px] md:border-2 border-slate-200 rounded-lg md:rounded-xl px-1 md:px-8 py-2 md:py-3 flex flex-col items-center ${item.label.includes('USD-INR') ? 'min-w-[115px] md:min-w-[220px]' : 'min-w-[125px] md:min-w-[250px]'} shadow-lg group relative overflow-hidden`}
+                                style={noBoxes ? {} : { backgroundColor: bColor }}
+                                className={noBoxes 
+                                    ? `flex flex-col items-center ${item.label.includes('USD-INR') ? 'min-w-[100px] md:min-w-[180px]' : 'min-w-[110px] md:min-w-[200px]'} transition-all duration-300`
+                                    : `border-[1.5px] md:border-2 border-slate-200 rounded-lg md:rounded-xl px-1 md:px-8 py-2 md:py-3 flex flex-col items-center ${item.label.includes('USD-INR') ? 'min-w-[115px] md:min-w-[220px]' : 'min-w-[125px] md:min-w-[250px]'} shadow-lg group relative overflow-hidden`
+                                }
                             >
                                 <div className="flex items-center gap-1.5 md:gap-2">
-                                    <span style={{ fontFamily: 'Inter, system-ui, sans-serif', color: 'black' }} className="text-[9px] md:text-lg font-bold opacity-60">{item.symbol}</span>
-                                    <span style={{ color: 'black' }} className="text-[18px] md:text-4xl font-black font-poppins">{item.value}</span>
+                                    <span 
+                                        style={{ fontFamily: 'Inter, system-ui, sans-serif', color: noBoxes ? bColor : 'black' }} 
+                                        className={`${noBoxes ? 'text-[11px] md:text-2xl opacity-80' : 'text-[9px] md:text-lg opacity-60'} font-bold`}
+                                    >
+                                        {item.symbol}
+                                    </span>
+                                    <span 
+                                        style={{ color: noBoxes ? bColor : 'black' }} 
+                                        className={`${noBoxes ? 'text-[20px] md:text-5xl filter drop-shadow-sm' : 'text-[18px] md:text-4xl'} font-black font-poppins`}
+                                    >
+                                        {item.value}
+                                    </span>
                                 </div>
-                                <div className="flex items-center gap-0.5 md:gap-2 text-[7px] md:text-[11px] font-bold text-black/50 font-mono whitespace-nowrap">
+                                <div 
+                                    className="flex items-center gap-0.5 md:gap-2 text-[7px] md:text-[11px] font-bold font-mono whitespace-nowrap"
+                                    style={{ color: noBoxes ? bColor : 'rgba(0,0,0,0.5)' }}
+                                >
                                     <span>H:{item.h}</span><span className="opacity-30">|</span><span>L:{item.l}</span>
                                 </div>
-                                {(changeType === 'increase' || changeType === 'decrease') && <div className="absolute top-0 right-0 w-1 md:w-2 h-full bg-white opacity-20" />}
+                                {(!noBoxes && (changeType === 'increase' || changeType === 'decrease')) && <div className="absolute top-0 right-0 w-1 md:w-2 h-full bg-white opacity-20" />}
                             </div>
                         </div>
                     );

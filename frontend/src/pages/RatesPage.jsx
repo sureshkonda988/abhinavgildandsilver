@@ -23,11 +23,11 @@ const RatesPage = () => {
     const silverChange = getRateChangeType(prevSilver?.sell, currSilver?.sell);
 
     const getKaratStyle = () => {
-        return { color: getRateColor(goldChange, '#FFFFFF'), fontWeight: 'bold' };
+        return { color: getRateColor(goldChange, '#FFD700'), fontWeight: 'bold' };
     };
     
     const getSilverStyle = () => {
-        return { color: getRateColor(silverChange, '#FFFFFF'), fontWeight: 'bold' };
+        return { color: getRateColor(silverChange, '#FFD700'), fontWeight: 'bold' };
     };
     return (
         <motion.div
@@ -86,8 +86,8 @@ const RatesPage = () => {
                         {/* Navarsu / Kasu Table */}
                         <div className="flex flex-col w-[80%] min-w-[190px] md:max-w-[420px] max-w-[100%] ml-auto mr-4 md:mx-auto md:ml-auto md:mr-16 mt-2">
                             <div className="gradient-luxury px-2 py-1.5 md:px-4 md:py-2.5 rounded-t-xl shadow-lg flex justify-between items-center text-white font-poppins font-black text-[9px] md:text-[14px] uppercase tracking-widest">
-                                <span className="w-1/2 text-left px-1 md:px-0">8 GRAMS</span>
-                                <span className="w-1/2 text-right pr-2 md:pr-4">Navarsu / Kasu</span>
+                                <span className="w-1/2 text-left px-2 md:px-4">Navarsu / Kasu</span>
+                                <span className="w-1/2 text-right pr-2 md:pr-4">8 GRAMS</span>
                             </div>
                             <div className="glass rounded-b-xl overflow-hidden shadow-luxury">
                                 <table className="w-full text-left">

@@ -7,6 +7,7 @@ const navItems = [
     { to: '/rates', icon: BarChart2, label: 'Rates' },
     { to: '/videos', icon: PlayCircle, label: 'Videos' },
     { to: '/alerts', icon: Bell, label: 'Alerts' },
+    { to: '/home1', icon: Home, label: 'Home 1' },
 ];
 
 const BottomNav = () => {
