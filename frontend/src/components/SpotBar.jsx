@@ -38,7 +38,11 @@ const SpotBar = ({ noBoxes }) => {
                     
                     return (
                         <div key={idx} className="flex flex-col items-center">
-                            <span className="text-[7px] md:text-[13px] font-bold text-slate-800 uppercase tracking-tight font-poppins mb-1 md:mb-1.5">{item.label}</span>
+                            <span 
+                                className={`text-[7px] md:text-[13px] font-bold uppercase tracking-tight font-poppins mb-1 md:mb-1.5 transition-colors duration-300 ${noBoxes ? 'text-white' : 'text-slate-800'}`}
+                            >
+                                {item.label}
+                            </span>
                             <div
                                 style={noBoxes ? {} : { backgroundColor: bColor }}
                                 className={noBoxes 
