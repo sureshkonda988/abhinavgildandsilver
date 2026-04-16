@@ -29,10 +29,6 @@ const HomePage1 = () => {
             className="w-full inventory-section min-h-[50vh] relative overflow-hidden pt-0 md:pt-1"
         >
 
-            {/* Ambient Background Accents */}
-            <div className="absolute top-0 left-0 w-full h-full opacity-30 pointer-events-none"
-                style={{ background: 'radial-gradient(circle at 10% 20%, #fff, transparent 80%)' }} />
-
 
             {/* Table 1: Live Rates */}
             <section className="max-w-7xl mx-auto px-4 md:px-8 w-full mt-1 relative z-10 mb-2">
