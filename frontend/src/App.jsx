@@ -123,10 +123,10 @@ const AppLayout = () => {
       <main
       className={`min-h-screen Selection:bg-magenta-100 Selection:text-magenta-900 relative responsive-bg ${isHomePage ? 'home-bg' : ''}`}
       style={{
-        backgroundColor: isHomePage ? '#FFFFFF' : '#fafafb',
+        backgroundColor: (isHomePage && location.pathname !== '/home1') ? '#FFFFFF' : '#fafafb',
         ...(!isAdminPage ? {
           // Main background is now handled by the .bg-container div below for better control
-          backgroundColor: isHomePage ? 'transparent' : '#fafafb',
+          backgroundColor: (isHomePage && location.pathname !== '/home1') ? 'transparent' : '#fafafb',
         } : {})
       }}
     >
@@ -136,7 +136,7 @@ const AppLayout = () => {
           {/* Desktop/Common Backgrounds */}
           {isHomePage ? (
             <img 
-              src="/bg-home-desktop.webp" 
+              src={location.pathname === '/home1' ? "/bg-internal.webp" : "/bg-home-desktop.webp"} 
               alt="Home Desktop Background" 
               className="responsive-bg-img hidden md:block" 
             />
@@ -158,7 +158,7 @@ const AppLayout = () => {
           {/* Home Mobile Background */}
           {isHomePage && (
             <img 
-              src="/bg-home-mobile.webp" 
+              src={location.pathname === '/home1' ? "/bg-internal.webp" : "/bg-home-mobile.webp"} 
               alt="Home Mobile Background" 
               className="responsive-bg-img md:hidden"
             />
