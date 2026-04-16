@@ -62,13 +62,13 @@ const HomePage1 = () => {
                                 <div className="px-1 md:px-0 py-1 mb-1 md:mb-3">
                                     <div className="grid grid-cols-[0.8fr_1.5fr_60px] md:grid-cols-[1.2fr_1.5fr_100px] gap-2 md:gap-6 items-center w-full">
                                         <div className="flex justify-start pl-1 md:pl-3">
-                                            <span className="inline-flex items-center justify-center px-1.5 py-0.5 md:px-6 md:py-1.5 rounded-xl bg-transparent border-[1.5px] md:border-2 border-slate-900/20 text-slate-900 font-playfair font-black text-[9px] md:text-lg tracking-widest shadow-sm backdrop-blur-sm">PRODUCTS</span>
+                                            <span className="inline-flex items-center justify-center px-1.5 py-0.5 md:px-6 md:py-1.5 rounded-xl bg-transparent border-[1.5px] md:border-2 border-white/20 text-white font-playfair font-black text-[9px] md:text-lg tracking-widest shadow-sm backdrop-blur-sm">PRODUCTS</span>
                                         </div>
                                         <div className="flex justify-center w-full">
-                                            <span className="inline-flex items-center justify-center px-6 py-0.5 md:px-12 md:py-1.5 rounded-xl bg-transparent border-[1.5px] md:border-2 border-slate-900/20 text-slate-900 font-playfair font-black text-[9px] md:text-lg tracking-widest shadow-sm backdrop-blur-sm">LIVE</span>
+                                            <span className="inline-flex items-center justify-center px-6 py-0.5 md:px-12 md:py-1.5 rounded-xl bg-transparent border-[1.5px] md:border-2 border-white/20 text-white font-playfair font-black text-[9px] md:text-lg tracking-widest shadow-sm backdrop-blur-sm">LIVE</span>
                                         </div>
                                         <div className="flex justify-center w-full">
-                                            <span className="inline-flex items-center justify-center px-1 py-0.5 md:px-5 md:py-1.5 rounded-xl bg-transparent border-[1.5px] md:border-2 border-slate-900/20 text-slate-900 font-playfair font-black text-[8px] md:text-lg tracking-widest shadow-sm backdrop-blur-sm">STATUS</span>
+                                            <span className="inline-flex items-center justify-center px-1 py-0.5 md:px-5 md:py-1.5 rounded-xl bg-transparent border-[1.5px] md:border-2 border-white/20 text-white font-playfair font-black text-[8px] md:text-lg tracking-widest shadow-sm backdrop-blur-sm">STATUS</span>
                                         </div>
                                     </div>
                                 </div>
@@ -79,7 +79,7 @@ const HomePage1 = () => {
                                         const changeType = getRateChangeType(prevItem?.sell, item.sell);
                                         
                                         const isSilver = item.name.toLowerCase().includes('silver');
-                                        const defaultColor = isSilver ? '#CFE9E1' : '#facc15';
+                                        const defaultColor = isSilver ? '#FFFFFF' : '#facc15'; // Gold for stable gold, White for silver
                                         
                                         const bColor = getRateColor(changeType, defaultColor);
                                         const effectiveStock = adj.stockOverrides?.[item.id] !== undefined ? adj.stockOverrides[item.id] : item.stock;
@@ -96,12 +96,12 @@ const HomePage1 = () => {
                                                 <div className="grid grid-cols-[0.8fr_1.5fr_60px] md:grid-cols-[1.2fr_1.5fr_100px] gap-2 md:gap-6 items-center w-full relative">
                                                     {/* Product Section */}
                                                     <div className="flex flex-col justify-center min-w-0 pl-1 md:pl-3">
-                                                        <span className="text-[14px] md:text-[24px] font-black text-slate-900 font-poppins uppercase tracking-tight leading-[1.1] md:leading-tight group-hover:text-magenta-700 transition-colors duration-300">
+                                                        <span className="text-[14px] md:text-[24px] font-black text-white font-poppins uppercase tracking-tight leading-[1.1] md:leading-tight group-hover:text-magenta-700 transition-colors duration-300">
                                                             {item.name.split('(')[0].trim().split(' ').map((word, i) => (
                                                                 <span key={i} className="block md:inline">{word} </span>
                                                             ))}
                                                         </span>
-                                                        <span className="text-[9px] md:text-[14px] font-bold text-slate-500 font-poppins uppercase tracking-wider mt-0.5 md:mt-1">
+                                                        <span className="text-[9px] md:text-[14px] font-bold text-white/70 font-poppins uppercase tracking-wider mt-0.5 md:mt-1">
                                                             {item.name.match(/\((.*?)\)/)?.[1] || (item.name.toLowerCase().includes('gold') ? '10 Grams' : '30 KGS')}
                                                         </span>
                                                     </div>
@@ -216,7 +216,7 @@ const HomePage1 = () => {
                                 const sellChange = getRateChangeType(prevItem?.sell, item.sell);
                                 
                                 const isSilver = item.name.toLowerCase().includes('silver');
-                                const defaultColor = isSilver ? '#CFE9E1' : '#facc15';
+                                const defaultColor = isSilver ? '#FFFFFF' : '#facc15';
                                 
                                 const buyColor = getRateColor(buyChange, defaultColor);
                                 const sellColor = getRateColor(sellChange, defaultColor);
@@ -233,12 +233,12 @@ const HomePage1 = () => {
                                         <div className="grid grid-cols-[1fr_1.2fr_1.2fr_1.2fr] md:grid-cols-[1.1fr_1.2fr_1.2fr_1.2fr] gap-1 md:gap-6 items-stretch w-full">
                                             {/* Product Name */}
                                             <div className="flex flex-col justify-center min-w-0 pl-1 md:pl-3">
-                                                <span className="text-[13px] md:text-[20px] font-black text-slate-900 font-poppins uppercase tracking-tight leading-[1.1] md:leading-tight group-hover:text-magenta-700 transition-colors duration-300">
+                                                <span className="text-[13px] md:text-[20px] font-black text-white font-poppins uppercase tracking-tight leading-[1.1] md:leading-tight group-hover:text-magenta-700 transition-colors duration-300">
                                                     {item.name.split('(')[0].trim().split(' ').map((word, i) => (
                                                         <span key={i} className="block md:inline">{word} </span>
                                                     ))}
                                                 </span>
-                                                <span className="text-[8px] md:text-[12px] font-bold text-slate-500 font-poppins uppercase tracking-wider mt-0.5 md:mt-1">
+                                                <span className="text-[8px] md:text-[12px] font-bold text-white/70 font-poppins uppercase tracking-wider mt-0.5 md:mt-1">
                                                     {item.name.toLowerCase().includes('gold') ? <><span className="block md:inline">10</span> <span className="block md:inline">GRAMS</span></> : <><span className="block md:inline">1</span> <span className="block md:inline">KG</span></>}
                                                 </span>
                                             </div>

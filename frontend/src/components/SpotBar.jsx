@@ -28,12 +28,12 @@ const SpotBar = ({ noBoxes }) => {
                     const prevItem = previousRates?.spot?.find(r => r.id === item.id);
                     const changeType = getRateChangeType(prevItem?.ask, item.value.replace(/,/g, ''));
                     
-                    const defaultColor = item.label.includes('USD-INR') ? '#0f172a' : item.label.includes('GOLD') ? '#facc15' : '#64748b';
-                    // If noBoxes is true, use a darker default for USD-INR and SILVER for visibility on white background
-                    const effectiveDefault = noBoxes 
-                        ? (item.label.includes('USD-INR') ? '#0f172a' : item.label.includes('GOLD') ? '#b8860b' : '#334155') 
-                        : defaultColor;
+                    // Original bright colors for the boxes on main Home page
+                    const boxDefault = item.label.includes('USD-INR') ? '#f8fafc' : item.label.includes('GOLD') ? '#facc15' : '#E5E5E5';
+                    // User requested white text for Home Page 1 (noBoxes) despite light background
+                    const textDefault = item.label.includes('USD-INR') ? '#FFFFFF' : item.label.includes('GOLD') ? '#facc15' : '#FFFFFF';
 
+                    const effectiveDefault = noBoxes ? textDefault : boxDefault;
                     const bColor = getRateColor(changeType, effectiveDefault);
                     
                     return (
