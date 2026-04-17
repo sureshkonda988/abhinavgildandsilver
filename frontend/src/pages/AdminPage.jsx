@@ -6,7 +6,7 @@ import { computeNavarsu8gBase } from '../utils/ratesPageCalculations';
 // ReactPlayer removed as audio preview is gone
 import { Lock, LogOut, TrendingUp, Video, MessageSquare, Play, Pause, Trash2, Save, RefreshCw, CheckCircle2, AlertCircle, Upload, Youtube, HardDrive, Clock, Music } from 'lucide-react';
 
-const BACKEND_ORIGIN = 'https://wrinkle-depict-regally.ngrok-free.dev';
+const BACKEND_ORIGIN = 'https://api.abhinavgoldandsilver.com';
 const API_BASE = `${BACKEND_ORIGIN}/api`;
 
 const AudioPreview = ({ url }) => {

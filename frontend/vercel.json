@@ -2,11 +2,11 @@
   "rewrites": [
     {
       "source": "/api/:path*",
-      "destination": "https://wrinkle-depict-regally.ngrok-free.dev/api/:path*"
+      "destination": "https://api.abhinavgoldandsilver.com/api/:path*"
     },
     {
       "source": "/music/:path*",
-      "destination": "https://wrinkle-depict-regally.ngrok-free.dev/music/:path*"
+      "destination": "https://api.abhinavgoldandsilver.com/music/:path*"
     },
     {
       "source": "/(.*)",

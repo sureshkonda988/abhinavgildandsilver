@@ -7,7 +7,7 @@ import {
 } from '../utils/ratesPageCalculations';
 
 const RateContext = createContext();
-const BACKEND_ORIGIN = 'https://wrinkle-depict-regally.ngrok-free.dev';
+const BACKEND_ORIGIN = 'https://api.abhinavgoldandsilver.com';
 const LIVE_RATES_API_URL = `${BACKEND_ORIGIN}/api/rates/live`;
 const SETTINGS_API_URL = `${BACKEND_ORIGIN}/api/rates/settings`;
 const MUSIC_API_URL = `${BACKEND_ORIGIN}/api/music`;
