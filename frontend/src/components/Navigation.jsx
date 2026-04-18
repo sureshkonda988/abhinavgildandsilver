@@ -4,7 +4,7 @@ import { motion } from 'framer-motion';
 import { Link, useLocation } from 'react-router-dom';
 import { useRates } from '../context/RateContext';
 
-const Navigation = () => {
+const Navigation = ({ onFlagClick }) => {
     const { rates, isMusicEnabled, toggleMusic } = useRates();
     const location = useLocation();
     const isRatesPage = location.pathname === '/rates';
@@ -39,7 +39,12 @@ const Navigation = () => {
                             <div className="flex flex-col">
                                 <div className="flex items-center gap-2">
                                     <span className="text-[#f4cb4c] font-playfair font-black text-lg tracking-tight leading-none uppercase">ABHINAV</span>
-                                    <img src="/flag.webp" alt="India Flag" className="h-4 md:h-[18px] w-auto object-contain rounded-[2px]" />
+                                    <img 
+                                        src="/flag.webp" 
+                                        alt="India Flag" 
+                                        className="h-4 md:h-[18px] w-auto object-contain rounded-[2px] cursor-pointer hover:scale-125 transition-transform duration-300 active:scale-95" 
+                                        onClick={onFlagClick}
+                                    />
                                 </div>
                                 <span className="text-[#f4cb4c] font-poppins font-bold text-[8px] tracking-[0.1em] leading-tight">GOLD & SILVER</span>
                             </div>
@@ -99,8 +104,24 @@ const Navigation = () => {
                         </div>
                     </nav>
 
-                    {/* Mobile View - Buttons removed per user request */}
-                    <div className="lg:hidden pointer-events-none px-4 py-1" />
+                    {/* Mobile View - Logo and Flag visible, buttons hidden */}
+                    <div className="lg:hidden flex items-center justify-between px-4 py-2 bg-[#0b0e14]/80 backdrop-blur-md border-b border-white/5">
+                        <div className="flex items-center gap-2">
+                            <img src="/logo.webp" alt="Abhinav Logo" className="w-8 h-8 object-contain" />
+                            <div className="flex flex-col">
+                                <div className="flex items-center gap-1.5">
+                                    <span className="text-[#f4cb4c] font-playfair font-black text-sm tracking-tight leading-none uppercase">ABHINAV</span>
+                                    <img 
+                                        src="/flag.webp" 
+                                        alt="India Flag" 
+                                        className="h-3 w-auto object-contain rounded-[1px] cursor-pointer" 
+                                        onClick={onFlagClick}
+                                    />
+                                </div>
+                                <span className="text-[#f4cb4c] font-poppins font-bold text-[6px] tracking-[0.1em] leading-tight">GOLD & SILVER</span>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
 
