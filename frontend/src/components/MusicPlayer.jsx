@@ -3,7 +3,7 @@ import { useLocation } from 'react-router-dom';
 import ReactPlayer from 'react-player';
 import { useRates } from '../context/RateContext';
 
-const BACKEND_ORIGIN = 'https://api.abhinavgoldandsilver.com/';
+const BACKEND_ORIGIN = 'https://api.abhinavgoldandsilver.com';
 
 const MusicPlayer = ({ isEnabled }) => {
     const location = useLocation();
@@ -72,47 +72,16 @@ const MusicPlayer = ({ isEnabled }) => {
     }, [isEnabled, unlocked, isAllowedPage]);
 
 
-    // Fetch audio as a blob to bypass ngrok browser warning
-    const [blobUrl, setBlobUrl] = useState(null);
-
-    useEffect(() => {
-        if (!isYouTube && currentUrl) {
-            let active = true;
-            fetch(currentUrl, {
-                headers: {
-                    'ngrok-skip-browser-warning': 'true'
-                }
-            })
-            .then(res => {
-                if (!res.ok) throw new Error("Network error fetching audio");
-                return res.blob();
-            })
-            .then(blob => {
-                if (active) {
-                    const url = URL.createObjectURL(blob);
-                    setBlobUrl(url);
-                }
-            })
-            .catch(e => console.error("Error fetching audio blob:", e));
-
-            return () => {
-                active = false;
-            };
-        } else {
-            setBlobUrl(null);
-        }
-    }, [currentUrl, isYouTube]);
-
     // Handle native audio playback separately from ReactPlayer
     useEffect(() => {
         if (!isYouTube && audioRef.current) {
-            if (playing && blobUrl) {
+            if (playing && currentUrl) {
                 audioRef.current.play().catch(e => console.log('Native Audio Play Warning:', e.message));
             } else {
                 audioRef.current.pause();
             }
         }
-    }, [playing, blobUrl, isYouTube]);
+    }, [playing, currentUrl, isYouTube]);
 
     if (!currentUrl) return null;
 
@@ -144,7 +113,7 @@ const MusicPlayer = ({ isEnabled }) => {
             ) : (
                 <audio
                     ref={audioRef}
-                    src={blobUrl || currentUrl}
+                    src={currentUrl}
                     loop={true}
                     onPlay={() => console.log('MusicPlayer: Native Audio Started')}
                     onError={(e) => console.log('MusicPlayer Native Error', e)}

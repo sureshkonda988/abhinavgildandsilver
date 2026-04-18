@@ -140,6 +140,9 @@ export const RateProvider = ({ children }) => {
                     if (data.showModified !== undefined) setShowModified(data.showModified);
                     if (data.ticker) setTicker(data.ticker);
                     setSettingsLoaded(true);
+                    // Also sync music and videos whenever settings are synced
+                    syncMusicWithMongoDB();
+                    syncVideosWithMongoDB();
                 }
             }
         } catch (error) {

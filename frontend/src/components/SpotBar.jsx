@@ -32,7 +32,7 @@ const SpotBar = ({ noBoxes }) => {
                     // Original bright colors for the boxes on main Home page
                     const boxDefault = item.label.includes('USD-INR') ? '#f8fafc' : item.label.includes('GOLD') ? '#facc15' : '#E5E5E5';
                     // User requested white text for Home Page 1 (noBoxes) despite light background
-                    const textDefault = item.label.includes('USD-INR') ? '#FFFFFF' : item.label.includes('GOLD') ? '#facc15' : '#FFFFFF';
+                    const textDefault = item.label.includes('USD-INR') ? '#000000' : item.label.includes('GOLD') ? '#facc15' : '#000000';
 
                     const effectiveDefault = noBoxes ? textDefault : boxDefault;
                     const bColor = getRateColor(changeType, effectiveDefault);
@@ -40,7 +40,7 @@ const SpotBar = ({ noBoxes }) => {
                     return (
                         <div key={idx} className="flex flex-col items-center">
                             <span 
-                                className={`text-[7px] md:text-[13px] font-bold uppercase tracking-tight font-poppins mb-1 md:mb-1.5 transition-colors duration-300 ${noBoxes ? 'text-white' : 'text-slate-800'}`}
+                                className={`text-[7px] md:text-[13px] font-bold uppercase tracking-tight font-poppins mb-1 md:mb-1.5 transition-colors duration-300 text-slate-900`}
                             >
                                 {item.label}
                             </span>

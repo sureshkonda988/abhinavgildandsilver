@@ -102,7 +102,7 @@ const Hero = () => {
                                                                 <span key={i} className="block md:inline">{word} </span>
                                                             ))}
                                                         </span>
-                                                        <span className="text-[9px] md:text-[14px] font-bold text-slate-500 font-poppins uppercase tracking-wider mt-0.5 md:mt-1">
+                                                        <span className="text-[9px] md:text-[14px] font-bold text-slate-800 font-poppins uppercase tracking-wider mt-0.5 md:mt-1">
                                                             {item.name.match(/\((.*?)\)/)?.[1] || (item.name.toLowerCase().includes('gold') ? '10 Grams' : '30 KGS')}
                                                         </span>
                                                     </div>
@@ -167,7 +167,7 @@ const Hero = () => {
                                 <div className={`w-2.5 h-2.5 md:w-3.5 md:h-3.5 rounded-full ${market.isOpen ? 'bg-white animate-pulse' : 'bg-white'}`} />
                                 <span className="font-poppins font-black text-sm md:text-2xl uppercase tracking-[0.2em]">{market.message}</span>
                             </div>
-                            <span className="font-poppins font-black text-[9px] md:text-sm uppercase tracking-[0.3em] mt-1">{market.timings} (IST)</span>
+                            <span className="font-poppins font-black text-[9px] md:text-sm uppercase tracking-[0.3em] mt-1 text-black">{market.timings} (IST)</span>
                         </motion.div>
                     );
                 })()}
@@ -237,7 +237,7 @@ const Hero = () => {
                                                             <span key={i} className="block md:inline">{word} </span>
                                                         ))}
                                                     </span>
-                                                    <span className="text-[8px] md:text-[12px] font-bold text-slate-500 font-poppins uppercase tracking-wider mt-0.5 md:mt-1">
+                                                    <span className="text-[8px] md:text-[12px] font-bold text-slate-800 font-poppins uppercase tracking-wider mt-0.5 md:mt-1">
                                                         {item.name.toLowerCase().includes('gold') ? <><span className="block md:inline">10</span> <span className="block md:inline">GRAMS</span></> : <><span className="block md:inline">1</span> <span className="block md:inline">KG</span></>}
                                                     </span>
                                                 </div>

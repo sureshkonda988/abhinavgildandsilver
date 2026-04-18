@@ -22,19 +22,19 @@ const Ticker = () => {
             {/* The Text Layer - Moves Right to Left */}
             <div className="flex animate-ticker-rtl whitespace-nowrap w-max h-auto items-center">
                 <div className="flex items-center gap-12 px-6 shrink-0">
-                    <span className="text-white font-poppins font-normal text-[13px] md:text-xl uppercase tracking-[0.2em] inline-flex items-center gap-4 drop-shadow-luxury">
+                    <span className="text-black font-poppins font-normal text-[13px] md:text-xl uppercase tracking-[0.2em] inline-flex items-center gap-4 drop-shadow-luxury">
                         <span className="text-gold-400 text-lg">✦</span> {msg}
                     </span>
-                    <span className="text-white font-poppins font-normal text-[13px] md:text-xl uppercase tracking-[0.2em] inline-flex items-center gap-4 drop-shadow-luxury">
+                    <span className="text-black font-poppins font-normal text-[13px] md:text-xl uppercase tracking-[0.2em] inline-flex items-center gap-4 drop-shadow-luxury">
                         <span className="text-gold-400 text-lg">✦</span> {msg}
                     </span>
                 </div>
                 {/* Duplicate for seamless looping */}
                 <div className="flex items-center gap-12 px-6 shrink-0">
-                    <span className="text-white font-poppins font-normal text-[13px] md:text-xl uppercase tracking-[0.2em] inline-flex items-center gap-4 drop-shadow-luxury">
+                    <span className="text-black font-poppins font-normal text-[13px] md:text-xl uppercase tracking-[0.2em] inline-flex items-center gap-4 drop-shadow-luxury">
                         <span className="text-gold-400 text-lg">✦</span> {msg}
                     </span>
-                    <span className="text-white font-poppins font-normal text-[13px] md:text-xl uppercase tracking-[0.2em] inline-flex items-center gap-4 drop-shadow-luxury">
+                    <span className="text-black font-poppins font-normal text-[13px] md:text-xl uppercase tracking-[0.2em] inline-flex items-center gap-4 drop-shadow-luxury">
                         <span className="text-gold-400 text-lg">✦</span> {msg}
                     </span>
                 </div>
