@@ -7,11 +7,11 @@ import {
 } from '../utils/ratesPageCalculations';
 
 const RateContext = createContext();
-const BACKEND_ORIGIN = 'https://api.abhinavgoldandsilver.com';
-const LIVE_RATES_API_URL = `${BACKEND_ORIGIN}/api/rates/live`;
-const SETTINGS_API_URL = `${BACKEND_ORIGIN}/api/rates/settings`;
-const MUSIC_API_URL = `${BACKEND_ORIGIN}/api/music`;
-const API_BASE = '/api';
+const BACKEND_ORIGIN = 'https://api.abhinavgoldandsilver.com/api/';
+const LIVE_RATES_API_URL = `${BACKEND_ORIGIN}rates/live`;
+const SETTINGS_API_URL = `${BACKEND_ORIGIN}rates/settings`;
+const MUSIC_API_URL = `${BACKEND_ORIGIN}music`;
+const API_BASE = BACKEND_ORIGIN;
 
 
 const INITIAL_SPOT_CONFIG = [
@@ -47,7 +47,7 @@ export const RateProvider = ({ children }) => {
     // Proxy rotation state
     const currentProxyIndex = React.useRef(0);
 
-    const API_BASE = `${BACKEND_ORIGIN}/api`;
+    const API_BASE = BACKEND_ORIGIN;
 
     // Robust initial state for adj
     const getInitialAdj = () => ({
@@ -456,7 +456,8 @@ export const RateProvider = ({ children }) => {
                                     let trend = oldItem.trend || 'stable';
                                     let trendExpiry = oldItem.trendExpiry || 0;
                                     if (change !== 0) {
-                                        trend = change === 1 ? 'up' : 'down';
+                                        // Aligning trend names with getRateColor (increase/decrease)
+                                        trend = change === 1 ? 'increase' : 'decrease';
                                         trendExpiry = now + 5000;
                                     } else if (now > trendExpiry) {
                                         trend = 'stable';

@@ -3,7 +3,7 @@ import { useLocation } from 'react-router-dom';
 import ReactPlayer from 'react-player';
 import { useRates } from '../context/RateContext';
 
-const BACKEND_ORIGIN = 'https://api.abhinavgoldandsilver.com';
+const BACKEND_ORIGIN = 'https://api.abhinavgoldandsilver.com/';
 
 const MusicPlayer = ({ isEnabled }) => {
     const location = useLocation();
