@@ -8,7 +8,7 @@ const Navigation = ({ onFlagClick }) => {
     const { rates, isMusicEnabled, toggleMusic } = useRates();
     const location = useLocation();
     const isRatesPage = location.pathname === '/rates';
-    const isHomePage = location.pathname === '/' || location.pathname === '/home1';
+    const isHomePage = location.pathname === '/' || location.pathname === '/home1' || location.pathname === '' || location.pathname.endsWith('/');
     const showMusicBtn = isRatesPage || isHomePage;
 
 
@@ -25,7 +25,7 @@ const Navigation = ({ onFlagClick }) => {
     return (
         <>
             {/* Main Header Container */}
-            <div className="absolute lg:relative top-0 w-full z-50 p-0">
+            <div className="absolute lg:relative top-0 w-full z-50 p-0 top-nav-wrapper">
                 <div className="max-w-full mx-auto px-0 py-0">
                     {/* Desktop View (≥1024px) */}
                     <nav className="hidden lg:flex items-center justify-between bg-[#0b0e14] border-b border-white/5 px-6 py-0 shadow-2xl">
@@ -105,7 +105,7 @@ const Navigation = ({ onFlagClick }) => {
                     </nav>
 
                     {/* Mobile View - Logo and Flag visible, buttons hidden */}
-                    <div className="lg:hidden flex items-center justify-between px-4 py-2 bg-[#0b0e14]/80 backdrop-blur-md border-b border-white/5">
+                    <div className={`lg:hidden ${isHomePage ? 'hidden' : 'flex'} items-center justify-between px-4 py-2 bg-[#0b0e14]/80 backdrop-blur-md border-b border-white/5`}>
                         <div className="flex items-center gap-2">
                             <img src="/logo.webp" alt="Abhinav Logo" className="w-8 h-8 object-contain" />
                             <div className="flex flex-col">
