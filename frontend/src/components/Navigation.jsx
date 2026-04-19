@@ -42,8 +42,7 @@ const Navigation = ({ onFlagClick }) => {
                                     <img 
                                         src="/flag.webp" 
                                         alt="India Flag" 
-                                        className="h-4 md:h-[18px] w-auto object-contain rounded-[2px] cursor-pointer hover:scale-125 transition-transform duration-300 active:scale-95" 
-                                        onClick={onFlagClick}
+                                        className="h-4 md:h-[18px] w-auto object-contain rounded-[2px]" 
                                     />
                                 </div>
                                 <span className="text-[#f4cb4c] font-poppins font-bold text-[8px] tracking-[0.1em] leading-tight">GOLD & SILVER</span>
@@ -114,8 +113,7 @@ const Navigation = ({ onFlagClick }) => {
                                     <img 
                                         src="/flag.webp" 
                                         alt="India Flag" 
-                                        className="h-3 w-auto object-contain rounded-[1px] cursor-pointer" 
-                                        onClick={onFlagClick}
+                                        className="h-3 w-auto object-contain rounded-[1px]" 
                                     />
                                 </div>
                                 <span className="text-[#f4cb4c] font-poppins font-bold text-[6px] tracking-[0.1em] leading-tight">GOLD & SILVER</span>

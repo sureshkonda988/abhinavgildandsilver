@@ -18,7 +18,6 @@ import TermsOfService from './pages/TermsOfService';
 import HomePage1 from './pages/HomePage1';
 import { Loader2 } from 'lucide-react';
 import MusicPlayer from './components/MusicPlayer';
-import FlagOverlay from './components/FlagOverlay';
 
 // Scroll to top instantly on every page navigation — fires BEFORE browser paint
 const ScrollToTop = () => {
@@ -93,7 +92,6 @@ const AppLayout = () => {
 
   const imagesReady = useImagePreloader(criticalImages);
   const [isLoading, setIsLoading] = React.useState(true);
-  const [isFlagVisible, setIsFlagVisible] = React.useState(false);
 
   React.useEffect(() => {
     if (imagesReady) {
@@ -173,7 +171,7 @@ const AppLayout = () => {
       {!isAdminPage && (
         <>
           <div className="flex flex-col sticky top-0 w-full z-50 bg-transparent">
-            <Navigation onFlagClick={() => setIsFlagVisible(true)} />
+            <Navigation />
             {isHomePage && (
               <div className="relative w-full">
                 <section className="relative w-full bg-transparent overflow-hidden">
@@ -281,7 +279,6 @@ const AppLayout = () => {
       </main>
 
       {!isAdminPage && <BottomNav />}
-      <FlagOverlay isVisible={isFlagVisible} onClose={() => setIsFlagVisible(false)} />
     </>
 
   );
