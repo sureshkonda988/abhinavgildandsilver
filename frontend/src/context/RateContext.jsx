@@ -7,10 +7,10 @@ import {
 } from '../utils/ratesPageCalculations';
 
 const RateContext = createContext();
-const BACKEND_ORIGIN = 'https://api.abhinavgoldandsilver.com/api/';
-const LIVE_RATES_API_URL = `${BACKEND_ORIGIN}rates/live`;
-const SETTINGS_API_URL = `${BACKEND_ORIGIN}rates/settings`;
-const MUSIC_API_URL = `${BACKEND_ORIGIN}music`;
+const BACKEND_ORIGIN = 'https://api.abhinavgoldandsilver.com/api';
+const LIVE_RATES_API_URL = `${BACKEND_ORIGIN}/rates/live`;
+const SETTINGS_API_URL = `${BACKEND_ORIGIN}/rates/settings`;
+const MUSIC_API_URL = `${BACKEND_ORIGIN}/music`;
 const API_BASE = BACKEND_ORIGIN;
 
 
