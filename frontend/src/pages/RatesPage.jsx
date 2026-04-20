@@ -23,11 +23,11 @@ const RatesPage = () => {
     const silverChange = getRateChangeType(prevSilver?.sell, currSilver?.sell);
 
     const getKaratStyle = () => {
-        return { color: getRateColor(goldChange, '#FFD700'), fontWeight: 'bold' };
+        return { color: getRateColor(goldChange, '#facc15'), fontWeight: 'bold' };
     };
     
     const getSilverStyle = () => {
-        return { color: getRateColor(silverChange, '#FFD700'), fontWeight: 'bold' };
+        return { color: getRateColor(silverChange, '#CFE9E1'), fontWeight: 'bold' };
     };
     return (
         <motion.div

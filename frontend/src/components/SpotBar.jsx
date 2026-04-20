@@ -30,9 +30,9 @@ const SpotBar = ({ noBoxes }) => {
                     const changeType = getRateChangeType(fmt(prevItem?.ask), item.value);
                     
                     // Original bright colors for the boxes on main Home page
-                    const boxDefault = item.label.includes('USD-INR') ? '#f8fafc' : item.label.includes('GOLD') ? '#facc15' : '#E5E5E5';
+                    const boxDefault = item.label.includes('USD-INR') ? '#ffffff' : item.label.includes('GOLD') ? '#facc15' : '#CFE9E1';
                     // User requested white text for Home Page 1 (noBoxes) despite light background
-                    const textDefault = item.label.includes('USD-INR') ? '#000000' : item.label.includes('GOLD') ? '#facc15' : '#000000';
+                    const textDefault = item.label.includes('USD-INR') ? '#ffffff' : item.label.includes('GOLD') ? '#facc15' : '#CFE9E1';
 
                     const effectiveDefault = noBoxes ? textDefault : boxDefault;
                     const bColor = getRateColor(changeType, effectiveDefault);

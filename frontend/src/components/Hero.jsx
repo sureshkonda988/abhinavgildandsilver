@@ -210,9 +210,10 @@ const Hero = () => {
                                 return rtgsItems.map((item, idx) => {
                                     const lookupId = item.id;
                                     const prevItem = previousRates?.rtgs?.find(r => r.id === lookupId);
+                                    const currRawItem = currentRates?.rtgs?.find(r => r.id === lookupId);
                                     
-                                    const buyChange = getRateChangeType(prevItem?.buy, item.buy);
-                                    const sellChange = getRateChangeType(prevItem?.sell, item.sell);
+                                    const buyChange = getRateChangeType(prevItem?.buy, currRawItem?.buy);
+                                    const sellChange = getRateChangeType(prevItem?.sell, currRawItem?.sell);
                                     
                                     const isSilver = item.name.toLowerCase().includes('silver');
                                     const defaultColor = isSilver ? '#CFE9E1' : '#facc15';

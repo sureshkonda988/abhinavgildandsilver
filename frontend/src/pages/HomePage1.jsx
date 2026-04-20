@@ -75,7 +75,7 @@ const HomePage1 = () => {
                                         const changeType = getRateChangeType(prevItem?.sell, item.sell);
                                         
                                         const isSilver = item.name.toLowerCase().includes('silver');
-                                        const defaultColor = isSilver ? '#FFFFFF' : '#facc15'; // Gold for stable gold, White for silver
+                                        const defaultColor = isSilver ? '#CFE9E1' : '#facc15'; // Gold for stable gold, Silver color for silver
                                         
                                         const bColor = getRateColor(changeType, defaultColor);
                                         const effectiveStock = adj.stockOverrides?.[item.id] !== undefined ? adj.stockOverrides[item.id] : item.stock;
@@ -207,12 +207,13 @@ const HomePage1 = () => {
                             return rtgsItems.map((item, idx) => {
                                 const lookupId = item.id;
                                 const prevItem = previousRates?.rtgs?.find(r => r.id === lookupId);
+                                const currRawItem = currentRates?.rtgs?.find(r => r.id === lookupId);
                                 
-                                const buyChange = getRateChangeType(prevItem?.buy, item.buy);
-                                const sellChange = getRateChangeType(prevItem?.sell, item.sell);
+                                const buyChange = getRateChangeType(prevItem?.buy, currRawItem?.buy);
+                                const sellChange = getRateChangeType(prevItem?.sell, currRawItem?.sell);
                                 
                                 const isSilver = item.name.toLowerCase().includes('silver');
-                                const defaultColor = isSilver ? '#FFFFFF' : '#facc15';
+                                const defaultColor = isSilver ? '#CFE9E1' : '#facc15';
                                 
                                 const buyColor = getRateColor(buyChange, defaultColor);
                                 const sellColor = getRateColor(sellChange, defaultColor);
