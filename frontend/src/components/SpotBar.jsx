@@ -14,9 +14,9 @@ const SpotBar = ({ noBoxes }) => {
     const inr = rates.spot?.[2] || { bid: '-', ask: '-', name: 'USD/INR' };
 
     const items = [
-        { label: 'USD-INR (₹)', value: fmt(inr.ask), h: fmt(inr.high), l: fmt(inr.low), symbol: '₹', id: inr.id },
-        { label: 'GOLD ($)', value: fmt(gold.ask), h: fmt(gold.high), l: fmt(gold.low), symbol: '$', id: gold.id },
-        { label: 'SILVER ($)', value: fmt(silver.ask), h: fmt(silver.high), l: fmt(silver.low), symbol: '$', id: silver.id }
+        { label: 'USD-INR (₹)', value: fmt(inr.ask), h: fmt(inr.high), l: fmt(inr.low), symbol: '₹', id: inr.id, trend: inr.trend },
+        { label: 'GOLD ($)', value: fmt(gold.ask), h: fmt(gold.high), l: fmt(gold.low), symbol: '$', id: gold.id, trend: gold.trend },
+        { label: 'SILVER ($)', value: fmt(silver.ask), h: fmt(silver.high), l: fmt(silver.low), symbol: '$', id: silver.id, trend: silver.trend }
     ];
 
     if (!rates) return null;
@@ -25,9 +25,7 @@ const SpotBar = ({ noBoxes }) => {
         <div className="flex flex-wrap md:flex-nowrap items-center justify-center gap-1 md:gap-1 px-1 md:px-4 py-0.5 md:py-1">
             <div className="flex items-center justify-center gap-1.5 md:gap-3">
                 {items.map((item, idx) => {
-                    const prevItem = previousRates?.spot?.find(r => r.id === item.id);
-                    // Compare using the same formatting precision as display to avoid precision-based flickering
-                    const changeType = getRateChangeType(fmt(prevItem?.ask), item.value);
+                    const changeType = item.trend || 'stable';
                     
                     // Original bright colors for the boxes on main Home page
                     const boxDefault = item.label.includes('USD-INR') ? '#ffffff' : item.label.includes('GOLD') ? '#facc15' : '#CFE9E1';

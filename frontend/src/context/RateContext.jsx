@@ -442,6 +442,12 @@ export const RateProvider = ({ children }) => {
                         
                         // Handle trend calculations
                         setRawRates(prev => {
+                            const parseNum = (v) => {
+                                if (typeof v === 'number') return v;
+                                if (typeof v !== 'string' || v === '-') return NaN;
+                                return parseFloat(v.replace(/,/g, ''));
+                            };
+
                             const calculateTrend = (section, newList, oldList) => {
                                 const now = Date.now();
                                 return newList.map(newItem => {
@@ -451,21 +457,25 @@ export const RateProvider = ({ children }) => {
                                     let change = 0;
                                     const keys = newItem.buy !== undefined ? ['buy', 'sell'] : ['bid', 'ask'];
                                     keys.forEach(key => {
-                                        const nv = parseFloat(newItem[key]);
-                                        const ov = parseFloat(oldItem[key]);
-                                        if (change === 0 && !isNaN(nv) && !isNaN(ov) && nv !== ov) change = nv > ov ? 1 : -1;
+                                        const nv = parseNum(newItem[key]);
+                                        const ov = parseNum(oldItem[key]);
+                                        if (change === 0 && !isNaN(nv) && !isNaN(ov) && Math.abs(nv - ov) > 0.0001) {
+                                            change = nv > ov ? 1 : -1;
+                                        }
                                     });
 
-                                    let trend = oldItem.trend || 'stable';
-                                    let trendExpiry = oldItem.trendExpiry || 0;
+                                    let trend = 'stable';
+                                    let trendExpiry = 0;
+
                                     if (change !== 0) {
-                                        // Aligning trend names with getRateColor (increase/decrease)
                                         trend = change === 1 ? 'increase' : 'decrease';
                                         trendExpiry = now + 5000;
-                                    } else if (now > trendExpiry) {
+                                    } else {
+                                        // If no change, immediately return to stable as requested
                                         trend = 'stable';
                                         trendExpiry = 0;
                                     }
+                                    
                                     return { ...newItem, trend, trendExpiry };
                                 });
                             };
@@ -514,15 +524,24 @@ export const RateProvider = ({ children }) => {
     }, []);
 
     const getRateChangeType = (prev, curr) => {
-        const p = parseFloat(prev);
-        const c = parseFloat(curr);
-        if (isNaN(p) || isNaN(c)) return "same";
+        const parseNum = (v) => {
+            if (typeof v === 'number') return v;
+            if (typeof v !== 'string' || v === '-') return NaN;
+            return parseFloat(v.replace(/,/g, ''));
+        };
+        const p = parseNum(prev);
+        const c = parseNum(curr);
+        if (isNaN(p) || isNaN(c)) return "stable";
+        if (Math.abs(c - p) < 0.0001) return "stable";
         if (c > p) return "increase";
         if (c < p) return "decrease";
-        return "same";
+        return "stable";
     };
 
     const getRateColor = (changeType, defaultColor = '#0f172a') => {
+        if (!changeType || changeType === 'stable' || changeType === 'same') {
+            return defaultColor;
+        }
         switch (changeType) {
             case "increase":
                 return "#4ade80"; // Tailwind green-400

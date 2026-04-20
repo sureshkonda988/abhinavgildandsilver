@@ -77,7 +77,7 @@ const Hero = () => {
                                 <div className="flex flex-col gap-2">
                                     {rawRates.rtgs.filter(item => !(item.name.toLowerCase().includes('silver') && (item.name.toLowerCase().includes('10 kg') || item.name.toLowerCase().includes('5 kg')))).map((item, idx) => {
                                         const prevItem = previousRates?.rtgs?.find(r => r.id === item.id);
-                                        const changeType = getRateChangeType(prevItem?.sell, item.sell);
+                                        const changeType = item.trend || 'stable';
                                         
                                         const isSilver = item.name.toLowerCase().includes('silver');
                                         const defaultColor = isSilver ? '#CFE9E1' : '#facc15';
@@ -212,8 +212,8 @@ const Hero = () => {
                                     const prevItem = previousRates?.rtgs?.find(r => r.id === lookupId);
                                     const currRawItem = currentRates?.rtgs?.find(r => r.id === lookupId);
                                     
-                                    const buyChange = getRateChangeType(prevItem?.buy, currRawItem?.buy);
-                                    const sellChange = getRateChangeType(prevItem?.sell, currRawItem?.sell);
+                                    const buyChange = item.trend || 'stable';
+                                    const sellChange = item.trend || 'stable';
                                     
                                     const isSilver = item.name.toLowerCase().includes('silver');
                                     const defaultColor = isSilver ? '#CFE9E1' : '#facc15';

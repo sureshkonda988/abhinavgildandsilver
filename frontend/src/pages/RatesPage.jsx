@@ -14,13 +14,11 @@ const RatesPage = () => {
     const gold999Id = '945';
     const silver999Id = '2987';
     
-    const prevGold = previousRates?.rtgs?.find(r => r.id === gold999Id);
-    const currGold = currentRates?.rtgs?.find(r => r.id === gold999Id);
-    const goldChange = getRateChangeType(prevGold?.sell, currGold?.sell);
+    const goldItem = rawRates.rtgs?.find(r => r.id === gold999Id);
+    const goldChange = goldItem?.trend || 'stable';
     
-    const prevSilver = previousRates?.rtgs?.find(r => r.id === silver999Id);
-    const currSilver = currentRates?.rtgs?.find(r => r.id === silver999Id);
-    const silverChange = getRateChangeType(prevSilver?.sell, currSilver?.sell);
+    const silverItem = rawRates.rtgs?.find(r => r.id === silver999Id);
+    const silverChange = silverItem?.trend || 'stable';
 
     const getKaratStyle = () => {
         return { color: getRateColor(goldChange, '#facc15'), fontWeight: 'bold' };
