@@ -2,12 +2,20 @@ import React, { useState, useEffect, useRef } from 'react';
 import { useRates } from '../context/RateContext';
 
 const SpotCard = ({ item, isUSDINR, noBoxes, getRateColor, idx }) => {
-    // Local state for the trend to handle persistence
-    const [displayTrend, setDisplayTrend] = useState('stable');
+    // Local state for the trend, initialized with context trend
+    const [displayTrend, setDisplayTrend] = useState(item.trend || 'stable');
     const prevValueRef = useRef(item.value);
     const timerRef = useRef(null);
 
-    // Effect to handle color persistence timer
+    // Sync with context trend when no session timer is active
+    // This handles initial load and returns control to context after timer expires
+    useEffect(() => {
+        if (!timerRef.current) {
+            setDisplayTrend(item.trend || 'stable');
+        }
+    }, [item.trend]);
+
+    // Effect to handle color persistence timer for LIVE price changes in the current session
     useEffect(() => {
         const newValue = item.value;
         const oldValue = prevValueRef.current;
@@ -26,27 +34,17 @@ const SpotCard = ({ item, isUSDINR, noBoxes, getRateColor, idx }) => {
                     // Clear any existing timer
                     if (timerRef.current) clearTimeout(timerRef.current);
 
-                    // Only for USD/INR, we implement the 2-second persistence
-                    if (isUSDINR) {
-                        timerRef.current = setTimeout(() => {
-                            setDisplayTrend('stable');
-                        }, 2000);
-                    } else {
-                        // For others, we can still use a shorter delay or context trend if preferred
-                        // But following the user's "specifically USD/INR" request, we allow them to behave normally
-                        // Here we just set a short reset or let it be 'stable' on next tick
-                        // Actually, let's keep the context trend for non-USD-INR to avoid breaking working logic
-                    }
+                    // Set 2-second persistence for ALL live session changes
+                    timerRef.current = setTimeout(() => {
+                        timerRef.current = null;
+                        // Return to whatever the current context trend is
+                        setDisplayTrend(item.trend || 'stable');
+                    }, 2000);
                 }
             }
             prevValueRef.current = newValue;
-        } else if (newValue === oldValue) {
-            // If price is unchanged, and it's NOT USD/INR, we can respect the context trend
-            if (!isUSDINR) {
-                setDisplayTrend(item.trend || 'stable');
-            }
         }
-    }, [item.value, isUSDINR, item.trend]);
+    }, [item.value, item.trend]);
 
     // Cleanup timer on unmount
     useEffect(() => {
