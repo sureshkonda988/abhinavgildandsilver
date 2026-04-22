@@ -450,30 +450,64 @@ export const RateProvider = ({ children }) => {
 
                             const calculateTrend = (section, newList, oldList) => {
                                 const now = Date.now();
+                                
                                 return newList.map(newItem => {
                                     const oldItem = oldList.find(o => o.id === newItem.id);
-                                    if (!oldItem) return { ...newItem, trend: 'stable', trendExpiry: 0 };
+                                    const isUSDINR = newItem.id === '3103';
                                     
-                                    let change = 0;
-                                    const keys = newItem.buy !== undefined ? ['buy', 'sell'] : ['bid', 'ask'];
-                                    keys.forEach(key => {
-                                        const nv = parseNum(newItem[key]);
-                                        const ov = parseNum(oldItem[key]);
-                                        if (change === 0 && !isNaN(nv) && !isNaN(ov) && Math.abs(nv - ov) > 0.0001) {
-                                            change = nv > ov ? 1 : -1;
-                                        }
-                                    });
+                                    const parseNum = (v) => {
+                                        if (typeof v === 'number') return v;
+                                        if (typeof v !== 'string' || v === '-') return NaN;
+                                        return parseFloat(v.replace(/,/g, ''));
+                                    };
+                                    const nv = parseNum(newItem.ask || newItem.sell);
+                                    let ov = oldItem ? parseNum(oldItem.ask || oldItem.sell) : NaN;
+
+                                    // Initial Load Persistence for USD/INR
+                                    if (isNaN(ov) && isUSDINR) {
+                                        try {
+                                            const saved = localStorage.getItem('usdinr_last_rate');
+                                            if (saved) ov = parseFloat(saved);
+                                        } catch (e) {}
+                                    }
 
                                     let trend = 'stable';
                                     let trendExpiry = 0;
 
-                                    if (change !== 0) {
-                                        trend = change === 1 ? 'increase' : 'decrease';
-                                        trendExpiry = now + 5000;
-                                    } else {
-                                        // If no change, immediately return to stable as requested
-                                        trend = 'stable';
-                                        trendExpiry = 0;
+                                    if (!isNaN(nv) && !isNaN(ov)) {
+                                        // 1. High precision numeric comparison (6 decimal places)
+                                        const rNV = Number(nv.toFixed(6));
+                                        const rOV = Number(ov.toFixed(6));
+
+                                        if (Math.abs(rNV - rOV) > 0.0000001) {
+                                            // PRICE MOVED: Apply color immediately
+                                            trend = rNV > rOV ? 'increase' : 'decrease';
+                                            trendExpiry = now + 2000;
+                                            
+                                            // Persist USD/INR to local storage
+                                            if (isUSDINR) {
+                                                try {
+                                                    localStorage.setItem('usdinr_last_rate', rNV.toString());
+                                                } catch (e) {}
+                                            }
+                                        } else if (oldItem && oldItem.trend !== 'stable' && now < oldItem.trendExpiry) {
+                                            // PRICE IS SAME: Keep previous color until expiry (2s persistence)
+                                            trend = oldItem.trend;
+                                            trendExpiry = oldItem.trendExpiry;
+                                        } else {
+                                            // STABLE: Reverted after 2s of no movement
+                                            trend = 'stable';
+                                            trendExpiry = 0;
+                                        }
+                                    } else if (!isNaN(nv) && isUSDINR && isNaN(ov)) {
+                                        // Save initial value if none existed
+                                        try {
+                                            localStorage.setItem('usdinr_last_rate', nv.toFixed(6));
+                                        } catch (e) {}
+                                    } else if (oldItem) {
+                                        // Carry over trend if current data is invalid/missing temporarily
+                                        trend = oldItem.trend || 'stable';
+                                        trendExpiry = oldItem.trendExpiry || 0;
                                     }
                                     
                                     return { ...newItem, trend, trendExpiry };

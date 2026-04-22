@@ -2,56 +2,10 @@ import React, { useState, useEffect, useRef } from 'react';
 import { useRates } from '../context/RateContext';
 
 const SpotCard = ({ item, isUSDINR, noBoxes, getRateColor, idx }) => {
-    // Local state for the trend, initialized with context trend
-    const [displayTrend, setDisplayTrend] = useState(item.trend || 'stable');
-    const prevValueRef = useRef(item.value);
-    const timerRef = useRef(null);
+    // Rely exclusively on the global trend provided by context
+    const displayTrend = item.trend || 'stable';
 
-    // Sync with context trend when no session timer is active
-    // This handles initial load and returns control to context after timer expires
-    useEffect(() => {
-        if (!timerRef.current) {
-            setDisplayTrend(item.trend || 'stable');
-        }
-    }, [item.trend]);
-
-    // Effect to handle color persistence timer for LIVE price changes in the current session
-    useEffect(() => {
-        const newValue = item.value;
-        const oldValue = prevValueRef.current;
-
-        // Compare values to detect a genuine change
-        if (newValue !== oldValue && newValue !== '-' && oldValue !== '-') {
-            const p = parseFloat(oldValue.replace(/,/g, ''));
-            const c = parseFloat(newValue.replace(/,/g, ''));
-
-            if (!isNaN(p) && !isNaN(c)) {
-                if (c !== p) {
-                    // Price changed: Apply Green/Red immediately
-                    const newTrend = c > p ? 'increase' : 'decrease';
-                    setDisplayTrend(newTrend);
-
-                    // Clear any existing timer
-                    if (timerRef.current) clearTimeout(timerRef.current);
-
-                    // Set 2-second persistence for ALL live session changes
-                    timerRef.current = setTimeout(() => {
-                        timerRef.current = null;
-                        // Return to whatever the current context trend is
-                        setDisplayTrend(item.trend || 'stable');
-                    }, 2000);
-                }
-            }
-            prevValueRef.current = newValue;
-        }
-    }, [item.value, item.trend]);
-
-    // Cleanup timer on unmount
-    useEffect(() => {
-        return () => {
-            if (timerRef.current) clearTimeout(timerRef.current);
-        };
-    }, []);
+    // No local timers needed as RateContext handles the 2s persistence globally
 
     // Original bright colors for the boxes on main Home page
     const boxDefault = isUSDINR ? '#ffffff' : item.label.includes('GOLD') ? '#facc15' : '#CFE9E1';
