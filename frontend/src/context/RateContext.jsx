@@ -34,7 +34,7 @@ const getPlaceholders = () => {
 };
 
 export const RateProvider = ({ children }) => {
-    const [rawRates, setRawRates] = useState(getPlaceholders());
+    const [rawRatesState, setRawRates] = useState(getPlaceholders());
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
     const isFetching = React.useRef(false);
@@ -51,17 +51,17 @@ export const RateProvider = ({ children }) => {
 
     // Robust initial state for adj
     const getInitialAdj = () => ({
-        gold: { mode: 'amount', value: 0 },
-        silver: { mode: 'amount', value: 0 },
+        gold: { mode: 'amount', value: 0, isPaused: false, pausedBuy: 0, pausedSell: 0 },
+        silver: { mode: 'amount', value: 0, isPaused: false, pausedBuy: 0, pausedSell: 0 },
         baseModifications: {
-            gold999: { mode: 'amount', value: 0 },
-            silver999: { mode: 'amount', value: 0 }
+            gold999: { mode: 'amount', value: 0, isPaused: false, pausedBuy: 0, pausedSell: 0 },
+            silver999: { mode: 'amount', value: 0, isPaused: false, pausedBuy: 0, pausedSell: 0 }
         },
         stockOverrides: {}, // { itemId: boolean }
         ratesPage: {
-            goldTable: { mode: 'amount', value: 0 },
-            navarsuTable: { mode: 'amount', value: 0 },
-            silverTable: { mode: 'amount', value: 0 },
+            goldTable: { mode: 'amount', value: 0, isPaused: false, pausedBuy: 0, pausedSell: 0 },
+            navarsuTable: { mode: 'amount', value: 0, isPaused: false, pausedBuy: 0, pausedSell: 0 },
+            silverTable: { mode: 'amount', value: 0, isPaused: false, pausedBuy: 0, pausedSell: 0 },
             showModified: false
         },
         marketStatus: {
@@ -78,6 +78,51 @@ export const RateProvider = ({ children }) => {
         adjRef.current = newAdj;
         setAdjState(newAdj);
     };
+
+    const rawRates = React.useMemo(() => {
+        const goldPausedObj = adj.gold?.isPaused
+            ? adj.gold
+            : (adj.baseModifications?.gold999?.isPaused
+                ? adj.baseModifications.gold999
+                : (adj.ratesPage?.goldTable?.isPaused
+                    ? adj.ratesPage.goldTable
+                    : (adj.ratesPage?.navarsuTable?.isPaused
+                        ? adj.ratesPage.navarsuTable
+                        : null)));
+        const silverPausedObj = adj.silver?.isPaused
+            ? adj.silver
+            : (adj.baseModifications?.silver999?.isPaused
+                ? adj.baseModifications.silver999
+                : (adj.ratesPage?.silverTable?.isPaused
+                    ? adj.ratesPage.silverTable
+                    : null));
+
+        if (!goldPausedObj && !silverPausedObj) return rawRatesState;
+
+        const rtgs = rawRatesState.rtgs.map(r => {
+            let buy = r.buy;
+            let sell = r.sell;
+            let high = r.high;
+            let low = r.low;
+
+            if (r.id === '945' && goldPausedObj) {
+                buy = goldPausedObj.pausedBuy || buy;
+                sell = goldPausedObj.pausedSell || sell;
+                high = goldPausedObj.pausedSell || high;
+                low = goldPausedObj.pausedSell || low;
+            }
+            if (r.id === '2987' && silverPausedObj) {
+                buy = silverPausedObj.pausedBuy || buy;
+                sell = silverPausedObj.pausedSell || sell;
+                high = silverPausedObj.pausedSell || high;
+                low = silverPausedObj.pausedSell || low;
+            }
+
+            return { ...r, buy, sell, high, low };
+        });
+
+        return { ...rawRatesState, rtgs };
+    }, [rawRatesState, adj]);
 
     const [showModified, setShowModified] = useState(false);
     const [settingsLoaded, setSettingsLoaded] = useState(false);
@@ -122,11 +167,39 @@ export const RateProvider = ({ children }) => {
                 if (data) {
                     const ratesPageSettings = normalizeRatesPageSettings(data.ratesPage || {});
                     setAdj({
-                        gold: data.gold || { mode: 'amount', value: 0 },
-                        silver: data.silver || { mode: 'amount', value: 0 },
-                        baseModifications: data.baseModifications || {
-                            gold999: { mode: 'amount', value: 0 },
-                            silver999: { mode: 'amount', value: 0 }
+                        gold: {
+                            mode: 'amount',
+                            value: 0,
+                            isPaused: false,
+                            pausedBuy: 0,
+                            pausedSell: 0,
+                            ...(data.gold || {})
+                        },
+                        silver: {
+                            mode: 'amount',
+                            value: 0,
+                            isPaused: false,
+                            pausedBuy: 0,
+                            pausedSell: 0,
+                            ...(data.silver || {})
+                        },
+                        baseModifications: {
+                            gold999: {
+                                mode: 'amount',
+                                value: 0,
+                                isPaused: false,
+                                pausedBuy: 0,
+                                pausedSell: 0,
+                                ...(data.baseModifications?.gold999 || {})
+                            },
+                            silver999: {
+                                mode: 'amount',
+                                value: 0,
+                                isPaused: false,
+                                pausedBuy: 0,
+                                pausedSell: 0,
+                                ...(data.baseModifications?.silver999 || {})
+                            }
                         },
                         stockOverrides: data.stockOverrides || {},
                         ratesPage: ratesPageSettings,
@@ -152,11 +225,11 @@ export const RateProvider = ({ children }) => {
 
     // Effect to maintain previous and current rates for color comparison
     useEffect(() => {
-        if (rawRates) {
+        if (rawRatesState) {
             setPreviousRates(currentRates);
-            setCurrentRates(rawRates);
+            setCurrentRates(rawRatesState);
         }
-    }, [rawRates]);
+    }, [rawRatesState]);
 
     // Initial fetch on mount
     useEffect(() => {
@@ -587,6 +660,7 @@ export const RateProvider = ({ children }) => {
     };
 
     const rates = React.useMemo(() => {
+        console.log("[DEBUG] rates useMemo triggered. adj.gold:", adj.gold, "adj.silver:", adj.silver, "adj.baseModifications:", adj.baseModifications);
         const adjust = (val, type, customAdj) => {
             const a = customAdj || (type === 'GOLD' ? adj.gold : adj.silver);
             if (!a || typeof val !== 'number') return val;
@@ -608,32 +682,63 @@ export const RateProvider = ({ children }) => {
             // benchmark choice for buy modification
             const buyOffset = isGold ? adj.gold : adj.silver;
 
-            const liveSell = parseFloat(r.sell) || 0;
-            let sell = r.sell;
-            let buy = r.buy;
-            let high = r.high;
-            let low = r.low;
+            // Handle paused/frozen rates
+            let liveSell = parseFloat(r.sell) || 0;
+            let liveBuy = parseFloat(r.buy) || 0;
+            let liveHigh = parseFloat(r.high) || 0;
+            let liveLow = parseFloat(r.low) || 0;
+
+             const goldPausedObj = adj.gold?.isPaused
+                 ? adj.gold
+                 : (adj.baseModifications?.gold999?.isPaused
+                     ? adj.baseModifications.gold999
+                     : (adj.ratesPage?.goldTable?.isPaused
+                         ? adj.ratesPage.goldTable
+                         : (adj.ratesPage?.navarsuTable?.isPaused
+                             ? adj.ratesPage.navarsuTable
+                             : null)));
+             const silverPausedObj = adj.silver?.isPaused
+                 ? adj.silver
+                 : (adj.baseModifications?.silver999?.isPaused
+                     ? adj.baseModifications.silver999
+                     : (adj.ratesPage?.silverTable?.isPaused
+                         ? adj.ratesPage.silverTable
+                         : null));
+
+            if (r.id === '945' && goldPausedObj) {
+                console.log(`[DEBUG] Gold paused. Freezing live rates for ${r.name} to:`, goldPausedObj.pausedBuy, goldPausedObj.pausedSell);
+                liveSell = goldPausedObj.pausedSell || liveSell;
+                liveBuy = goldPausedObj.pausedBuy || liveBuy;
+                liveHigh = goldPausedObj.pausedSell || liveHigh;
+                liveLow = goldPausedObj.pausedSell || liveLow;
+            }
+            if (r.id === '2987' && silverPausedObj) {
+                console.log(`[DEBUG] Silver paused. Freezing live rates for ${r.name} to:`, silverPausedObj.pausedBuy, silverPausedObj.pausedSell);
+                liveSell = silverPausedObj.pausedSell || liveSell;
+                liveBuy = silverPausedObj.pausedBuy || liveBuy;
+                liveHigh = silverPausedObj.pausedSell || liveHigh;
+                liveLow = silverPausedObj.pausedSell || liveLow;
+            }
+
+            let sell = liveSell !== 0 ? liveSell : '-';
+            let buy = liveBuy !== 0 ? liveBuy : '-';
+            let high = liveHigh !== 0 ? liveHigh : '-';
+            let low = liveLow !== 0 ? liveLow : '-';
 
             if (showModified) {
                 // Sell Calculation: Live + SellMod
                 if (sellMod && sellMod.value !== 0) {
                     const delta = sellMod.value || 0;
                     sell = liveSell !== 0 ? parseFloat((liveSell + delta).toFixed(2)) : '-';
-                    
-                    const liveHigh = parseFloat(r.high) || 0;
                     high = liveHigh !== 0 ? parseFloat((liveHigh + delta).toFixed(2)) : '-';
-                    
-                    const liveLow = parseFloat(r.low) || 0;
                     low = liveLow !== 0 ? parseFloat((liveLow + delta).toFixed(2)) : '-';
                 }
 
                 // Buy Calculation: LiveBuy + BuyMod
-                const liveBuy = parseFloat(r.buy) || 0;
                 if (buyOffset) {
                     const delta = buyOffset.value || 0;
                     buy = liveBuy !== 0 ? parseFloat((liveBuy + delta).toFixed(2)) : '-';
                 }
-
             }
 
             // Apply Stock Override if exists
@@ -649,7 +754,16 @@ export const RateProvider = ({ children }) => {
         const baseHigh999 = (goldBaseItem && typeof goldBaseItem.high === 'number') ? goldBaseItem.high : baseSell999;
 
         const rawGold999 = rawRates.rtgs.find(r => r.id === '945' || r.name?.toLowerCase().includes('gold 999'));
-        const live999Sell = parseFloat(rawGold999?.sell) || 0;
+        const goldPausedObj = adj.gold?.isPaused
+            ? adj.gold
+            : (adj.baseModifications?.gold999?.isPaused
+                ? adj.baseModifications.gold999
+                : (adj.ratesPage?.goldTable?.isPaused
+                    ? adj.ratesPage.goldTable
+                    : (adj.ratesPage?.navarsuTable?.isPaused
+                        ? adj.ratesPage.navarsuTable
+                        : null)));
+        const live999Sell = goldPausedObj ? (goldPausedObj.pausedSell || parseFloat(rawGold999?.sell) || 0) : (parseFloat(rawGold999?.sell) || 0);
         const live999Trend = rawGold999?.trend || 'stable';
 
         const purities = [
@@ -716,7 +830,14 @@ export const RateProvider = ({ children }) => {
         });
 
         const rawSilver999 = rawRates.rtgs.find(r => r.id === '2987');
-        const liveSilverSell = parseFloat(rawSilver999?.sell) || 0;
+        const silverPausedObj = adj.silver?.isPaused
+            ? adj.silver
+            : (adj.baseModifications?.silver999?.isPaused
+                ? adj.baseModifications.silver999
+                : (adj.ratesPage?.silverTable?.isPaused
+                    ? adj.ratesPage.silverTable
+                    : null));
+        const liveSilverSell = silverPausedObj ? (silverPausedObj.pausedSell || parseFloat(rawSilver999?.sell) || 0) : (parseFloat(rawSilver999?.sell) || 0);
         const ratesPageSilverSell = computeSilver10gSell(
             liveSilverSell,
             adj.ratesPage.showModified,
@@ -798,7 +919,7 @@ export const RateProvider = ({ children }) => {
     };
 
     return (
-        <RateContext.Provider value={{ rates, rawRates, loading, error, news, adj, showModified, settingsLoaded, ticker, videos, videosLoaded, isMusicEnabled, toggleMusic, setMusicEnabled, getRateChangeType, getRateColor, previousRates, currentRates, musicSettings, syncMusicWithMongoDB, updateSettings, updateVideos, refreshRates: fetchAllRates, getMarketStatus }}>
+        <RateContext.Provider value={{ rates, rawRates, trueRawRates: rawRatesState, loading, error, news, adj, showModified, settingsLoaded, ticker, videos, videosLoaded, isMusicEnabled, toggleMusic, setMusicEnabled, getRateChangeType, getRateColor, previousRates, currentRates, musicSettings, syncMusicWithMongoDB, updateSettings, updateVideos, refreshRates: fetchAllRates, getMarketStatus }}>
 
             {children}
         </RateContext.Provider>

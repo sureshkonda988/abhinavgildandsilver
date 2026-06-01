@@ -30,7 +30,7 @@ const AudioPreview = ({ url }) => {
 };
 
 const AdminPage = () => {
-    const { rates, rawRates, adj, showModified, settingsLoaded, videosLoaded, updateSettings, updateVideos, refreshRates, loading, error, ticker: contextTicker, videos: contextVideos, musicSettings, syncMusicWithMongoDB } = useRates();
+    const { rates, rawRates, trueRawRates, adj, showModified, settingsLoaded, videosLoaded, updateSettings, updateVideos, refreshRates, loading, error, ticker: contextTicker, videos: contextVideos, musicSettings, syncMusicWithMongoDB } = useRates();
     const navigate = useNavigate();
     const [isLoggedIn, setIsLoggedIn] = useState(false);
     const [username, setUsername] = useState('');
@@ -243,7 +243,7 @@ const AdminPage = () => {
     };
 
     // Keep 8g admin card aligned with Rates page calculation.
-    const gold999LiveSell = Number((rawRates.rtgs || []).find(r => r.id === '945')?.sell) || 0;
+    const gold999LiveSell = Number((trueRawRates?.rtgs || []).find(r => r.id === '945')?.sell) || 0;
     const navarsu8gLiveBase = computeNavarsu8gBase(gold999LiveSell);
 
     // (Audio upload logic removed)
@@ -379,15 +379,17 @@ const AdminPage = () => {
                                             <AdjustmentCard
                                                 label="Gold Buy Modification"
                                                 item={adj?.gold || { mode: 'amount', value: 0 }}
-                                                liveRates={(rawRates.rtgs || []).filter(r => r.id === '945')}
+                                                liveRates={(trueRawRates?.rtgs || []).filter(r => r.id === '945')}
                                                 targetField="buy"
+                                                showPause={true}
                                                 onChange={(val) => updateSettings({ adj: { ...adj, gold: val } })}
                                             />
                                             <AdjustmentCard
                                                 label="Silver Buy Modification"
                                                 item={adj?.silver || { mode: 'amount', value: 0 }}
-                                                liveRates={(rawRates.rtgs || []).filter(r => r.id === '2987')}
+                                                liveRates={(trueRawRates?.rtgs || []).filter(r => r.id === '2987')}
                                                 targetField="buy"
+                                                showPause={true}
                                                 onChange={(val) => updateSettings({ adj: { ...adj, silver: val } })}
                                             />
                                         </div>
@@ -406,8 +408,9 @@ const AdminPage = () => {
                                             <AdjustmentCard
                                                 label="Gold Sell Modification"
                                                 item={adj.baseModifications.gold999}
-                                                liveRates={(rawRates.rtgs || []).filter(r => r.id === '945')}
+                                                liveRates={(trueRawRates?.rtgs || []).filter(r => r.id === '945')}
                                                 targetField="sell"
+                                                showPause={true}
                                                 onChange={(newItem) => {
                                                     updateSettings({ adjFn: (prev) => ({ ...prev, baseModifications: { ...prev.baseModifications, gold999: newItem } }) });
                                                 }}
@@ -415,8 +418,9 @@ const AdminPage = () => {
                                             <AdjustmentCard
                                                 label="Silver Sell Modification"
                                                 item={adj.baseModifications.silver999}
-                                                liveRates={(rawRates.rtgs || []).filter(r => r.id === '2987')}
+                                                liveRates={(trueRawRates?.rtgs || []).filter(r => r.id === '2987')}
                                                 targetField="sell"
+                                                showPause={true}
                                                 onChange={(newItem) => {
                                                     updateSettings({ adjFn: (prev) => ({ ...prev, baseModifications: { ...prev.baseModifications, silver999: newItem } }) });
                                                 }}
@@ -454,8 +458,9 @@ const AdminPage = () => {
                                             <AdjustmentCard
                                                 label="Rates Gold Table Modification"
                                                 item={adj.ratesPage.goldTable}
-                                                liveRates={(rawRates.rtgs || []).filter(r => r.id === '945')}
+                                                liveRates={(trueRawRates?.rtgs || []).filter(r => r.id === '945')}
                                                 targetField="sell"
+                                                showPause={true}
                                                 onChange={(val) => updateSettings({ adjFn: (prev) => ({ ...prev, ratesPage: { ...prev.ratesPage, goldTable: val } }) })}
                                             />
                                             <AdjustmentCard
@@ -467,13 +472,15 @@ const AdminPage = () => {
                                                     sell: navarsu8gLiveBase
                                                 }]}
                                                 targetField="sell"
+                                                showPause={true}
                                                 onChange={(val) => updateSettings({ adjFn: (prev) => ({ ...prev, ratesPage: { ...prev.ratesPage, navarsuTable: val } }) })}
                                             />
                                             <AdjustmentCard
                                                 label="Rates Silver 10g Modification"
                                                 item={adj.ratesPage.silverTable}
-                                                liveRates={(rawRates.rtgs || []).filter(r => r.id === '2987')}
+                                                liveRates={(trueRawRates?.rtgs || []).filter(r => r.id === '2987')}
                                                 targetField="sell"
+                                                showPause={true}
                                                 onChange={(val) => updateSettings({ adjFn: (prev) => ({ ...prev, ratesPage: { ...prev.ratesPage, silverTable: val } }) })}
                                             />
                                         </div>
@@ -871,7 +878,7 @@ const TabBtn = ({ id, icon, label, active, onClick }) => (
     </button>
 );
 
-const AdjustmentCard = ({ label, item, liveRates = [], targetField = 'sell', onChange }) => {
+const AdjustmentCard = ({ label, item, liveRates = [], targetField = 'sell', onChange, showPause = false }) => {
     const initialVal = (item?.value !== undefined && item?.value !== null) ? item.value.toString() : '0';
     const [localVal, setLocalVal] = useState(initialVal);
     const [isFocused, setIsFocused] = useState(false);
@@ -901,11 +908,63 @@ const AdjustmentCard = ({ label, item, liveRates = [], targetField = 'sell', onC
         }
     };
 
+    const handleTogglePause = () => {
+        const liveRateItem = liveRates[0];
+        console.log(`[DEBUG] Pause button clicked in AdjustmentCard "${label}". liveRateItem:`, liveRateItem);
+        
+        const parseRateValue = (val) => {
+            if (val === undefined || val === null || val === '-') return 0;
+            const clean = val.toString().replace(/,/g, '');
+            const parsed = parseFloat(clean);
+            return isNaN(parsed) ? 0 : parsed;
+        };
+
+        const currentLiveBuy = liveRateItem ? parseRateValue(liveRateItem.buy) : 0;
+        const currentLiveSell = liveRateItem ? parseRateValue(liveRateItem.sell) : 0;
+
+        const nextPausedState = !item?.isPaused;
+        console.log(`[DEBUG] nextPausedState: ${nextPausedState}, currentLiveBuy: ${currentLiveBuy}, currentLiveSell: ${currentLiveSell}`);
+
+        const updatedItem = {
+            ...item,
+            isPaused: nextPausedState,
+            pausedBuy: nextPausedState ? currentLiveBuy : 0,
+            pausedSell: nextPausedState ? currentLiveSell : 0
+        };
+        console.log(`[DEBUG] Dispatching updated item to onChange:`, updatedItem);
+        
+        onChange(updatedItem);
+    };
+
     return (
-        <div className="bg-white/5 backdrop-blur-md p-4 md:p-6 rounded-[24px] md:rounded-[30px] border border-white/10 h-full">
+        <div className={`backdrop-blur-md p-4 md:p-6 rounded-[24px] md:rounded-[30px] border h-full transition-all duration-300 ${item?.isPaused ? 'border-red-500/40 bg-red-500/5 shadow-[0_0_15px_rgba(239,68,68,0.15)]' : 'bg-white/5 border-white/10'}`}>
             <div className="flex justify-between items-start mb-4 md:mb-6">
                 <div className="flex-1 pr-2">
-                    <span className="text-[9px] md:text-[10px] font-bold text-[#f4cb4c] uppercase tracking-[0.2em] mb-1 block font-poppins">{label}</span>
+                    <div className="flex items-center justify-between gap-2 mb-1.5 flex-wrap">
+                        <span className="text-[9px] md:text-[10px] font-bold text-[#f4cb4c] uppercase tracking-[0.2em] block font-poppins">{label}</span>
+                        {showPause && (
+                            <button
+                                onClick={handleTogglePause}
+                                className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full text-[9px] font-black uppercase tracking-wider transition-all duration-300 shadow-md border cursor-pointer ${
+                                    item?.isPaused
+                                        ? 'bg-red-500 text-white border-red-400 hover:bg-red-400 active:scale-95 shadow-[0_0_10px_rgba(239,68,68,0.3)] animate-pulse'
+                                        : 'bg-green-500 text-slate-950 border-green-400 hover:bg-green-400 active:scale-95 shadow-[0_0_10px_rgba(34,197,94,0.3)]'
+                                }`}
+                            >
+                                {item?.isPaused ? (
+                                    <>
+                                        <Play size={8} fill="currentColor" />
+                                        Resume Live
+                                    </>
+                                ) : (
+                                    <>
+                                        <Pause size={8} fill="currentColor" />
+                                        Pause Rate
+                                    </>
+                                )}
+                            </button>
+                        )}
+                    </div>
                     <div className="flex flex-col gap-2">
                         {liveRates.map((r, i) => {
                             const original = r[targetField] || 0;
@@ -921,6 +980,12 @@ const AdjustmentCard = ({ label, item, liveRates = [], targetField = 'sell', onC
                                         <span className="text-[8px] md:text-[9px] font-bold text-green-500 uppercase tracking-wider">Alt:</span>
                                         <span className="text-[11px] md:text-[13px] font-black text-green-500 font-poppins"><span style={{ fontFamily: 'Inter, system-ui, sans-serif' }}>₹</span>{modified.toLocaleString('en-IN', { maximumFractionDigits: 0 })}</span>
                                     </div>
+                                    {item?.isPaused && (
+                                        <div className="flex items-center justify-between text-red-400 font-bold animate-pulse text-[8px] md:text-[9px] uppercase tracking-wider mt-1 bg-red-500/10 px-2 py-0.5 rounded-lg border border-red-500/20">
+                                            <span>Status:</span>
+                                            <span>FROZEN AT ₹{(targetField === 'buy' ? item.pausedBuy : item.pausedSell).toLocaleString('en-IN')}</span>
+                                        </div>
+                                    )}
                                     <div className="h-[1px] bg-white/5 w-full mt-0.5"></div>
                                     <span className="text-[7px] md:text-[8px] font-medium text-white/40 font-poppins uppercase tracking-wider truncate max-w-[120px] md:max-w-none">{r.name}</span>
                                 </div>

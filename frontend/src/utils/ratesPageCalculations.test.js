@@ -34,8 +34,8 @@ describe('ratesPageCalculations', () => {
   });
 
   it('computes silver 10g sell with modifier', () => {
-    expect(computeSilver10gSell(1200, false, { value: 50 })).toBe(1200);
-    expect(computeSilver10gSell(1200, true, { value: 50 })).toBe(1250);
+    expect(computeSilver10gSell(120000, false, { value: 50 })).toBe(1200);
+    expect(computeSilver10gSell(120000, true, { value: 50 })).toBe(1250);
   });
 
   it('returns placeholder values when live rates are missing', () => {

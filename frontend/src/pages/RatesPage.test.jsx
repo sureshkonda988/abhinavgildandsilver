@@ -25,6 +25,8 @@ describe('RatesPage', () => {
       loading: false,
       error: null,
       getPriceClass: () => 'gold-default',
+      getRateColor: (trend, defaultColor) => defaultColor,
+      getRateChangeType: () => 'stable',
       isMusicEnabled: false,
       toggleMusic: vi.fn(),
     });
@@ -53,6 +55,8 @@ describe('RatesPage', () => {
       loading: true,
       error: null,
       getPriceClass: () => 'gold-default',
+      getRateColor: (trend, defaultColor) => defaultColor,
+      getRateChangeType: () => 'stable',
       isMusicEnabled: false,
       toggleMusic: vi.fn(),
     });

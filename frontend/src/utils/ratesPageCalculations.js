@@ -1,11 +1,23 @@
 export const normalizeRatesPageSettings = (savedRatesPage = {}) => {
-  const legacyGold = savedRatesPage.gold || { mode: 'amount', value: 0 };
-  const legacySilver = savedRatesPage.silver || { mode: 'amount', value: 0 };
+  const legacyGold = savedRatesPage.gold || { mode: 'amount', value: 0, isPaused: false, pausedBuy: 0, pausedSell: 0 };
+  const legacySilver = savedRatesPage.silver || { mode: 'amount', value: 0, isPaused: false, pausedBuy: 0, pausedSell: 0 };
+
+  const normalizeItem = (item, legacy) => {
+    const base = item || legacy;
+    return {
+      mode: 'amount',
+      value: 0,
+      isPaused: false,
+      pausedBuy: 0,
+      pausedSell: 0,
+      ...base
+    };
+  };
 
   return {
-    goldTable: savedRatesPage.goldTable || legacyGold,
-    navarsuTable: savedRatesPage.navarsuTable || legacyGold,
-    silverTable: savedRatesPage.silverTable || legacySilver,
+    goldTable: normalizeItem(savedRatesPage.goldTable, legacyGold),
+    navarsuTable: normalizeItem(savedRatesPage.navarsuTable, legacyGold),
+    silverTable: normalizeItem(savedRatesPage.silverTable, legacySilver),
     showModified: savedRatesPage.showModified || false,
   };
 };
