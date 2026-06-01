@@ -15,7 +15,10 @@ describe('ratesPageCalculations', () => {
       showModified: true,
     });
 
-    expect(normalized.goldTable.value).toBe(11);
+    expect(normalized.goldTable24k.value).toBe(11);
+    expect(normalized.goldTable22k.value).toBe(11);
+    expect(normalized.goldTable18k.value).toBe(11);
+    expect(normalized.goldTable14k.value).toBe(11);
     expect(normalized.navarsuTable.value).toBe(11);
     expect(normalized.silverTable.value).toBe(7);
     expect(normalized.showModified).toBe(true);

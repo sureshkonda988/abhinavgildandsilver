@@ -34,7 +34,10 @@ describe('AdminPage', () => {
       },
       stockOverrides: {},
       ratesPage: {
-        goldTable: { mode: 'amount', value: 0, isPaused: false, pausedBuy: 0, pausedSell: 0 },
+        goldTable24k: { mode: 'amount', value: 0, isPaused: false, pausedBuy: 0, pausedSell: 0 },
+        goldTable22k: { mode: 'amount', value: 0, isPaused: false, pausedBuy: 0, pausedSell: 0 },
+        goldTable18k: { mode: 'amount', value: 0, isPaused: false, pausedBuy: 0, pausedSell: 0 },
+        goldTable14k: { mode: 'amount', value: 0, isPaused: false, pausedBuy: 0, pausedSell: 0 },
         navarsuTable: { mode: 'amount', value: 0, isPaused: false, pausedBuy: 0, pausedSell: 0 },
         silverTable: { mode: 'amount', value: 0, isPaused: false, pausedBuy: 0, pausedSell: 0 },
         showModified: false,
@@ -98,9 +101,9 @@ describe('AdminPage', () => {
     fireEvent.change(screen.getByPlaceholderText('••••••••'), { target: { value: 'admin123' } });
     fireEvent.click(screen.getByRole('button', { name: /Access Dashboard/i }));
 
-    // Find and verify all "Pause Rate" buttons (4 base rate ones + 3 rates page ones = 7 total)
+    // Find and verify all "Pause Rate" buttons (4 base rate ones + 6 rates page ones = 10 total)
     const pauseButtons = screen.getAllByRole('button', { name: /Pause Rate/i });
-    expect(pauseButtons.length).toBe(7);
+    expect(pauseButtons.length).toBe(10);
 
     // Click the first pause button (Gold Buy Modification)
     fireEvent.click(pauseButtons[0]);
@@ -112,7 +115,7 @@ describe('AdminPage', () => {
     expect(callArgs.adj.gold.pausedBuy).toBe(159734); // Verifies comma stripping is 100% correct!
     expect(callArgs.adj.gold.pausedSell).toBe(161000);
 
-    // Now click a rates page pause button (e.g. Rates Gold Table Modification is the 5th pause button, index 4)
+    // Now click a rates page pause button (e.g. Rates Gold 24 KT Modification is the 5th pause button, index 4)
     fireEvent.click(pauseButtons[4]);
     expect(updateSettingsSpy).toHaveBeenCalledTimes(2);
     // Verified the rates page setting callback gets invoked

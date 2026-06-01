@@ -59,7 +59,10 @@ export const RateProvider = ({ children }) => {
         },
         stockOverrides: {}, // { itemId: boolean }
         ratesPage: {
-            goldTable: { mode: 'amount', value: 0, isPaused: false, pausedBuy: 0, pausedSell: 0 },
+            goldTable24k: { mode: 'amount', value: 0, isPaused: false, pausedBuy: 0, pausedSell: 0 },
+            goldTable22k: { mode: 'amount', value: 0, isPaused: false, pausedBuy: 0, pausedSell: 0 },
+            goldTable18k: { mode: 'amount', value: 0, isPaused: false, pausedBuy: 0, pausedSell: 0 },
+            goldTable14k: { mode: 'amount', value: 0, isPaused: false, pausedBuy: 0, pausedSell: 0 },
             navarsuTable: { mode: 'amount', value: 0, isPaused: false, pausedBuy: 0, pausedSell: 0 },
             silverTable: { mode: 'amount', value: 0, isPaused: false, pausedBuy: 0, pausedSell: 0 },
             showModified: false
@@ -84,11 +87,17 @@ export const RateProvider = ({ children }) => {
             ? adj.gold
             : (adj.baseModifications?.gold999?.isPaused
                 ? adj.baseModifications.gold999
-                : (adj.ratesPage?.goldTable?.isPaused
-                    ? adj.ratesPage.goldTable
-                    : (adj.ratesPage?.navarsuTable?.isPaused
-                        ? adj.ratesPage.navarsuTable
-                        : null)));
+                : (adj.ratesPage?.goldTable24k?.isPaused
+                    ? adj.ratesPage.goldTable24k
+                    : (adj.ratesPage?.goldTable22k?.isPaused
+                        ? adj.ratesPage.goldTable22k
+                        : (adj.ratesPage?.goldTable18k?.isPaused
+                            ? adj.ratesPage.goldTable18k
+                            : (adj.ratesPage?.goldTable14k?.isPaused
+                                ? adj.ratesPage.goldTable14k
+                                : (adj.ratesPage?.navarsuTable?.isPaused
+                                    ? adj.ratesPage.navarsuTable
+                                    : null))))));
         const silverPausedObj = adj.silver?.isPaused
             ? adj.silver
             : (adj.baseModifications?.silver999?.isPaused
@@ -692,11 +701,17 @@ export const RateProvider = ({ children }) => {
                  ? adj.gold
                  : (adj.baseModifications?.gold999?.isPaused
                      ? adj.baseModifications.gold999
-                     : (adj.ratesPage?.goldTable?.isPaused
-                         ? adj.ratesPage.goldTable
-                         : (adj.ratesPage?.navarsuTable?.isPaused
-                             ? adj.ratesPage.navarsuTable
-                             : null)));
+                     : (adj.ratesPage?.goldTable24k?.isPaused
+                         ? adj.ratesPage.goldTable24k
+                         : (adj.ratesPage?.goldTable22k?.isPaused
+                             ? adj.ratesPage.goldTable22k
+                             : (adj.ratesPage?.goldTable18k?.isPaused
+                                 ? adj.ratesPage.goldTable18k
+                                 : (adj.ratesPage?.goldTable14k?.isPaused
+                                     ? adj.ratesPage.goldTable14k
+                                     : (adj.ratesPage?.navarsuTable?.isPaused
+                                         ? adj.ratesPage.navarsuTable
+                                         : null))))));
              const silverPausedObj = adj.silver?.isPaused
                  ? adj.silver
                  : (adj.baseModifications?.silver999?.isPaused
@@ -758,11 +773,17 @@ export const RateProvider = ({ children }) => {
             ? adj.gold
             : (adj.baseModifications?.gold999?.isPaused
                 ? adj.baseModifications.gold999
-                : (adj.ratesPage?.goldTable?.isPaused
-                    ? adj.ratesPage.goldTable
-                    : (adj.ratesPage?.navarsuTable?.isPaused
-                        ? adj.ratesPage.navarsuTable
-                        : null)));
+                : (adj.ratesPage?.goldTable24k?.isPaused
+                    ? adj.ratesPage.goldTable24k
+                    : (adj.ratesPage?.goldTable22k?.isPaused
+                        ? adj.ratesPage.goldTable22k
+                        : (adj.ratesPage?.goldTable18k?.isPaused
+                            ? adj.ratesPage.goldTable18k
+                            : (adj.ratesPage?.goldTable14k?.isPaused
+                                ? adj.ratesPage.goldTable14k
+                                : (adj.ratesPage?.navarsuTable?.isPaused
+                                    ? adj.ratesPage.navarsuTable
+                                    : null))))));
         const live999Sell = goldPausedObj ? (goldPausedObj.pausedSell || parseFloat(rawGold999?.sell) || 0) : (parseFloat(rawGold999?.sell) || 0);
         const live999Trend = rawGold999?.trend || 'stable';
 
@@ -808,17 +829,17 @@ export const RateProvider = ({ children }) => {
 
         // 4. Rates Page Independent Data
         const ratesPagePurities = [
-            { label: 'Gold 24 KT', key: '24K', factor: 1.0 },
-            { label: 'Gold 22 KT', key: '22K', factor: 0.916 },
-            { label: 'Gold 18 KT', key: '18K', factor: 0.75 },
-            { label: 'Gold 14 KT', key: '14K', factor: 0.583 }
+            { label: 'Gold 24 KT', key: '24K', factor: 1.0, modifier: adj.ratesPage.goldTable24k },
+            { label: 'Gold 22 KT', key: '22K', factor: 0.916, modifier: adj.ratesPage.goldTable22k },
+            { label: 'Gold 18 KT', key: '18K', factor: 0.75, modifier: adj.ratesPage.goldTable18k },
+            { label: 'Gold 14 KT', key: '14K', factor: 0.583, modifier: adj.ratesPage.goldTable14k }
         ].map(p => {
             const trend = live999Trend;
             const sell = computeGoldTableSell(
                 live999Sell,
                 p.factor,
                 adj.ratesPage.showModified,
-                adj.ratesPage.goldTable
+                p.modifier
             );
 
             return {

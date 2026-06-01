@@ -456,12 +456,52 @@ const AdminPage = () => {
 
                                         <div className="grid md:grid-cols-3 gap-8">
                                             <AdjustmentCard
-                                                label="Rates Gold Table Modification"
-                                                item={adj.ratesPage.goldTable}
-                                                liveRates={(trueRawRates?.rtgs || []).filter(r => r.id === '945')}
+                                                label="Rates Gold 24 KT Modification"
+                                                item={adj.ratesPage.goldTable24k}
+                                                liveRates={[{
+                                                    id: 'rates-gold-24k',
+                                                    name: 'Gold 24 KT (10g)',
+                                                    sell: Math.round(gold999LiveSell * 1.0)
+                                                }]}
                                                 targetField="sell"
                                                 showPause={true}
-                                                onChange={(val) => updateSettings({ adjFn: (prev) => ({ ...prev, ratesPage: { ...prev.ratesPage, goldTable: val } }) })}
+                                                onChange={(val) => updateSettings({ adjFn: (prev) => ({ ...prev, ratesPage: { ...prev.ratesPage, goldTable24k: val } }) })}
+                                            />
+                                            <AdjustmentCard
+                                                label="Rates Gold 22 KT Modification"
+                                                item={adj.ratesPage.goldTable22k}
+                                                liveRates={[{
+                                                    id: 'rates-gold-22k',
+                                                    name: 'Gold 22 KT (10g)',
+                                                    sell: Math.round(gold999LiveSell * 0.916)
+                                                }]}
+                                                targetField="sell"
+                                                showPause={true}
+                                                onChange={(val) => updateSettings({ adjFn: (prev) => ({ ...prev, ratesPage: { ...prev.ratesPage, goldTable22k: val } }) })}
+                                            />
+                                            <AdjustmentCard
+                                                label="Rates Gold 18 KT Modification"
+                                                item={adj.ratesPage.goldTable18k}
+                                                liveRates={[{
+                                                    id: 'rates-gold-18k',
+                                                    name: 'Gold 18 KT (10g)',
+                                                    sell: Math.round(gold999LiveSell * 0.75)
+                                                }]}
+                                                targetField="sell"
+                                                showPause={true}
+                                                onChange={(val) => updateSettings({ adjFn: (prev) => ({ ...prev, ratesPage: { ...prev.ratesPage, goldTable18k: val } }) })}
+                                            />
+                                            <AdjustmentCard
+                                                label="Rates Gold 14 KT Modification"
+                                                item={adj.ratesPage.goldTable14k}
+                                                liveRates={[{
+                                                    id: 'rates-gold-14k',
+                                                    name: 'Gold 14 KT (10g)',
+                                                    sell: Math.round(gold999LiveSell * 0.583)
+                                                }]}
+                                                targetField="sell"
+                                                showPause={true}
+                                                onChange={(val) => updateSettings({ adjFn: (prev) => ({ ...prev, ratesPage: { ...prev.ratesPage, goldTable14k: val } }) })}
                                             />
                                             <AdjustmentCard
                                                 label="Rates Navarsu 8g Modification"
@@ -478,7 +518,14 @@ const AdminPage = () => {
                                             <AdjustmentCard
                                                 label="Rates Silver 10g Modification"
                                                 item={adj.ratesPage.silverTable}
-                                                liveRates={(trueRawRates?.rtgs || []).filter(r => r.id === '2987')}
+                                                liveRates={(trueRawRates?.rtgs || []).filter(r => r.id === '2987').map(r => {
+                                                    const live1kg = parseFloat(r.sell.toString().replace(/,/g, '')) || 0;
+                                                    return {
+                                                        ...r,
+                                                        name: 'Silver 999 (10g)',
+                                                        sell: live1kg ? Math.round(live1kg / 100) : '-'
+                                                    };
+                                                })}
                                                 targetField="sell"
                                                 showPause={true}
                                                 onChange={(val) => updateSettings({ adjFn: (prev) => ({ ...prev, ratesPage: { ...prev.ratesPage, silverTable: val } }) })}
