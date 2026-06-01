@@ -611,12 +611,20 @@ export const RateProvider = ({ children }) => {
             const liveSell = parseFloat(r.sell) || 0;
             let sell = r.sell;
             let buy = r.buy;
+            let high = r.high;
+            let low = r.low;
 
             if (showModified) {
                 // Sell Calculation: Live + SellMod
                 if (sellMod && sellMod.value !== 0) {
                     const delta = sellMod.value || 0;
                     sell = liveSell !== 0 ? parseFloat((liveSell + delta).toFixed(2)) : '-';
+                    
+                    const liveHigh = parseFloat(r.high) || 0;
+                    high = liveHigh !== 0 ? parseFloat((liveHigh + delta).toFixed(2)) : '-';
+                    
+                    const liveLow = parseFloat(r.low) || 0;
+                    low = liveLow !== 0 ? parseFloat((liveLow + delta).toFixed(2)) : '-';
                 }
 
                 // Buy Calculation: LiveBuy + BuyMod
@@ -631,7 +639,7 @@ export const RateProvider = ({ children }) => {
             // Apply Stock Override if exists
             const stock = adj.stockOverrides?.[r.id] !== undefined ? adj.stockOverrides[r.id] : r.stock;
 
-            return { ...r, buy, sell, stock, isModified: showModified && sellMod && sellMod.value !== 0 };
+            return { ...r, buy, sell, high, low, stock, isModified: showModified && sellMod && sellMod.value !== 0 };
         });
 
         // 3. Gold Purities (Home Page)
