@@ -15,7 +15,6 @@ import VideosPage from './pages/VideosPage';
 import AdminPage from './pages/AdminPage';
 import PrivacyPolicy from './pages/PrivacyPolicy';
 import TermsOfService from './pages/TermsOfService';
-import HomePage1 from './pages/HomePage1';
 import { Loader2 } from 'lucide-react';
 import MusicPlayer from './components/MusicPlayer';
 
@@ -82,7 +81,7 @@ const useImagePreloader = (imageList) => {
 const AppLayout = () => {
   const { isMusicEnabled, setMusicEnabled } = useRates();
   const location = useLocation();
-  const isHomePage = location.pathname === '/' || location.pathname === '/home1';
+  const isHomePage = location.pathname === '/';
   const isAdminPage = location.pathname === '/admin';
 
   // Only preload ultra-critical small assets and the logo to ensure fast navigation
@@ -106,7 +105,7 @@ const AppLayout = () => {
   React.useEffect(() => {
     setIsLoading(true);
     // Keep music enabled on pages that support playback, and turn it off elsewhere.
-    const isMusicPage = location.pathname === '/' || location.pathname === '/home1' || location.pathname === '/rates';
+    const isMusicPage = location.pathname === '/' || location.pathname === '/rates';
     if (!isMusicPage && setMusicEnabled) setMusicEnabled(false);
     
     // After 50ms, the new route's content should be ready to render
@@ -123,10 +122,10 @@ const AppLayout = () => {
       <main
       className={`min-h-screen Selection:bg-magenta-100 Selection:text-magenta-900 relative responsive-bg ${isHomePage ? 'home-bg' : ''}`}
       style={{
-        backgroundColor: (isHomePage && location.pathname !== '/home1') ? '#FFFFFF' : '#fafafb',
+        backgroundColor: isHomePage ? '#FFFFFF' : '#fafafb',
         ...(!isAdminPage ? {
           // Main background is now handled by the .bg-container div below for better control
-          backgroundColor: (isHomePage && location.pathname !== '/home1') ? 'transparent' : '#fafafb',
+          backgroundColor: isHomePage ? 'transparent' : '#fafafb',
         } : {})
       }}
     >
@@ -136,7 +135,7 @@ const AppLayout = () => {
           {/* Desktop/Common Backgrounds */}
           {isHomePage ? (
             <img 
-              src={location.pathname === '/home1' ? "/bg-internal.webp" : "/bg-home-desktop.webp"} 
+              src="/bg-home-desktop.webp" 
               alt="Home Desktop Background" 
               className="responsive-bg-img hidden md:block" 
             />
@@ -158,7 +157,7 @@ const AppLayout = () => {
           {/* Home Mobile Background */}
           {isHomePage && (
             <img 
-              src={location.pathname === '/home1' ? "/bg-internal.webp" : "/bg-home-mobile.webp"} 
+              src="/bg-home-mobile.webp" 
               alt="Home Mobile Background" 
               className="responsive-bg-img md:hidden"
             />
@@ -232,19 +231,17 @@ const AppLayout = () => {
           {isHomePage && (
             <div className="relative z-20 flex justify-center items-center gap-2 lg:gap-8 px-1 md:px-0 mt-2 md:-mt-2">
               <div className="lg:translate-x-32">
-                <SpotBar noBoxes={location.pathname === '/home1'} />
+                <SpotBar />
               </div>
               {/* Decorative Image - Now Scrollable again */}
-              {location.pathname !== '/home1' && (
-                <motion.img 
-                  initial={{ opacity: 0, x: 30, scale: 0.8 }}
-                  animate={{ opacity: 1, x: 0, scale: 1 }}
-                  transition={{ duration: 1.2, delay: 0.5 }}
-                  src="/Untitled-design-(2).webp" 
-                  alt="" 
-                  className="absolute md:relative block w-16 md:w-24 lg:w-36 h-auto object-contain drop-shadow-2xl -scale-x-100 -translate-y-24 -translate-x-20 md:translate-x-0 md:-translate-y-16 lg:-translate-y-32 right-0 md:right-auto z-20" 
-                />
-              )}
+              <motion.img 
+                initial={{ opacity: 0, x: 30, scale: 0.8 }}
+                animate={{ opacity: 1, x: 0, scale: 1 }}
+                transition={{ duration: 1.2, delay: 0.5 }}
+                src="/Untitled-design-(2).webp" 
+                alt="" 
+                className="absolute md:relative block w-16 md:w-24 lg:w-36 h-auto object-contain drop-shadow-2xl -scale-x-100 -translate-y-24 -translate-x-20 md:translate-x-0 md:-translate-y-16 lg:-translate-y-32 right-0 md:right-auto z-20" 
+              />
             </div>
           )}
         </>
@@ -254,7 +251,6 @@ const AppLayout = () => {
 
       <Routes>
         <Route path="/" element={<Hero />} />
-        <Route path="/home1" element={<HomePage1 />} />
         <Route path="/rates" element={<RatesPage />} />
         <Route path="/alerts" element={<AlertsPage />} />
         <Route path="/videos" element={<VideosPage />} />

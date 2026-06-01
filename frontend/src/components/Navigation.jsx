@@ -8,7 +8,7 @@ const Navigation = ({ onFlagClick }) => {
     const { rates, isMusicEnabled, toggleMusic } = useRates();
     const location = useLocation();
     const isRatesPage = location.pathname === '/rates';
-    const isHomePage = location.pathname === '/' || location.pathname === '/home1' || location.pathname === '' || location.pathname.endsWith('/');
+    const isHomePage = location.pathname === '/' || location.pathname === '' || location.pathname.endsWith('/');
     const showMusicBtn = isRatesPage || isHomePage;
 
 
@@ -16,8 +16,7 @@ const Navigation = ({ onFlagClick }) => {
         { name: 'Home', path: '/' },
         { name: 'Rates', path: '/rates' },
         { name: 'Videos', path: '/videos' },
-        { name: 'Alerts', path: '/alerts' },
-        { name: 'Home Page 1', path: '/home1' }
+        { name: 'Alerts', path: '/alerts' }
     ];
 
 
