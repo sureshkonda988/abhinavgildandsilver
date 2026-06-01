@@ -113,21 +113,24 @@ export const RateProvider = ({ children }) => {
             let sell = r.sell;
             let high = r.high;
             let low = r.low;
+            let trend = r.trend || 'stable';
 
             if (r.id === '945' && goldPausedObj) {
                 buy = goldPausedObj.pausedBuy || buy;
                 sell = goldPausedObj.pausedSell || sell;
                 high = goldPausedObj.pausedSell || high;
                 low = goldPausedObj.pausedSell || low;
+                trend = 'stable';
             }
             if (r.id === '2987' && silverPausedObj) {
                 buy = silverPausedObj.pausedBuy || buy;
                 sell = silverPausedObj.pausedSell || sell;
                 high = silverPausedObj.pausedSell || high;
                 low = silverPausedObj.pausedSell || low;
+                trend = 'stable';
             }
 
-            return { ...r, buy, sell, high, low };
+            return { ...r, buy, sell, high, low, trend };
         });
 
         return { ...rawRatesState, rtgs };
