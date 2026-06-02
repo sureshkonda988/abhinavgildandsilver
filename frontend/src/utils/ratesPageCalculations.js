@@ -11,6 +11,7 @@ export const normalizeRatesPageSettings = (savedRatesPage = {}) => {
       isPaused: false,
       pausedBuy: 0,
       pausedSell: 0,
+      isStopped: false,
       ...base
     };
   };

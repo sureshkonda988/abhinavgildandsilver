@@ -117,7 +117,7 @@ const Hero = () => {
                                                                 style={{ backgroundColor: bColor, borderColor: '#000000', borderWidth: '1.5px' }}
                                                                 className="w-full transition-all duration-300 max-w-[200px] md:max-w-[300px] py-4 md:py-5 px-3 md:px-6 rounded-[14px] md:rounded-[24px] flex items-center justify-center shadow-lg hover:scale-105"
                                                             >
-                                                                <span className="font-black font-poppins text-center text-[28px] md:text-[38px] leading-none text-slate-900 tracking-tighter md:tracking-normal">
+                                                                <span className="font-black font-poppins text-center text-[18px] sm:text-[24px] md:text-[38px] leading-none text-slate-900 tracking-tighter md:tracking-normal">
                                                                     {item.sell !== '-' ? <><span style={{ fontFamily: 'Inter, system-ui, sans-serif', marginRight: '6px' }}>₹</span>{fmt(item.sell * (item.factor || 1))}</> : '—'}
                                                                 </span>
                                                             </motion.div>
@@ -128,13 +128,13 @@ const Hero = () => {
                                                             <div className="flex-1 max-w-[100px] md:max-w-[180px] border-[1.5px] md:border-[2px] border-sky-400 shadow-lg overflow-hidden rounded-[12px] md:rounded-[24px] flex flex-col items-center justify-center min-h-[70px] md:min-h-[90px] w-full" style={{ backgroundColor: '#bae6fd' }}>
                                                                 <div className="flex-1 w-full flex items-center justify-between px-1 md:px-3 border-b border-black/10">
                                                                      <span className="text-[7px] md:text-[11px] font-black text-[#16a34a] uppercase">HI</span>
-                                                                     <span className="text-[15px] md:text-[18px] lg:text-[22px] font-black text-[#16a34a] leading-none">
+                                                                     <span className="text-[10px] sm:text-[13px] md:text-[18px] lg:text-[22px] font-black text-[#16a34a] leading-none">
                                                                          {item.high !== '-' && typeof item.high === 'number' ? <><span style={{ fontFamily: 'Inter, system-ui, sans-serif', marginRight: '4px' }}>₹</span>{fmt(item.high * (item.factor || 1))}</> : '—'}
                                                                      </span>
                                                                 </div>
                                                                 <div className="flex-1 w-full flex items-center justify-between px-1 md:px-3">
                                                                      <span className="text-[7px] md:text-[11px] font-black text-[#dc2626] uppercase">LO</span>
-                                                                     <span className="text-[15px] md:text-[18px] lg:text-[22px] font-black text-[#dc2626] leading-none">
+                                                                     <span className="text-[10px] sm:text-[13px] md:text-[18px] lg:text-[22px] font-black text-[#dc2626] leading-none">
                                                                          {item.low !== '-' && typeof item.low === 'number' ? <><span style={{ fontFamily: 'Inter, system-ui, sans-serif', marginRight: '4px' }}>₹</span>{fmt(item.low * (item.factor || 1))}</> : '—'}
                                                                      </span>
                                                                 </div>

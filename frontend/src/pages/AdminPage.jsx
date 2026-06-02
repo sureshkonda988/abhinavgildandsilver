@@ -4,7 +4,7 @@ import { useRates } from '../context/RateContext';
 import { motion, AnimatePresence } from 'framer-motion';
 import { computeNavarsu8gBase } from '../utils/ratesPageCalculations';
 // ReactPlayer removed as audio preview is gone
-import { Lock, LogOut, TrendingUp, Video, MessageSquare, Play, Pause, Trash2, Save, RefreshCw, CheckCircle2, AlertCircle, Upload, Youtube, HardDrive, Clock, Music } from 'lucide-react';
+import { Lock, LogOut, TrendingUp, Video, MessageSquare, Play, Pause, Trash2, Save, RefreshCw, CheckCircle2, AlertCircle, Upload, Youtube, HardDrive, Clock, Music, X } from 'lucide-react';
 
 const BACKEND_ORIGIN = 'https://api.abhinavgoldandsilver.com';
 const API_BASE = `${BACKEND_ORIGIN}/api`;
@@ -353,7 +353,29 @@ const AdminPage = () => {
                                 <section className="glass p-4 md:p-8 rounded-[30px] md:rounded-[40px] shadow-luxury border-white/20 min-h-[400px]">
                                     <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-6 md:mb-10">
                                         <h3 className="text-lg md:text-xl font-playfair font-black text-[#f4cb4c] uppercase tracking-widest border-b border-[#f4cb4c]/20 pb-2">Base Rate Buy Modification</h3>
-                                        <div className="flex gap-2 w-full md:w-auto">
+                                        <div className="flex flex-wrap gap-2 w-full md:w-auto items-center">
+                                            <button
+                                                onClick={() => {
+                                                    const currentStoppedAll = adj.marketStatus?.isStoppedAll || false;
+                                                    updateSettings({
+                                                        adjFn: (prev) => ({
+                                                            ...prev,
+                                                            marketStatus: {
+                                                                ...prev.marketStatus,
+                                                                isStoppedAll: !currentStoppedAll
+                                                            }
+                                                        })
+                                                    });
+                                                }}
+                                                className={`px-4 py-2 rounded-full text-[9px] md:text-[10px] font-black uppercase tracking-widest transition-all shadow-md border cursor-pointer ${
+                                                    adj.marketStatus?.isStoppedAll
+                                                        ? 'bg-red-600 text-white border-red-500 hover:bg-red-500 animate-pulse shadow-[0_0_15px_rgba(239,68,68,0.4)]'
+                                                        : 'bg-slate-800 text-red-500 border-red-500/30 hover:bg-slate-700'
+                                                }`}
+                                            >
+                                                {adj.marketStatus?.isStoppedAll ? 'Prices Stopped (Hidden)' : 'Stop All Prices'}
+                                            </button>
+                                            <div className="w-[1px] h-6 bg-white/10 hidden md:block mx-1"></div>
                                             <button
                                                 onClick={() => toggleDisplayMode('live')}
                                                 className={`flex-1 md:flex-none px-4 py-2 rounded-full text-[9px] md:text-[10px] font-black uppercase tracking-widest transition-all ${!showModified ? 'bg-[#f4cb4c] text-slate-900 shadow-lg' : 'bg-white/10 text-white/60'}`}
@@ -984,33 +1006,60 @@ const AdjustmentCard = ({ label, item, liveRates = [], targetField = 'sell', onC
     };
 
     return (
-        <div className={`backdrop-blur-md p-4 md:p-6 rounded-[24px] md:rounded-[30px] border h-full transition-all duration-300 ${item?.isPaused ? 'border-red-500/40 bg-red-500/5 shadow-[0_0_15px_rgba(239,68,68,0.15)]' : 'bg-white/5 border-white/10'}`}>
+        <div className={`backdrop-blur-md p-4 md:p-6 rounded-[24px] md:rounded-[30px] border h-full transition-all duration-300 ${item?.isStopped ? 'border-red-600/40 bg-red-600/5 shadow-[0_0_15px_rgba(220,38,38,0.2)]' : item?.isPaused ? 'border-red-500/40 bg-red-500/5 shadow-[0_0_15px_rgba(239,68,68,0.15)]' : 'bg-white/5 border-white/10'}`}>
             <div className="flex justify-between items-start mb-4 md:mb-6">
                 <div className="flex-1 pr-2">
                     <div className="flex items-center justify-between gap-2 mb-1.5 flex-wrap">
                         <span className="text-[9px] md:text-[10px] font-bold text-[#f4cb4c] uppercase tracking-[0.2em] block font-poppins">{label}</span>
-                        {showPause && (
+                        <div className="flex gap-2">
+                            {showPause && (
+                                <button
+                                    onClick={handleTogglePause}
+                                    className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full text-[9px] font-black uppercase tracking-wider transition-all duration-300 shadow-md border cursor-pointer ${
+                                        item?.isPaused
+                                            ? 'bg-red-500 text-white border-red-400 hover:bg-red-400 active:scale-95 shadow-[0_0_10px_rgba(239,68,68,0.3)] animate-pulse'
+                                            : 'bg-green-500 text-slate-950 border-green-400 hover:bg-green-400 active:scale-95 shadow-[0_0_10px_rgba(34,197,94,0.3)]'
+                                    }`}
+                                >
+                                    {item?.isPaused ? (
+                                        <>
+                                            <Play size={8} fill="currentColor" />
+                                            Resume Live
+                                        </>
+                                    ) : (
+                                        <>
+                                            <Pause size={8} fill="currentColor" />
+                                            Pause Rate
+                                        </>
+                                    )}
+                                </button>
+                            )}
                             <button
-                                onClick={handleTogglePause}
+                                onClick={() => {
+                                    onChange({
+                                        ...item,
+                                        isStopped: !item?.isStopped
+                                    });
+                                }}
                                 className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full text-[9px] font-black uppercase tracking-wider transition-all duration-300 shadow-md border cursor-pointer ${
-                                    item?.isPaused
-                                        ? 'bg-red-500 text-white border-red-400 hover:bg-red-400 active:scale-95 shadow-[0_0_10px_rgba(239,68,68,0.3)] animate-pulse'
-                                        : 'bg-green-500 text-slate-950 border-green-400 hover:bg-green-400 active:scale-95 shadow-[0_0_10px_rgba(34,197,94,0.3)]'
+                                    item?.isStopped
+                                        ? 'bg-red-600 text-white border-red-500 hover:bg-red-500 active:scale-95 shadow-[0_0_10px_rgba(220,38,38,0.4)]'
+                                        : 'bg-slate-700 text-slate-200 border-slate-600 hover:bg-slate-600 active:scale-95'
                                 }`}
                             >
-                                {item?.isPaused ? (
+                                {item?.isStopped ? (
                                     <>
                                         <Play size={8} fill="currentColor" />
-                                        Resume Live
+                                        Display Price
                                     </>
                                 ) : (
                                     <>
-                                        <Pause size={8} fill="currentColor" />
-                                        Pause Rate
+                                        <X size={8} strokeWidth={3} />
+                                        Stop Display
                                     </>
                                 )}
                             </button>
-                        )}
+                        </div>
                     </div>
                     <div className="flex flex-col gap-2">
                         {liveRates.map((r, i) => {
@@ -1027,7 +1076,12 @@ const AdjustmentCard = ({ label, item, liveRates = [], targetField = 'sell', onC
                                         <span className="text-[8px] md:text-[9px] font-bold text-green-500 uppercase tracking-wider">Alt:</span>
                                         <span className="text-[11px] md:text-[13px] font-black text-green-500 font-poppins"><span style={{ fontFamily: 'Inter, system-ui, sans-serif' }}>₹</span>{modified.toLocaleString('en-IN', { maximumFractionDigits: 0 })}</span>
                                     </div>
-                                    {item?.isPaused && (
+                                    {item?.isStopped ? (
+                                        <div className="flex items-center justify-between text-red-500 font-bold animate-pulse text-[8px] md:text-[9px] uppercase tracking-wider mt-1 bg-red-600/10 px-2 py-0.5 rounded-lg border border-red-500/20">
+                                            <span>Status:</span>
+                                            <span>HIDDEN FROM DISPLAY</span>
+                                        </div>
+                                    ) : item?.isPaused && (
                                         <div className="flex items-center justify-between text-red-400 font-bold animate-pulse text-[8px] md:text-[9px] uppercase tracking-wider mt-1 bg-red-500/10 px-2 py-0.5 rounded-lg border border-red-500/20">
                                             <span>Status:</span>
                                             <span>FROZEN AT ₹{(targetField === 'buy' ? item.pausedBuy : item.pausedSell).toLocaleString('en-IN')}</span>

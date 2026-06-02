@@ -51,27 +51,28 @@ export const RateProvider = ({ children }) => {
 
     // Robust initial state for adj
     const getInitialAdj = () => ({
-        gold: { mode: 'amount', value: 0, isPaused: false, pausedBuy: 0, pausedSell: 0 },
-        silver: { mode: 'amount', value: 0, isPaused: false, pausedBuy: 0, pausedSell: 0 },
+        gold: { mode: 'amount', value: 0, isPaused: false, pausedBuy: 0, pausedSell: 0, isStopped: false },
+        silver: { mode: 'amount', value: 0, isPaused: false, pausedBuy: 0, pausedSell: 0, isStopped: false },
         baseModifications: {
-            gold999: { mode: 'amount', value: 0, isPaused: false, pausedBuy: 0, pausedSell: 0 },
-            silver999: { mode: 'amount', value: 0, isPaused: false, pausedBuy: 0, pausedSell: 0 }
+            gold999: { mode: 'amount', value: 0, isPaused: false, pausedBuy: 0, pausedSell: 0, isStopped: false },
+            silver999: { mode: 'amount', value: 0, isPaused: false, pausedBuy: 0, pausedSell: 0, isStopped: false }
         },
         stockOverrides: {}, // { itemId: boolean }
         ratesPage: {
-            goldTable24k: { mode: 'amount', value: 0, isPaused: false, pausedBuy: 0, pausedSell: 0 },
-            goldTable22k: { mode: 'amount', value: 0, isPaused: false, pausedBuy: 0, pausedSell: 0 },
-            goldTable18k: { mode: 'amount', value: 0, isPaused: false, pausedBuy: 0, pausedSell: 0 },
-            goldTable14k: { mode: 'amount', value: 0, isPaused: false, pausedBuy: 0, pausedSell: 0 },
-            navarsuTable: { mode: 'amount', value: 0, isPaused: false, pausedBuy: 0, pausedSell: 0 },
-            silverTable: { mode: 'amount', value: 0, isPaused: false, pausedBuy: 0, pausedSell: 0 },
+            goldTable24k: { mode: 'amount', value: 0, isPaused: false, pausedBuy: 0, pausedSell: 0, isStopped: false },
+            goldTable22k: { mode: 'amount', value: 0, isPaused: false, pausedBuy: 0, pausedSell: 0, isStopped: false },
+            goldTable18k: { mode: 'amount', value: 0, isPaused: false, pausedBuy: 0, pausedSell: 0, isStopped: false },
+            goldTable14k: { mode: 'amount', value: 0, isPaused: false, pausedBuy: 0, pausedSell: 0, isStopped: false },
+            navarsuTable: { mode: 'amount', value: 0, isPaused: false, pausedBuy: 0, pausedSell: 0, isStopped: false },
+            silverTable: { mode: 'amount', value: 0, isPaused: false, pausedBuy: 0, pausedSell: 0, isStopped: false },
             showModified: false
         },
         marketStatus: {
             mode: 'regular',
             modifiedStatus: 'open',
             openTime: '10:00',
-            closeTime: '20:00'
+            closeTime: '20:00',
+            isStoppedAll: false
         }
     });
 
@@ -185,6 +186,7 @@ export const RateProvider = ({ children }) => {
                             isPaused: false,
                             pausedBuy: 0,
                             pausedSell: 0,
+                            isStopped: false,
                             ...(data.gold || {})
                         },
                         silver: {
@@ -193,6 +195,7 @@ export const RateProvider = ({ children }) => {
                             isPaused: false,
                             pausedBuy: 0,
                             pausedSell: 0,
+                            isStopped: false,
                             ...(data.silver || {})
                         },
                         baseModifications: {
@@ -202,6 +205,7 @@ export const RateProvider = ({ children }) => {
                                 isPaused: false,
                                 pausedBuy: 0,
                                 pausedSell: 0,
+                                isStopped: false,
                                 ...(data.baseModifications?.gold999 || {})
                             },
                             silver999: {
@@ -210,16 +214,19 @@ export const RateProvider = ({ children }) => {
                                 isPaused: false,
                                 pausedBuy: 0,
                                 pausedSell: 0,
+                                isStopped: false,
                                 ...(data.baseModifications?.silver999 || {})
                             }
                         },
                         stockOverrides: data.stockOverrides || {},
                         ratesPage: ratesPageSettings,
-                        marketStatus: data.marketStatus || {
+                        marketStatus: {
                             mode: 'regular',
                             modifiedStatus: 'open',
                             openTime: '10:00',
-                            closeTime: '20:00'
+                            closeTime: '20:00',
+                            isStoppedAll: false,
+                            ...(data.marketStatus || {})
                         }
                     });
                     if (data.showModified !== undefined) setShowModified(data.showModified);
@@ -681,7 +688,13 @@ export const RateProvider = ({ children }) => {
         };
 
         // 1. Spot Rates - ALWAYS LIVE as requested
-        const spot = rawRates.spot;
+        const isStoppedAll = adj.marketStatus?.isStoppedAll || false;
+        const spot = rawRates.spot.map(s => {
+            if (isStoppedAll) {
+                return { ...s, bid: '-', ask: '-', high: '-', low: '-' };
+            }
+            return s;
+        });
 
 
         // 2. RTGS Rates & Base Modifications
@@ -693,6 +706,9 @@ export const RateProvider = ({ children }) => {
             const sellMod = isGold ? adj.baseModifications?.gold999 : (isSilver ? adj.baseModifications?.silver999 : null);
             // benchmark choice for buy modification
             const buyOffset = isGold ? adj.gold : adj.silver;
+
+            const isSellStopped = isStoppedAll || (sellMod?.isStopped || false);
+            const isBuyStopped = isStoppedAll || (buyOffset?.isStopped || false);
 
             // Handle paused/frozen rates
             let liveSell = parseFloat(r.sell) || 0;
@@ -724,26 +740,24 @@ export const RateProvider = ({ children }) => {
                          : null));
 
             if (r.id === '945' && goldPausedObj) {
-                console.log(`[DEBUG] Gold paused. Freezing live rates for ${r.name} to:`, goldPausedObj.pausedBuy, goldPausedObj.pausedSell);
                 liveSell = goldPausedObj.pausedSell || liveSell;
                 liveBuy = goldPausedObj.pausedBuy || liveBuy;
                 liveHigh = goldPausedObj.pausedSell || liveHigh;
                 liveLow = goldPausedObj.pausedSell || liveLow;
             }
             if (r.id === '2987' && silverPausedObj) {
-                console.log(`[DEBUG] Silver paused. Freezing live rates for ${r.name} to:`, silverPausedObj.pausedBuy, silverPausedObj.pausedSell);
                 liveSell = silverPausedObj.pausedSell || liveSell;
                 liveBuy = silverPausedObj.pausedBuy || liveBuy;
                 liveHigh = silverPausedObj.pausedSell || liveHigh;
                 liveLow = silverPausedObj.pausedSell || liveLow;
             }
 
-            let sell = liveSell !== 0 ? liveSell : '-';
-            let buy = liveBuy !== 0 ? liveBuy : '-';
-            let high = liveHigh !== 0 ? liveHigh : '-';
-            let low = liveLow !== 0 ? liveLow : '-';
+            let sell = isSellStopped ? '-' : (liveSell !== 0 ? liveSell : '-');
+            let buy = isBuyStopped ? '-' : (liveBuy !== 0 ? liveBuy : '-');
+            let high = isSellStopped ? '-' : (liveHigh !== 0 ? liveHigh : '-');
+            let low = isSellStopped ? '-' : (liveLow !== 0 ? liveLow : '-');
 
-            if (showModified) {
+            if (!isSellStopped && showModified) {
                 // Sell Calculation: Live + SellMod
                 if (sellMod && sellMod.value !== 0) {
                     const delta = sellMod.value || 0;
@@ -751,7 +765,8 @@ export const RateProvider = ({ children }) => {
                     high = liveHigh !== 0 ? parseFloat((liveHigh + delta).toFixed(2)) : '-';
                     low = liveLow !== 0 ? parseFloat((liveLow + delta).toFixed(2)) : '-';
                 }
-
+            }
+            if (!isBuyStopped && showModified) {
                 // Buy Calculation: LiveBuy + BuyMod
                 if (buyOffset) {
                     const delta = buyOffset.value || 0;
@@ -801,30 +816,40 @@ export const RateProvider = ({ children }) => {
             // Base Karat price from LIVE 999
             const karatBase = Math.round(live999Sell * p.factor);
 
+            const isSellStopped = isStoppedAll || (adj.baseModifications?.gold999?.isStopped || false);
+            const isBuyStopped = isStoppedAll || (adj.gold?.isStopped || false);
+
             let sell, buy;
 
-            if (showModified) {
+            if (isSellStopped) {
+                sell = '-';
+            } else if (showModified) {
                 // Sell = KaratBase + GoldSellMod (Flat)
                 const sMod = adj.baseModifications.gold999;
                 const sDelta = sMod.value || 0;
                 sell = Math.round(karatBase + sDelta);
+            } else {
+                sell = karatBase;
+            }
 
+            if (isBuyStopped) {
+                buy = '-';
+            } else if (showModified) {
                 // Buy = KaratBase + GoldBuyMod (Flat, ensuring consistent spread)
                 const bMod = adj.gold;
                 const bDelta = bMod.value || 0;
                 buy = Math.round(karatBase + bDelta);
             } else {
-                sell = karatBase;
                 buy = karatBase;
             }
 
             return {
                 name: p.label,
                 key: p.key,
-                sell: live999Sell !== 0 ? sell : '-',
-                buy: live999Sell !== 0 ? buy : '-',
-                low: baseLow999 !== null ? Math.round(baseLow999 * p.factor) : '-',
-                high: baseHigh999 !== null ? Math.round(baseHigh999 * p.factor) : '-',
+                sell: (live999Sell !== 0 && !isSellStopped) ? sell : '-',
+                buy: (live999Sell !== 0 && !isBuyStopped) ? buy : '-',
+                low: (baseLow999 !== null && !isSellStopped) ? Math.round(baseLow999 * p.factor) : '-',
+                high: (baseHigh999 !== null && !isSellStopped) ? Math.round(baseHigh999 * p.factor) : '-',
                 trend,
                 isModified: showModified && adj.baseModifications.gold999.value !== 0
             };
@@ -838,17 +863,20 @@ export const RateProvider = ({ children }) => {
             { label: 'Gold 14 KT', key: '14K', factor: 0.583, modifier: adj.ratesPage.goldTable14k }
         ].map(p => {
             const trend = live999Trend;
-            const sell = computeGoldTableSell(
-                live999Sell,
-                p.factor,
-                adj.ratesPage.showModified,
-                p.modifier
-            );
+            const isStopped = isStoppedAll || (p.modifier?.isStopped || false);
+            const sell = isStopped
+                ? '-'
+                : computeGoldTableSell(
+                    live999Sell,
+                    p.factor,
+                    adj.ratesPage.showModified,
+                    p.modifier
+                );
 
             return {
                 name: p.label,
                 key: p.key,
-                sell: live999Sell !== 0 ? sell : '-',
+                sell: (live999Sell !== 0 && !isStopped) ? sell : '-',
                 trend
             };
         });
@@ -862,21 +890,27 @@ export const RateProvider = ({ children }) => {
                     ? adj.ratesPage.silverTable
                     : null));
         const liveSilverSell = silverPausedObj ? (silverPausedObj.pausedSell || parseFloat(rawSilver999?.sell) || 0) : (parseFloat(rawSilver999?.sell) || 0);
-        const ratesPageSilverSell = computeSilver10gSell(
-            liveSilverSell,
-            adj.ratesPage.showModified,
-            adj.ratesPage.silverTable
-        );
+        const isSilverStopped = isStoppedAll || (adj.ratesPage.silverTable?.isStopped || false);
+        const ratesPageSilverSell = isSilverStopped
+            ? '-'
+            : computeSilver10gSell(
+                liveSilverSell,
+                adj.ratesPage.showModified,
+                adj.ratesPage.silverTable
+            );
 
         const ratesPageSilver = {
-            sell: liveSilverSell !== 0 ? ratesPageSilverSell : '-'
+            sell: (liveSilverSell !== 0 && !isSilverStopped) ? ratesPageSilverSell : '-'
         };
 
-        const navarsuRate8g = computeNavarsu8gSell(
-            live999Sell,
-            adj.ratesPage.showModified,
-            adj.ratesPage.navarsuTable
-        );
+        const isNavarsuStopped = isStoppedAll || (adj.ratesPage.navarsuTable?.isStopped || false);
+        const navarsuRate8g = isNavarsuStopped
+            ? '-'
+            : computeNavarsu8gSell(
+                live999Sell,
+                adj.ratesPage.showModified,
+                adj.ratesPage.navarsuTable
+            );
         
         return { spot, rtgs, purities, ratesPagePurities, ratesPageSilver, navarsuRate: navarsuRate8g, musicSettings, syncMusicWithMongoDB };
     }, [rawRates, adj, showModified, musicSettings]);

@@ -26,7 +26,7 @@ const SpotCard = ({ item, isUSDINR, noBoxes, getRateColor, idx }) => {
                 style={noBoxes ? {} : { backgroundColor: bColor }}
                 className={noBoxes 
                     ? `flex flex-col items-center ${item.label.includes('USD-INR') ? 'min-w-[100px] md:min-w-[180px]' : 'min-w-[110px] md:min-w-[200px]'} transition-all duration-300`
-                    : `border-[1.5px] md:border-2 border-slate-200 rounded-lg md:rounded-xl px-1 md:px-8 py-2 md:py-3 flex flex-col items-center ${item.label.includes('USD-INR') ? 'min-w-[115px] md:min-w-[220px]' : 'min-w-[125px] md:min-w-[250px]'} shadow-lg group relative overflow-hidden`
+                    : `border-[1.5px] md:border-2 border-slate-200 rounded-lg md:rounded-xl px-0.5 sm:px-1 md:px-8 py-2 md:py-3 flex flex-col items-center ${item.label.includes('USD-INR') ? 'min-w-[100px] sm:min-w-[115px] md:min-w-[220px]' : 'min-w-[105px] sm:min-w-[125px] md:min-w-[250px]'} shadow-lg group relative overflow-hidden`
                 }
             >
                 <div className="flex items-center gap-1.5 md:gap-2">
@@ -38,7 +38,7 @@ const SpotCard = ({ item, isUSDINR, noBoxes, getRateColor, idx }) => {
                     </span>
                     <span 
                         style={{ color: noBoxes ? bColor : 'black' }} 
-                        className={`${noBoxes ? 'text-[20px] md:text-5xl filter drop-shadow-sm' : 'text-[18px] md:text-4xl'} font-black font-poppins`}
+                        className={`${noBoxes ? 'text-[20px] md:text-5xl filter drop-shadow-sm' : 'text-[14px] sm:text-[18px] md:text-4xl'} font-black font-poppins whitespace-nowrap`}
                     >
                         {item.value}
                     </span>
