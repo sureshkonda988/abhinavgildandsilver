@@ -61,12 +61,15 @@ const Hero = () => {
                             <div className="flex flex-col gap-0 md:gap-0.5">
                                  {/* Header Row Table 1 */}
                                 <div className="px-1 md:px-0 py-1 mb-1 md:mb-3">
-                                    <div className="grid grid-cols-[0.8fr_1.5fr_60px] md:grid-cols-[1.2fr_1.5fr_100px] gap-2 md:gap-6 items-center w-full">
+                                    <div className="grid grid-cols-[0.8fr_1.4fr_1.1fr_55px] md:grid-cols-[1.2fr_1.5fr_1.2fr_90px] gap-2 md:gap-6 items-center w-full">
                                         <div className="flex justify-start pl-1 md:pl-3">
                                             <span className="inline-flex items-center justify-center px-1.5 py-0.5 md:px-6 md:py-1.5 rounded-xl bg-transparent border-[1.5px] md:border-2 border-slate-900/20 text-slate-900 font-playfair font-black text-[9px] md:text-lg tracking-widest shadow-sm backdrop-blur-sm">PRODUCTS</span>
                                         </div>
                                         <div className="flex justify-center w-full">
                                             <span className="inline-flex items-center justify-center px-6 py-0.5 md:px-12 md:py-1.5 rounded-xl bg-transparent border-[1.5px] md:border-2 border-slate-900/20 text-slate-900 font-playfair font-black text-[9px] md:text-lg tracking-widest shadow-sm backdrop-blur-sm">LIVE</span>
+                                        </div>
+                                        <div className="flex justify-center w-full">
+                                            <span className="inline-flex items-center justify-center px-2 py-0.5 md:px-8 md:py-1.5 rounded-xl bg-transparent border-[1.5px] md:border-2 border-slate-900/20 text-slate-900 font-playfair font-black text-[9px] md:text-lg tracking-widest shadow-sm backdrop-blur-sm uppercase">HI / LO</span>
                                         </div>
                                         <div className="flex justify-center w-full">
                                             <span className="inline-flex items-center justify-center px-1 py-0.5 md:px-5 md:py-1.5 rounded-xl bg-transparent border-[1.5px] md:border-2 border-slate-900/20 text-slate-900 font-playfair font-black text-[8px] md:text-lg tracking-widest shadow-sm backdrop-blur-sm">STATUS</span>
@@ -94,7 +97,7 @@ const Hero = () => {
                                                 transition={{ delay: idx * 0.12 }}
                                                 className="bg-white/10 backdrop-blur-sm rounded-[16px] py-4 md:py-2 md:bg-transparent md:backdrop-blur-none md:rounded-none md:px-0 md:shadow-none md:border-none relative group"
                                             >
-                                                <div className="grid grid-cols-[0.8fr_1.5fr_60px] md:grid-cols-[1.2fr_1.5fr_100px] gap-2 md:gap-6 items-center w-full relative">
+                                                <div className="grid grid-cols-[0.8fr_1.4fr_1.1fr_55px] md:grid-cols-[1.2fr_1.5fr_1.2fr_90px] gap-2 md:gap-6 items-center w-full relative">
                                                     {/* Product Section */}
                                                     <div className="flex flex-col justify-center min-w-0 pl-1 md:pl-3">
                                                         <span className="text-[14px] md:text-[24px] font-black text-slate-900 font-poppins uppercase tracking-tight leading-[1.1] md:leading-tight group-hover:text-magenta-700 transition-colors duration-300">
@@ -117,6 +120,24 @@ const Hero = () => {
                                                                 {item.sell !== '-' ? <><span style={{ fontFamily: 'Inter, system-ui, sans-serif', marginRight: '6px' }}>₹</span>{fmt(item.sell * (item.factor || 1))}</> : '—'}
                                                             </span>
                                                         </motion.div>
+                                                    </div>
+
+                                                    {/* HI/LO Box */}
+                                                    <div className="hilo-column flex justify-center items-stretch w-full">
+                                                        <div className="flex-1 max-w-[100px] md:max-w-[180px] border-[1.5px] md:border-[2px] border-sky-400 shadow-lg overflow-hidden rounded-[12px] md:rounded-[24px] flex flex-col items-center justify-center min-h-[70px] md:min-h-[90px] w-full" style={{ backgroundColor: '#bae6fd' }}>
+                                                            <div className="flex-1 w-full flex items-center justify-between px-1 md:px-3 border-b border-black/10">
+                                                                 <span className="text-[7px] md:text-[11px] font-black text-[#16a34a] uppercase">HI</span>
+                                                                 <span className="text-[15px] md:text-[18px] lg:text-[22px] font-black text-[#16a34a] leading-none">
+                                                                     {item.high !== '-' && typeof item.high === 'number' ? <><span style={{ fontFamily: 'Inter, system-ui, sans-serif', marginRight: '4px' }}>₹</span>{fmt(item.high * (item.factor || 1))}</> : '—'}
+                                                                 </span>
+                                                            </div>
+                                                            <div className="flex-1 w-full flex items-center justify-between px-1 md:px-3">
+                                                                 <span className="text-[7px] md:text-[11px] font-black text-[#dc2626] uppercase">LO</span>
+                                                                 <span className="text-[15px] md:text-[18px] lg:text-[22px] font-black text-[#dc2626] leading-none">
+                                                                     {item.low !== '-' && typeof item.low === 'number' ? <><span style={{ fontFamily: 'Inter, system-ui, sans-serif', marginRight: '4px' }}>₹</span>{fmt(item.low * (item.factor || 1))}</> : '—'}
+                                                                 </span>
+                                                            </div>
+                                                        </div>
                                                     </div>
 
                                                     {/* Status Section */}
@@ -185,7 +206,7 @@ const Hero = () => {
                         <div className="rates-table flex flex-col gap-0 md:gap-0.5">
                             {/* Header Row Table 2 */}
                             <div className="px-1 md:px-0 py-1 mb-1 md:mb-3">
-                                <div className="rate-row grid grid-cols-[1fr_1.2fr_1.2fr_1.2fr] md:grid-cols-[1.1fr_1.2fr_1.2fr_1.2fr] gap-1 md:gap-6 items-center w-full">
+                                <div className="rate-row grid grid-cols-[1fr_1.2fr_1.2fr] md:grid-cols-[1.1fr_1.2fr_1.2fr] gap-1 md:gap-6 items-center w-full">
                                     <div className="product-column flex justify-start pl-1 md:pl-3">
                                         <span className="inline-flex items-center justify-center px-1 py-0.5 md:px-4 md:py-1.5 rounded-xl bg-transparent border-[1.5px] md:border-2 border-slate-900/20 text-slate-900 font-playfair font-black text-[8px] md:text-base tracking-widest shadow-sm backdrop-blur-sm">PRODUCTS</span>
                                     </div>
@@ -194,9 +215,6 @@ const Hero = () => {
                                     </div>
                                     <div className="sell-column flex justify-center w-full">
                                         <span className="inline-flex items-center justify-center px-1 py-0.5 md:px-6 md:py-1.5 rounded-xl bg-transparent border-[1.5px] md:border-2 border-slate-900/20 text-slate-900 font-playfair font-black text-[8px] md:text-base tracking-widest shadow-sm backdrop-blur-sm">SELL</span>
-                                    </div>
-                                    <div className="hilo-column flex justify-center w-full">
-                                        <span className="inline-flex items-center justify-center px-1 py-0.5 md:px-4 md:py-1.5 rounded-xl bg-transparent border-[1.5px] md:border-2 border-slate-900/20 text-slate-900 font-playfair font-black text-[8px] md:text-base tracking-widest shadow-sm backdrop-blur-sm uppercase">HI / LO</span>
                                     </div>
                                 </div>
                             </div>
@@ -230,7 +248,7 @@ const Hero = () => {
                                             transition={{ delay: idx * 0.12 }}
                                             className="bg-white/10 backdrop-blur-sm rounded-[16px] py-4 md:py-2 md:bg-transparent md:backdrop-blur-none md:rounded-none md:px-0 md:shadow-none md:border-none relative group"
                                         >
-                                            <div className="rate-row grid grid-cols-[1fr_1.2fr_1.2fr_1.2fr] md:grid-cols-[1.1fr_1.2fr_1.2fr_1.2fr] gap-1 md:gap-6 items-stretch w-full">
+                                            <div className="rate-row grid grid-cols-[1fr_1.2fr_1.2fr] md:grid-cols-[1.1fr_1.2fr_1.2fr] gap-1 md:gap-6 items-stretch w-full">
                                                 {/* Product Name */}
                                                 <div className="product-column flex flex-col justify-center min-w-0 pl-1 md:pl-3">
                                                     <span className="text-[13px] md:text-[20px] font-black text-slate-900 font-poppins uppercase tracking-tight leading-[1.1] md:leading-tight group-hover:text-magenta-700 transition-colors duration-300">
@@ -265,24 +283,6 @@ const Hero = () => {
                                                             {item.sell !== '-' ? <><span style={{ fontFamily: 'Inter, system-ui, sans-serif', marginRight: '5px' }}>₹</span>{fmt(item.sell)}</> : '—'}
                                                         </span>
                                                     </motion.div>
-                                                </div>
-
-                                                {/* HI/LO Box */}
-                                                <div className="hilo-column flex justify-center items-stretch w-full">
-                                                    <div className="flex-1 max-w-[100px] md:max-w-[180px] border-[1.5px] md:border-[2px] border-sky-400 shadow-lg overflow-hidden rounded-[12px] md:rounded-[24px] flex flex-col items-center justify-center min-h-[70px] md:min-h-[90px] w-full" style={{ backgroundColor: '#bae6fd' }}>
-                                                        <div className="flex-1 w-full flex items-center justify-between px-1 md:px-3 border-b border-black/10">
-                                                            <span className="text-[7px] md:text-[11px] font-black text-[#16a34a] uppercase">HI</span>
-                                                            <span className="text-[15px] md:text-[18px] lg:text-[22px] font-black text-[#16a34a] leading-none">
-                                                                {item.high !== '-' ? <><span style={{ fontFamily: 'Inter, system-ui, sans-serif', marginRight: '4px' }}>₹</span>{fmt(item.high)}</> : '—'}
-                                                            </span>
-                                                        </div>
-                                                        <div className="flex-1 w-full flex items-center justify-between px-1 md:px-3">
-                                                            <span className="text-[7px] md:text-[11px] font-black text-[#dc2626] uppercase">LO</span>
-                                                            <span className="text-[15px] md:text-[18px] lg:text-[22px] font-black text-[#dc2626] leading-none">
-                                                                {item.low !== '-' ? <><span style={{ fontFamily: 'Inter, system-ui, sans-serif', marginRight: '4px' }}>₹</span>{fmt(item.low)}</> : '—'}
-                                                            </span>
-                                                        </div>
-                                                    </div>
                                                 </div>
                                             </div>
                                         </motion.div>
