@@ -76,7 +76,7 @@ const SpotBar = ({ noBoxes }) => {
     ];
 
     return (
-        <div className="flex flex-wrap md:flex-nowrap items-center justify-center gap-1 md:gap-1 px-1 md:px-4 py-0.5 md:py-1">
+        <div className="spotbar-wrapper flex flex-wrap md:flex-nowrap items-center justify-center gap-1 md:gap-1 px-1 md:px-4 py-0.5 md:py-1">
             <div className="flex items-center justify-center gap-1.5 md:gap-3">
                 {items.map((item, idx) => (
                     <SpotCard 

@@ -102,9 +102,7 @@ const Hero = () => {
                                                         {/* Product Section */}
                                                         <div className="product-column flex flex-col justify-center min-w-0 pl-1 md:pl-3">
                                                             <span className="text-[14px] md:text-[24px] font-black text-slate-900 font-poppins uppercase tracking-tight leading-[1.1] md:leading-tight group-hover:text-magenta-700 transition-colors duration-300">
-                                                                {item.name.split('(')[0].trim().split(' ').map((word, i) => (
-                                                                    <span key={i} className="block md:inline">{word} </span>
-                                                                ))}
+                                                                {item.name.split('(')[0].trim()}
                                                             </span>
                                                             <span className="text-[9px] md:text-[14px] font-bold text-slate-800 font-poppins uppercase tracking-wider mt-0.5 md:mt-1">
                                                                 {item.name.match(/\((.*?)\)/)?.[1] || (item.name.toLowerCase().includes('gold') ? '10 Grams' : '30 KGS')}
@@ -253,14 +251,12 @@ const Hero = () => {
                                             <div className="grid grid-cols-[1fr_1.2fr_1.2fr] md:grid-cols-[1.1fr_1.2fr_1.2fr] gap-1 md:gap-6 items-stretch w-full">
                                                 {/* Product Name */}
                                                 <div className="flex flex-col justify-center min-w-0 pl-1 md:pl-3">
-                                                    <span className="text-[13px] md:text-[20px] font-black text-slate-900 font-poppins uppercase tracking-tight leading-[1.1] md:leading-tight group-hover:text-magenta-700 transition-colors duration-300">
-                                                        {item.name.split('(')[0].trim().split(' ').map((word, i) => (
-                                                            <span key={i} className="block md:inline">{word} </span>
-                                                        ))}
-                                                    </span>
-                                                    <span className="text-[8px] md:text-[12px] font-bold text-slate-800 font-poppins uppercase tracking-wider mt-0.5 md:mt-1">
-                                                        {item.name.toLowerCase().includes('gold') ? <><span className="block md:inline">10</span> <span className="block md:inline">GRAMS</span></> : <><span className="block md:inline">1</span> <span className="block md:inline">KG</span></>}
-                                                    </span>
+                                                     <span className="text-[13px] md:text-[20px] font-black text-slate-900 font-poppins uppercase tracking-tight leading-[1.1] md:leading-tight group-hover:text-magenta-700 transition-colors duration-300">
+                                                         {item.name.split('(')[0].trim()}
+                                                     </span>
+                                                     <span className="text-[8px] md:text-[12px] font-bold text-slate-800 font-poppins uppercase tracking-wider mt-0.5 md:mt-1">
+                                                         {item.name.toLowerCase().includes('gold') ? '10 GRAMS' : '1 KG'}
+                                                     </span>
                                                 </div>
                                                 
                                                 {/* BUY Box */}
