@@ -263,7 +263,7 @@ const Hero = () => {
                                                 <div className="flex justify-center items-stretch w-full">
                                                     <motion.div
                                                         style={{ backgroundColor: buyColor, borderColor: '#000000', borderWidth: '1.5px' }}
-                                                        className="w-full transition-all duration-300 max-w-[110px] md:max-w-[240px] py-4 md:py-5 px-1 md:px-3 rounded-[12px] md:rounded-[24px] flex items-center justify-center shadow-lg hover:scale-105 overflow-hidden"
+                                                        className="w-full transition-all duration-300 max-w-[140px] md:max-w-[240px] py-5 md:py-5 px-3 md:px-3 rounded-[12px] md:rounded-[24px] flex items-center justify-center shadow-lg hover:scale-105 overflow-hidden"
                                                     >
                                                         <span className="font-black font-poppins text-center text-[22px] md:text-[26px] lg:text-[30px] leading-none text-slate-900 tracking-tighter md:tracking-normal">
                                                             {item.buy !== '-' ? <><span style={{ fontFamily: 'Inter, system-ui, sans-serif', marginRight: '5px' }}>₹</span>{fmt(item.buy)}</> : '—'}
@@ -275,7 +275,7 @@ const Hero = () => {
                                                 <div className="flex justify-center items-stretch w-full">
                                                     <motion.div
                                                         style={{ backgroundColor: sellColor, borderColor: '#000000', borderWidth: '1.5px' }}
-                                                        className="w-full transition-all duration-300 max-w-[110px] md:max-w-[240px] py-4 md:py-5 px-1 md:px-3 rounded-[12px] md:rounded-[24px] flex items-center justify-center shadow-lg hover:scale-105 overflow-hidden"
+                                                        className="w-full transition-all duration-300 max-w-[140px] md:max-w-[240px] py-5 md:py-5 px-3 md:px-3 rounded-[12px] md:rounded-[24px] flex items-center justify-center shadow-lg hover:scale-105 overflow-hidden"
                                                     >
                                                         <span className="font-black font-poppins text-center text-[22px] md:text-[26px] lg:text-[30px] leading-none text-slate-900 tracking-tighter md:tracking-normal">
                                                             {item.sell !== '-' ? <><span style={{ fontFamily: 'Inter, system-ui, sans-serif', marginRight: '5px' }}>₹</span>{fmt(item.sell)}</> : '—'}
