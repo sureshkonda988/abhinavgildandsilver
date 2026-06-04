@@ -62,18 +62,18 @@ const Hero = () => {
                                 <div className="rates-table flex flex-col gap-0 md:gap-0.5">
                                      {/* Header Row Table 1 */}
                                     <div className="px-1 md:px-0 py-1 mb-1 md:mb-3">
-                                        <div className="rate-row grid grid-cols-[0.8fr_1.4fr_1.1fr_55px] md:grid-cols-[1.2fr_1.5fr_1.2fr_90px] gap-2 md:gap-6 items-center w-full">
+                                        <div className="rate-row grid grid-cols-[0.8fr_1.4fr_55px_1.1fr] md:grid-cols-[1.2fr_1.5fr_90px_1.2fr] gap-2 md:gap-6 items-center w-full">
                                             <div className="product-column flex justify-start pl-1 md:pl-3">
                                                 <span className="inline-flex items-center justify-center px-1.5 py-0.5 md:px-6 md:py-1.5 rounded-xl bg-transparent border-[1.5px] md:border-2 border-slate-900/20 text-slate-900 font-playfair font-black text-[9px] md:text-lg tracking-widest shadow-sm backdrop-blur-sm">PRODUCTS</span>
                                             </div>
                                             <div className="sell-column flex justify-center w-full">
                                                 <span className="inline-flex items-center justify-center px-6 py-0.5 md:px-12 md:py-1.5 rounded-xl bg-transparent border-[1.5px] md:border-2 border-slate-900/20 text-slate-900 font-playfair font-black text-[9px] md:text-lg tracking-widest shadow-sm backdrop-blur-sm">LIVE</span>
                                             </div>
-                                            <div className="hilo-column flex justify-center w-full">
-                                                <span className="inline-flex items-center justify-center px-2 py-0.5 md:px-8 md:py-1.5 rounded-xl bg-transparent border-[1.5px] md:border-2 border-slate-900/20 text-slate-900 font-playfair font-black text-[9px] md:text-lg tracking-widest shadow-sm backdrop-blur-sm uppercase">HI / LO</span>
-                                            </div>
                                             <div className="flex justify-center w-full" style={{ minWidth: '60px' }}>
                                                 <span className="inline-flex items-center justify-center px-1 py-0.5 md:px-5 md:py-1.5 rounded-xl bg-transparent border-[1.5px] md:border-2 border-slate-900/20 text-slate-900 font-playfair font-black text-[8px] md:text-lg tracking-widest shadow-sm backdrop-blur-sm">STATUS</span>
+                                            </div>
+                                            <div className="hilo-column flex justify-center w-full">
+                                                <span className="inline-flex items-center justify-center px-2 py-0.5 md:px-8 md:py-1.5 rounded-xl bg-transparent border-[1.5px] md:border-2 border-slate-900/20 text-slate-900 font-playfair font-black text-[9px] md:text-lg tracking-widest shadow-sm backdrop-blur-sm uppercase">HI / LO</span>
                                             </div>
                                         </div>
                                     </div>
@@ -98,7 +98,7 @@ const Hero = () => {
                                                     transition={{ delay: idx * 0.12 }}
                                                     className="bg-white/10 backdrop-blur-sm rounded-[16px] py-4 md:py-2 md:bg-transparent md:backdrop-blur-none md:rounded-none md:px-0 md:shadow-none md:border-none relative group"
                                                 >
-                                                    <div className="rate-row grid grid-cols-[0.8fr_1.4fr_1.1fr_55px] md:grid-cols-[1.2fr_1.5fr_1.2fr_90px] gap-2 md:gap-6 items-center w-full relative">
+                                                    <div className="rate-row grid grid-cols-[0.8fr_1.4fr_55px_1.1fr] md:grid-cols-[1.2fr_1.5fr_90px_1.2fr] gap-2 md:gap-6 items-center w-full relative">
                                                         {/* Product Section */}
                                                         <div className="product-column flex flex-col justify-center min-w-0 pl-1 md:pl-3">
                                                             <span className="text-[14px] md:text-[24px] font-black text-slate-900 font-poppins uppercase tracking-tight leading-[1.1] md:leading-tight group-hover:text-magenta-700 transition-colors duration-300">
@@ -121,6 +121,13 @@ const Hero = () => {
                                                             </motion.div>
                                                         </div>
 
+                                                        {/* Status Section */}
+                                                        <div className="flex justify-center w-full" style={{ minWidth: '60px' }}>
+                                                            <div className={`flex items-center justify-center w-10 h-10 md:w-16 md:h-16 rounded-full transition-all duration-300 shadow-md ${effectiveStock ? 'bg-[#e6f9ec] text-[#1c7c3c] border border-[#1c7c3c]/30' : 'bg-red-50 text-red-600 border border-red-200'}`}>
+                                                                {effectiveStock ? <Check className="w-5 h-5 md:w-8 md:h-8" strokeWidth={3} /> : <Minus className="w-5 h-5 md:w-8 md:h-8" strokeWidth={3} />}
+                                                            </div>
+                                                        </div>
+
                                                         {/* HI/LO Box */}
                                                         <div className="hilo-column flex justify-center items-stretch w-full">
                                                             <div className="flex-1 max-w-[100px] md:max-w-[180px] border-[1.5px] md:border-[2px] border-sky-400 shadow-lg overflow-hidden rounded-[12px] md:rounded-[24px] flex flex-col items-center justify-center min-h-[70px] md:min-h-[90px] w-full" style={{ backgroundColor: '#bae6fd' }}>
@@ -136,13 +143,6 @@ const Hero = () => {
                                                                          {item.low !== '-' && typeof item.low === 'number' ? <><span style={{ fontFamily: 'Inter, system-ui, sans-serif', marginRight: '4px' }}>₹</span>{fmt(item.low * (item.factor || 1))}</> : '—'}
                                                                      </span>
                                                                 </div>
-                                                            </div>
-                                                        </div>
-
-                                                        {/* Status Section */}
-                                                        <div className="flex justify-center w-full" style={{ minWidth: '60px' }}>
-                                                            <div className={`flex items-center justify-center w-10 h-10 md:w-16 md:h-16 rounded-full transition-all duration-300 shadow-md ${effectiveStock ? 'bg-[#e6f9ec] text-[#1c7c3c] border border-[#1c7c3c]/30' : 'bg-red-50 text-red-600 border border-red-200'}`}>
-                                                                {effectiveStock ? <Check className="w-5 h-5 md:w-8 md:h-8" strokeWidth={3} /> : <Minus className="w-5 h-5 md:w-8 md:h-8" strokeWidth={3} />}
                                                             </div>
                                                         </div>
                                                     </div>
