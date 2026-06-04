@@ -132,14 +132,14 @@ const Hero = () => {
                                                         <div className="hilo-column flex justify-center items-stretch w-full">
                                                             <div className="flex-1 max-w-[100px] md:max-w-[180px] border-[1.5px] md:border-[2px] border-sky-400 shadow-lg overflow-hidden rounded-[12px] md:rounded-[24px] flex flex-col items-center justify-center min-h-[70px] md:min-h-[90px] w-full" style={{ backgroundColor: '#bae6fd' }}>
                                                                 <div className="flex-1 w-full flex items-center justify-between px-1 md:px-3 border-b border-black/10">
-                                                                     <span className="text-[7px] md:text-[11px] font-black text-[#16a34a] uppercase">HI</span>
-                                                                     <span className="text-[10px] sm:text-[13px] md:text-[18px] lg:text-[22px] font-black text-[#16a34a] leading-none">
+                                                                     <span className="text-[7px] md:text-[11px] font-black text-[#16a34a] uppercase hilo-text-hi">HI</span>
+                                                                     <span className="text-[10px] sm:text-[13px] md:text-[18px] lg:text-[22px] font-black text-[#16a34a] leading-none hilo-text-hi">
                                                                          {item.high !== '-' && typeof item.high === 'number' ? <><span style={{ fontFamily: 'Inter, system-ui, sans-serif', marginRight: '4px' }}>₹</span>{fmt(item.high * (item.factor || 1))}</> : '—'}
                                                                      </span>
                                                                 </div>
                                                                 <div className="flex-1 w-full flex items-center justify-between px-1 md:px-3">
-                                                                     <span className="text-[7px] md:text-[11px] font-black text-[#dc2626] uppercase">LO</span>
-                                                                     <span className="text-[10px] sm:text-[13px] md:text-[18px] lg:text-[22px] font-black text-[#dc2626] leading-none">
+                                                                     <span className="text-[7px] md:text-[11px] font-black text-[#dc2626] uppercase hilo-text-lo">LO</span>
+                                                                     <span className="text-[10px] sm:text-[13px] md:text-[18px] lg:text-[22px] font-black text-[#dc2626] leading-none hilo-text-lo">
                                                                          {item.low !== '-' && typeof item.low === 'number' ? <><span style={{ fontFamily: 'Inter, system-ui, sans-serif', marginRight: '4px' }}>₹</span>{fmt(item.low * (item.factor || 1))}</> : '—'}
                                                                      </span>
                                                                 </div>

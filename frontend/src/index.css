@@ -218,3 +218,11 @@
     transform: translateY(-20px);
   }
 }
+
+/* High-specificity override for the published Play Store app webview */
+.hilo-column div.flex.flex-col.items-center span.hilo-text-hi {
+  color: #16a34a !important;
+}
+.hilo-column div.flex.flex-col.items-center span.hilo-text-lo {
+  color: #dc2626 !important;
+}
