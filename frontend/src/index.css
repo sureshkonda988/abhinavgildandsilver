@@ -176,7 +176,7 @@
     }
 
     .rates-table {
-      min-width: 520px;
+      min-width: 590px;
       display: flex;
       flex-direction: column;
       gap: 12px;
@@ -191,19 +191,19 @@
   }
 
   .product-column {
-    min-width: 120px;
+    min-width: 145px;
   }
 
   .buy-column {
-    min-width: 130px;
+    min-width: 160px;
   }
 
   .sell-column {
-    min-width: 130px;
+    min-width: 160px;
   }
 
   .hilo-column {
-    min-width: 140px;
+    min-width: 165px;
   }
 }
 
