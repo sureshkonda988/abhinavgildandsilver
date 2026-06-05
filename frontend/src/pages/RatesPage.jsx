@@ -50,7 +50,7 @@ const RatesPage = () => {
                     <div className="flex flex-col gap-4">
                         {/* Gold Rates Table */}
                         <div className="flex flex-col w-full mx-auto min-w-[190px] md:w-[80%] md:max-w-[420px] max-w-[100%] md:ml-auto md:mr-16">
-                            <div className="gradient-luxury px-2 py-2 md:px-4 md:py-2.5 rounded-t-xl shadow-lg flex justify-between items-center text-white font-poppins font-black text-[12px] md:text-[16px] uppercase tracking-widest">
+                            <div className="gradient-luxury px-2 py-1.5 md:px-4 md:py-2.5 rounded-t-xl shadow-lg flex justify-between items-center text-white font-poppins font-black text-[13px] md:text-[14px] uppercase tracking-widest">
                                 <span className="w-1/2 text-left px-2 md:px-4">PURITY</span>
                                 <span className="w-1/2 text-right pr-2 md:pr-4 tracking-tight md:tracking-widest">10 Grams</span>
                             </div>
@@ -62,12 +62,12 @@ const RatesPage = () => {
                                             const gSellVal = gold?.sell !== '-' && gold?.sell !== undefined ? fmt(gold.sell) : '-';
                                             return (
                                                 <tr key={idx} className="hover:bg-white/5 transition-colors group">
-                                                    <td className="px-2 py-2 md:px-4 md:py-2.5 text-[16px] md:text-[19px] font-bold text-white whitespace-nowrap w-1/2">
+                                                    <td className="px-2 py-1.5 md:px-4 md:py-2.5 text-[16px] md:text-[17px] font-bold text-white whitespace-nowrap w-1/2">
                                                         {gold.name}
                                                     </td>
-                                                    <td className="px-2 py-2 md:px-4 md:py-2.5 text-right whitespace-nowrap w-1/2">
+                                                    <td className="px-2 py-1.5 md:px-4 md:py-2.5 text-right whitespace-nowrap w-1/2">
                                                         <span
-                                                            className="text-[20px] md:text-[24px]"
+                                                            className="text-[20px] md:text-[22px]"
                                                             style={getKaratStyle()}
                                                         >
                                                             <span style={{ fontFamily: 'Inter, system-ui, sans-serif' }}>₹</span>{gSellVal}
@@ -83,7 +83,7 @@ const RatesPage = () => {
 
                         {/* Navarsu / Kasu Table */}
                         <div className="flex flex-col w-full mx-auto min-w-[190px] md:w-[80%] md:max-w-[420px] max-w-[100%] md:ml-auto md:mr-16 mt-2">
-                            <div className="gradient-luxury px-2 py-2 md:px-4 md:py-2.5 rounded-t-xl shadow-lg flex justify-between items-center text-white font-poppins font-black text-[12px] md:text-[16px] uppercase tracking-widest">
+                            <div className="gradient-luxury px-2 py-1.5 md:px-4 md:py-2.5 rounded-t-xl shadow-lg flex justify-between items-center text-white font-poppins font-black text-[13px] md:text-[14px] uppercase tracking-widest">
                                 <span className="w-1/2 text-left px-2 md:px-4">Navarsu / Kasu</span>
                                 <span className="w-1/2 text-right pr-2 md:pr-4">8 GRAMS</span>
                             </div>
@@ -91,11 +91,11 @@ const RatesPage = () => {
                                 <table className="w-full text-left">
                                     <tbody className="divide-y divide-white/5">
                                         <tr className="hover:bg-white/5 transition-colors group">
-                                            <td className="px-2 py-2 md:px-4 md:py-2.5 text-[16px] md:text-[19px] font-bold text-white whitespace-nowrap w-1/2">
+                                            <td className="px-2 py-1.5 md:px-4 md:py-2.5 text-[16px] md:text-[17px] font-bold text-white whitespace-nowrap w-1/2">
                                                 Gold 22 KT
                                             </td>
-                                            <td className="px-2 py-2 md:px-4 md:py-2.5 text-right whitespace-nowrap w-1/2">
-                                                <span className="text-[20px] md:text-[24px]" style={getKaratStyle()}>
+                                            <td className="px-2 py-1.5 md:px-4 md:py-2.5 text-right whitespace-nowrap w-1/2">
+                                                <span className="text-[20px] md:text-[22px]" style={getKaratStyle()}>
                                                     <span style={{ fontFamily: 'Inter, system-ui, sans-serif' }}>₹</span>{rates.navarsuRate && rates.navarsuRate !== '-' ? fmt(rates.navarsuRate) : '-'}
                                                 </span>
                                             </td>
@@ -107,7 +107,7 @@ const RatesPage = () => {
 
                         {/* Silver 10 Grams Table */}
                         <div className="flex flex-col w-full mx-auto min-w-[190px] md:w-[80%] md:max-w-[420px] max-w-[100%] md:ml-auto md:mr-16 mt-2">
-                            <div className="gradient-luxury px-2 py-2 md:px-4 md:py-2.5 rounded-t-xl shadow-lg flex justify-between items-center text-white font-poppins font-black text-[12px] md:text-[16px] uppercase tracking-widest">
+                            <div className="gradient-luxury px-2 py-1.5 md:px-4 md:py-2.5 rounded-t-xl shadow-lg flex justify-between items-center text-white font-poppins font-black text-[13px] md:text-[14px] uppercase tracking-widest">
                                 <span className="w-1/2 text-left px-1 md:px-0">SILVER</span>
                                 <span className="w-1/2 text-right pr-2 md:pr-4">10 GRAMS</span>
                             </div>
@@ -115,11 +115,11 @@ const RatesPage = () => {
                                 <table className="w-full text-left">
                                     <tbody className="divide-y divide-white/5">
                                         <tr className="hover:bg-white/5 transition-colors group">
-                                            <td className="px-2 py-2 md:px-4 md:py-2.5 text-[16px] md:text-[19px] font-bold text-white whitespace-nowrap w-1/2">
+                                            <td className="px-2 py-1.5 md:px-4 md:py-2.5 text-[16px] md:text-[17px] font-bold text-white whitespace-nowrap w-1/2">
                                                 Silver 999
                                             </td>
-                                            <td className="px-2 py-2 md:px-4 md:py-2.5 text-right whitespace-nowrap w-1/2">
-                                                <span className="text-[20px] md:text-[24px]" style={getSilverStyle()}>
+                                            <td className="px-2 py-1.5 md:px-4 md:py-2.5 text-right whitespace-nowrap w-1/2">
+                                                <span className="text-[20px] md:text-[22px]" style={getSilverStyle()}>
                                                     <span style={{ fontFamily: 'Inter, system-ui, sans-serif' }}>₹</span>{rates.ratesPageSilver?.sell && rates.ratesPageSilver.sell !== '-' ? fmt(rates.ratesPageSilver.sell) : '-'}
                                                 </span>
                                             </td>
