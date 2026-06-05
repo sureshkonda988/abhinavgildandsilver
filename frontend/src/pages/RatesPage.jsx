@@ -49,7 +49,7 @@ const RatesPage = () => {
 
                     <div className="flex flex-col gap-4">
                         {/* Gold Rates Table */}
-                        <div className="flex flex-col w-[80%] min-w-[190px] md:max-w-[420px] max-w-[100%] ml-auto mr-4 md:mx-auto md:ml-auto md:mr-16">
+                        <div className="flex flex-col w-full mx-auto min-w-[190px] md:w-[80%] md:max-w-[420px] max-w-[100%] md:ml-auto md:mr-16">
                             <div className="gradient-luxury px-2 py-1.5 md:px-4 md:py-2.5 rounded-t-xl shadow-lg flex justify-between items-center text-white font-poppins font-black text-[9px] md:text-[14px] uppercase tracking-widest">
                                 <span className="w-1/2 text-left px-2 md:px-4">PURITY</span>
                                 <span className="w-1/2 text-right pr-2 md:pr-4 tracking-tight md:tracking-widest">10 Grams</span>
@@ -82,7 +82,7 @@ const RatesPage = () => {
                         </div>
 
                         {/* Navarsu / Kasu Table */}
-                        <div className="flex flex-col w-[80%] min-w-[190px] md:max-w-[420px] max-w-[100%] ml-auto mr-4 md:mx-auto md:ml-auto md:mr-16 mt-2">
+                        <div className="flex flex-col w-full mx-auto min-w-[190px] md:w-[80%] md:max-w-[420px] max-w-[100%] md:ml-auto md:mr-16 mt-2">
                             <div className="gradient-luxury px-2 py-1.5 md:px-4 md:py-2.5 rounded-t-xl shadow-lg flex justify-between items-center text-white font-poppins font-black text-[9px] md:text-[14px] uppercase tracking-widest">
                                 <span className="w-1/2 text-left px-2 md:px-4">Navarsu / Kasu</span>
                                 <span className="w-1/2 text-right pr-2 md:pr-4">8 GRAMS</span>
@@ -106,7 +106,7 @@ const RatesPage = () => {
                         </div>
 
                         {/* Silver 10 Grams Table */}
-                        <div className="flex flex-col w-[80%] min-w-[190px] md:max-w-[420px] max-w-[100%] ml-auto mr-4 md:mx-auto md:ml-auto md:mr-16 mt-2">
+                        <div className="flex flex-col w-full mx-auto min-w-[190px] md:w-[80%] md:max-w-[420px] max-w-[100%] md:ml-auto md:mr-16 mt-2">
                             <div className="gradient-luxury px-2 py-1.5 md:px-4 md:py-2.5 rounded-t-xl shadow-lg flex justify-between items-center text-white font-poppins font-black text-[9px] md:text-[14px] uppercase tracking-widest">
                                 <span className="w-1/2 text-left px-1 md:px-0">SILVER</span>
                                 <span className="w-1/2 text-right pr-2 md:pr-4">10 GRAMS</span>
@@ -138,52 +138,6 @@ const RatesPage = () => {
                 )}
 
 
-                {/* QR Codes - Mobile Only */}
-                <div className="flex md:hidden flex-col gap-8 mt-6 pb-8 border-t border-white/10 pt-8">
-                    <div className="flex flex-row justify-center gap-10">
-                        {/* Bank QR */}
-                        <div className="flex flex-col items-center gap-3">
-                            <span className="text-white/80 font-poppins font-black text-[10px] uppercase tracking-[0.2em]">Bank QR</span>
-                            <a
-                                href="https://wa.me/919441055916"
-                                target="_blank"
-                                rel="noopener noreferrer"
-                                className="bg-white p-2 rounded-[18px] shadow-luxury border-2 border-gold-400/30 w-max block"
-                            >
-                                <img src="/qr-code.webp" alt="Scan QR Bank" className="w-20 h-20 object-contain" />
-                            </a>
-                            <a
-                                href="https://wa.me/919441055916"
-                                target="_blank"
-                                rel="noopener noreferrer"
-                                className="text-[9px] bg-gold-400/20 text-gold-400 px-4 py-1.5 rounded-full border border-gold-400/30 font-bold uppercase tracking-widest"
-                            >
-                                Pay Now
-                            </a>
-                        </div>
-
-                        {/* Location QR */}
-                        <div className="flex flex-col items-center gap-3">
-                            <span className="text-white/80 font-poppins font-black text-[10px] uppercase tracking-[0.2em]">Location QR</span>
-                            <a
-                                href="https://www.google.com/maps?rlz=1C5MACD_enIN1163IN1164&gs_lcrp=EgZjaHJvbWUqDQgBEC4YrwEYxwEYgAQyBwgAEAAYgAQyDQgBEC4YrwEYxwEYgAQyBggCEEUYOTINCAMQLhivARjHARiABDIHCAQQABiABDIGCAUQRRg8MgYIBhBFGDwyBggHEEUYPNIBCDY0MzFqMGo3qAIAsAIA&um=1&ie=UTF-8&fb=1&gl=in&sa=X&geocode=KU2BXT4JBko6MVOetju5q7TR&daddr=D/o.16-8-15/a,+AkkalabasavhaiStreet,+Main+Road,+opp.+gudivada+Hanumantharao+Shop,+Tenali,+522201"
-                                target="_blank"
-                                rel="noopener noreferrer"
-                                className="bg-white p-2 rounded-[18px] shadow-luxury border-2 border-gold-400/30 w-max block"
-                            >
-                                <img src="/qr-code-location.webp" alt="Scan QR Location" className="w-20 h-20 object-contain" />
-                            </a>
-                            <a
-                                href="https://www.google.com/maps?rlz=1C5MACD_enIN1163IN1164&gs_lcrp=EgZjaHJvbWUqDQgBEC4YrwEYxwEYgAQyBwgAEAAYgAQyDQgBEC4YrwEYxwEYgAQyBggCEEUYOTINCAMQLhivARjHARiABDIHCAQQABiABDIGCAUQRRg8MgYIBhBFGDwyBggHEEUYPNIBCDY0MzFqMGo3qAIAsAIA&um=1&ie=UTF-8&fb=1&gl=in&sa=X&geocode=KU2BXT4JBko6MVOetju5q7TR&daddr=D/o.16-8-15/a,+AkkalabasavhaiStreet,+Main+Road,+opp.+gudivada+Hanumantharao+Shop,+Tenali,+522201"
-                                target="_blank"
-                                rel="noopener noreferrer"
-                                className="text-[9px] bg-gold-400/20 text-gold-400 px-4 py-1.5 rounded-full border border-gold-400/30 font-bold uppercase tracking-widest"
-                            >
-                                Direction
-                            </a>
-                        </div>
-                    </div>
-                </div>
             </div>
 
             {/* Music Toggle - Mobile Only (at bottom of content) */}
