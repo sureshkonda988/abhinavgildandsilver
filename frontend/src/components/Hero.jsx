@@ -6,6 +6,7 @@ import SpotBar from './SpotBar';
 
 import Ticker from './Ticker';
 
+// Hero component for Live Spot and Retail Rates display
 const Hero = () => {
     const { rates, rawRates, loading, error, getRateChangeType, getRateColor, previousRates, currentRates, isMusicEnabled, toggleMusic, adj } = useRates();
 
