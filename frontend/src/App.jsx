@@ -169,7 +169,7 @@ const AppLayout = () => {
       {/* Header and Ticker Grouped to prevent gaps */}
       {!isAdminPage && (
         <>
-          <div className="flex flex-col lg:sticky lg:top-0 relative w-full z-50 bg-transparent">
+          <div className={`flex flex-col w-full z-50 bg-transparent ${isHomePage ? 'sticky top-0' : 'relative lg:sticky lg:top-0'}`}>
             <Navigation />
             {isHomePage && (
               <div className="relative w-full">
