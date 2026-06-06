@@ -240,7 +240,7 @@ const AppLayout = () => {
                 transition={{ duration: 1.2, delay: 0.5 }}
                 src="/Untitled-design-(2).webp" 
                 alt="" 
-                className="hidden md:block absolute md:relative w-16 md:w-24 lg:w-36 h-auto object-contain drop-shadow-2xl -scale-x-100 -translate-y-24 -translate-x-20 md:translate-x-0 md:-translate-y-16 lg:-translate-y-32 right-0 md:right-auto z-20" 
+                className="block absolute md:relative w-16 md:w-24 lg:w-36 h-auto object-contain drop-shadow-2xl -scale-x-100 -translate-y-22 -translate-x-14 md:translate-x-0 md:-translate-y-16 lg:-translate-y-32 right-0 md:right-auto z-20" 
               />
             </div>
           )}
