@@ -89,6 +89,10 @@ const Hero = () => {
                                             
                                             const bColor = getRateColor(changeType, defaultColor);
                                             const effectiveStock = adj.stockOverrides?.[item.id] !== undefined ? adj.stockOverrides[item.id] : item.stock;
+                                            const isStoppedAll = adj.marketStatus?.isStoppedAll || false;
+                                            const displaySell = isStoppedAll ? '-' : item.sell;
+                                            const displayHigh = isStoppedAll ? '-' : item.high;
+                                            const displayLow = isStoppedAll ? '-' : item.low;
 
                                             return (
                                                 <motion.div
@@ -117,10 +121,10 @@ const Hero = () => {
                                                                 className="w-full transition-all duration-300 max-w-[270px] md:max-w-[300px] py-5 md:py-6 px-4 md:px-6 rounded-[16px] md:rounded-[28px] flex items-center justify-center shadow-lg hover:scale-105"
                                                             >
                                                                 <div className="flex items-center justify-center gap-1 sm:gap-2 text-slate-900 font-black font-poppins leading-none tracking-tighter md:tracking-normal w-full">
-                                                                    {item.sell !== '-' ? (
+                                                                    {displaySell !== '-' ? (
                                                                         <>
                                                                             <span style={{ fontFamily: 'Inter, system-ui, sans-serif' }} className="text-[20px] sm:text-[26px] md:text-[34px] font-bold">₹</span>
-                                                                            <span className="text-[22px] sm:text-[28px] md:text-[38px]">{fmt(item.sell * (item.factor || 1))}</span>
+                                                                            <span className="text-[22px] sm:text-[28px] md:text-[38px]">{fmt(displaySell * (item.factor || 1))}</span>
                                                                         </>
                                                                     ) : (
                                                                         <span className="text-[22px] sm:text-[28px] md:text-[38px]">—</span>
@@ -142,10 +146,10 @@ const Hero = () => {
                                                                 <div className="flex-1 w-full flex items-center justify-between px-1.5 md:px-3 border-b border-black/10">
                                                                      <span className="text-[9px] md:text-[13px] font-black text-[#16a34a] uppercase hilo-text-hi">HI</span>
                                                                      <div className="text-[12px] sm:text-[16px] md:text-[20px] lg:text-[24px] font-black text-[#16a34a] leading-none hilo-text-hi flex items-center gap-1">
-                                                                         {item.high !== '-' && typeof item.high === 'number' ? (
+                                                                         {displayHigh !== '-' && typeof displayHigh === 'number' ? (
                                                                              <>
                                                                                  <span style={{ fontFamily: 'Inter, system-ui, sans-serif' }} className="text-[11px] sm:text-[14px] md:text-[18px] lg:text-[20px] font-bold">₹</span>
-                                                                                 <span>{fmt(item.high * (item.factor || 1))}</span>
+                                                                                 <span>{fmt(displayHigh * (item.factor || 1))}</span>
                                                                              </>
                                                                          ) : '—'}
                                                                      </div>
@@ -153,10 +157,10 @@ const Hero = () => {
                                                                 <div className="flex-1 w-full flex items-center justify-between px-1.5 md:px-3">
                                                                      <span className="text-[9px] md:text-[13px] font-black text-[#dc2626] uppercase hilo-text-lo">LO</span>
                                                                      <div className="text-[12px] sm:text-[16px] md:text-[20px] lg:text-[24px] font-black text-[#dc2626] leading-none hilo-text-lo flex items-center gap-1">
-                                                                         {item.low !== '-' && typeof item.low === 'number' ? (
+                                                                         {displayLow !== '-' && typeof displayLow === 'number' ? (
                                                                              <>
                                                                                  <span style={{ fontFamily: 'Inter, system-ui, sans-serif' }} className="text-[11px] sm:text-[14px] md:text-[18px] lg:text-[20px] font-bold">₹</span>
-                                                                                 <span>{fmt(item.low * (item.factor || 1))}</span>
+                                                                                 <span>{fmt(displayLow * (item.factor || 1))}</span>
                                                                              </>
                                                                          ) : '—'}
                                                                      </div>
