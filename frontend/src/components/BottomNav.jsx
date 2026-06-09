@@ -18,7 +18,7 @@ const BottomNav = () => {
             <div className="h-20 md:hidden" />
 
             <nav
-                className="fixed bottom-0 left-0 right-0 z-50 md:hidden"
+                className="fixed bottom-0 left-0 right-0 z-50 md:hidden bottom-nav-landscape"
                 style={{
                     background: 'linear-gradient(135deg, #0f0f1a 0%, #1a0a2e 50%, #0f0f1a 100%)',
                     borderTop: '1px solid rgba(212,175,55,0.25)',
@@ -40,8 +40,7 @@ const BottomNav = () => {
                             <Link
                                 key={to}
                                 to={to}
-                                className="relative flex flex-col items-center justify-center flex-1 py-2 gap-1 group"
-                                style={{ minHeight: 56 }}
+                                className="relative flex flex-col items-center justify-center flex-1 py-2 [@media(max-height:500px)_and_(orientation:landscape)]:py-1 gap-1 group min-h-[56px] [@media(max-height:500px)_and_(orientation:landscape)]:min-h-[40px]"
                             >
                                 {/* Active background glow */}
                                 <AnimatePresence>

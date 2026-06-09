@@ -35,6 +35,9 @@ const Hero = () => {
             <div className="absolute top-0 left-0 w-full h-full opacity-30 pointer-events-none"
                 style={{ background: 'radial-gradient(circle at 10% 20%, #fff, transparent 80%)' }} />
 
+            {/* Landscape Grid Wrapper */}
+            <div className="flex flex-col [@media(max-height:500px)_and_(orientation:landscape)]:flex-row [@media(max-height:500px)_and_(orientation:landscape)]:justify-between [@media(max-height:500px)_and_(orientation:landscape)]:gap-x-4 w-full">
+                <div className="flex flex-col [@media(max-height:500px)_and_(orientation:landscape)]:w-[58%] w-full min-w-0">
 
             {/* Table 1: Live Rates */}
             <section className="max-w-7xl mx-auto px-4 md:px-8 w-full mt-1 relative z-10 mb-2">
@@ -195,9 +198,12 @@ const Hero = () => {
             <div className="w-full relative z-20 py-0 -mt-2 md:mt-6">
                 <Ticker />
             </div>
+                </div>
+
+                <div className="flex flex-col justify-start [@media(max-height:500px)_and_(orientation:landscape)]:w-[40%] w-full h-full min-w-0">
 
             {/* Market Status Box */}
-            <div className="flex justify-center mt-6 md:mt-8 px-4">
+            <div className="flex justify-center mt-6 md:mt-8 [@media(max-height:500px)_and_(orientation:landscape)]:mt-2 px-4">
                 {(() => {
                     const market = useRates().getMarketStatus();
                     return (
@@ -208,16 +214,16 @@ const Hero = () => {
                         >
                             <div className="flex items-center gap-3">
                                 <div className={`w-2.5 h-2.5 md:w-3.5 md:h-3.5 rounded-full ${market.isOpen ? 'bg-white animate-pulse' : 'bg-white'}`} />
-                                <span className="font-poppins font-black text-sm md:text-2xl uppercase tracking-[0.2em]">{market.message}</span>
+                                <span className="font-poppins font-black text-sm md:text-2xl uppercase tracking-[0.2em] text-center">{market.message}</span>
                             </div>
-                            <span className="font-poppins font-black text-[9px] md:text-sm uppercase tracking-[0.3em] mt-1 text-black">{market.timings} (IST)</span>
+                            <span className="font-poppins font-black text-[9px] md:text-sm uppercase tracking-[0.1em] md:tracking-[0.3em] mt-1 text-black text-center whitespace-normal leading-tight">{market.timings} (IST)</span>
                         </motion.div>
                     );
                 })()}
             </div>
 
             {/* Table 2: Retail Rates */}
-            <section className="max-w-5xl mx-auto px-1 md:px-8 w-full mt-6 md:mt-20 mb-8 md:mb-12 relative z-10">
+            <section className="max-w-5xl mx-auto px-1 md:px-8 w-full mt-6 md:mt-20 mb-8 md:mb-12 [@media(max-height:500px)_and_(orientation:landscape)]:mt-2 [@media(max-height:500px)_and_(orientation:landscape)]:mb-2 relative z-10">
                 <Heading text="LOCAL GOLD AND SILVER RETAIL RATES" />
                 <motion.div
                     initial={{ opacity: 0, y: 50 }}
@@ -323,9 +329,11 @@ const Hero = () => {
                     </div>
                 </motion.div>
             </section>
+                </div>
+            </div>
 
             {/* Music Toggle */}
-            <div className="flex md:hidden justify-center pt-8 pb-12">
+            <div className="flex md:hidden justify-center pt-8 pb-12 [@media(max-height:500px)_and_(orientation:landscape)]:pt-2 [@media(max-height:500px)_and_(orientation:landscape)]:pb-4">
                 <button
                     onClick={toggleMusic}
                     className={`flex items-center gap-3 px-6 py-3 rounded-full shadow-xl transition-all border-2 font-poppins font-bold text-xs uppercase tracking-widest ${isMusicEnabled ? 'bg-magenta-600 border-magenta-400 text-white' : 'bg-white border-slate-200 text-slate-700'} hover:scale-105 active:scale-95`}

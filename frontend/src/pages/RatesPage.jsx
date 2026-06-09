@@ -47,7 +47,7 @@ const RatesPage = () => {
                         </h1>
                     </div>
 
-                    <div className="flex flex-col gap-4">
+                    <div className="flex flex-col gap-4 [@media(max-height:500px)_and_(orientation:landscape)]:grid [@media(max-height:500px)_and_(orientation:landscape)]:grid-cols-2">
                         {/* Gold Rates Table */}
                         <div className="flex flex-col w-full mx-auto min-w-[190px] md:w-[80%] md:max-w-[420px] max-w-[100%] md:ml-auto md:mr-16">
                             <div className="gradient-luxury px-2 py-1.5 md:px-4 md:py-2.5 rounded-t-xl shadow-lg flex justify-between items-center text-white font-poppins font-black text-[13px] md:text-[14px] uppercase tracking-widest">
