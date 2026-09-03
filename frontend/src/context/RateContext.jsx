@@ -7,7 +7,12 @@ import {
 } from '../utils/ratesPageCalculations';
 
 const RateContext = createContext();
-const BACKEND_ORIGIN = import.meta.env.VITE_BACKEND_URL ? `${import.meta.env.VITE_BACKEND_URL}/api` : 'http://localhost:5000/api';
+const getBackendOrigin = () => {
+    if (import.meta.env.VITE_BACKEND_URL) return `${import.meta.env.VITE_BACKEND_URL}/api`;
+    if (import.meta.env.DEV) return 'http://localhost:5000/api';
+    return '/api';
+};
+const BACKEND_ORIGIN = getBackendOrigin();
 const LIVE_RATES_API_URL = `${BACKEND_ORIGIN}/rates/live`;
 const SETTINGS_API_URL = `${BACKEND_ORIGIN}/rates/settings`;
 const MUSIC_API_URL = `${BACKEND_ORIGIN}/music`;
