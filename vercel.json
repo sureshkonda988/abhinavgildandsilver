@@ -5,11 +5,11 @@
   "rewrites": [
     {
       "source": "/api/:path*",
-      "destination": "https://api.abhinavgoldandsilver.com/api/:path*"
+      "destination": "/api/index.js"
     },
     {
       "source": "/music/:path*",
-      "destination": "https://api.abhinavgoldandsilver.com/music/:path*"
+      "destination": "/api/index.js"
     },
     {
       "source": "/api-news/:path*",
