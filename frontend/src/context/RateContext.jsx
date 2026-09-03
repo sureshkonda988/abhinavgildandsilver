@@ -7,7 +7,7 @@ import {
 } from '../utils/ratesPageCalculations';
 
 const RateContext = createContext();
-const BACKEND_ORIGIN = 'https://api.abhinavgoldandsilver.com/api';
+const BACKEND_ORIGIN = import.meta.env.VITE_BACKEND_URL ? `${import.meta.env.VITE_BACKEND_URL}/api` : 'http://localhost:5000/api';
 const LIVE_RATES_API_URL = `${BACKEND_ORIGIN}/rates/live`;
 const SETTINGS_API_URL = `${BACKEND_ORIGIN}/rates/settings`;
 const MUSIC_API_URL = `${BACKEND_ORIGIN}/music`;
@@ -523,12 +523,39 @@ export const RateProvider = ({ children }) => {
             }
 
             const liveUrl = `${LIVE_RATES_API_URL}?_=${currentFetchId}`;
-            const res = await fetchWithTimeout(liveUrl, 5000);
-            if (res.ok) {
-                const json = await res.json();
-                const text = json?.text || '';
-                if (text && text.length > 20) {
-                    const data = parseRateText(text, json?.rates || null);
+            let text = '';
+            let ratesJson = null;
+
+            try {
+                const res = await fetchWithTimeout(liveUrl, 4000);
+                if (res.ok) {
+                    const json = await res.json();
+                    text = json?.text || '';
+                    ratesJson = json?.rates || null;
+                }
+            } catch (err) {
+                // Ignore primary fetch timeout/failure and fallback below
+            }
+
+            // Fail-safe fallback: If backend returns empty or is offline, try proxy/direct stream
+            if (!text || text.length <= 20) {
+                try {
+                    const fallbackRes = await fetchWithTimeout('/api-rates/rbgold', 4000);
+                    if (fallbackRes.ok) {
+                        text = await fallbackRes.text();
+                    }
+                } catch (fallbackErr) {
+                    try {
+                        const directRes = await fetchWithTimeout('https://bcast.rbgoldspot.com:7768/VOTSBroadcastStreaming/Services/xml/GetLiveRateByTemplateID/rbgold', 4000);
+                        if (directRes.ok) {
+                            text = await directRes.text();
+                        }
+                    } catch (e) {}
+                }
+            }
+
+            if (text && text.length > 20) {
+                const data = parseRateText(text, ratesJson);
                     if (currentFetchId > lastProcessedTimestamp.current) {
                         lastProcessedTimestamp.current = currentFetchId;
                         
@@ -617,7 +644,6 @@ export const RateProvider = ({ children }) => {
                         failureCount.current = 0;
                     }
                 }
-            }
         } catch (e) {
             console.error("Fetch rates failed:", e);
             failureCount.current++;
