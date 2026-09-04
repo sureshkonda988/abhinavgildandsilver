@@ -87,34 +87,30 @@ let inMemoryMusic = readJSON('music.json', defaultMusic);
 let inMemoryMusicLibrary = readJSON('music_library.json', []);
 
 // Middleware
-app.use(cors());
+app.use(cors({ origin: true, credentials: true }));
 app.use(express.json({ limit: '100mb' }));
 app.use(express.urlencoded({ limit: '100mb', extended: true }));
-app.use('/music', express.static(path.join(__dirname, '../../frontend/public/music')));
+
+const musicDir = path.join(__dirname, '../../frontend/public/music');
+if (!fs.existsSync(musicDir)) fs.mkdirSync(musicDir, { recursive: true });
+app.use('/music', express.static(musicDir));
 
 // Multer Storage Configuration for Audio
 const storage = multer.diskStorage({
     destination: (req, file, cb) => {
-        const dir = path.join(__dirname, '../../frontend/public/music');
-        if (!fs.existsSync(dir)) fs.mkdirSync(dir, { recursive: true });
-        cb(null, dir);
+        if (!fs.existsSync(musicDir)) fs.mkdirSync(musicDir, { recursive: true });
+        cb(null, musicDir);
     },
     filename: (req, file, cb) => {
         const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
-        cb(null, uniqueSuffix + path.extname(file.originalname));
+        const ext = path.extname(file.originalname) || '.mp3';
+        cb(null, uniqueSuffix + ext);
     }
 });
 
 const upload = multer({ 
     storage,
-    limits: { fileSize: 100 * 1024 * 1024 },
-    fileFilter: (req, file, cb) => {
-        const allowedTypes = /mp3|wav|ogg|mpeg|audio|m4a|aac|flac/;
-        const extname = allowedTypes.test(path.extname(file.originalname).toLowerCase());
-        const mimetype = allowedTypes.test(file.mimetype) || file.mimetype.startsWith('audio/');
-        if (extname || mimetype) return cb(null, true);
-        cb(new Error('Only audio files (mp3, wav, ogg, m4a, etc.) are allowed!'));
-    }
+    limits: { fileSize: 100 * 1024 * 1024 }
 });
 
 // MongoDB Connection

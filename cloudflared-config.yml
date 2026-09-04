@@ -3,12 +3,18 @@ credentials-file: C:\Users\Nikhil\.cloudflared\b56467ce-5edf-419f-94d6-f557717f3
 
 ingress:
   - hostname: abhinavgoldandsilver.com
-    path: ^/api/.*
+    path: ^/api.*
+    service: http://localhost:5000
+  - hostname: abhinavgoldandsilver.com
+    path: ^/music.*
     service: http://localhost:5000
   - hostname: abhinavgoldandsilver.com
     service: http://localhost:5173
   - hostname: www.abhinavgoldandsilver.com
-    path: ^/api/.*
+    path: ^/api.*
+    service: http://localhost:5000
+  - hostname: www.abhinavgoldandsilver.com
+    path: ^/music.*
     service: http://localhost:5000
   - hostname: www.abhinavgoldandsilver.com
     service: http://localhost:5173
