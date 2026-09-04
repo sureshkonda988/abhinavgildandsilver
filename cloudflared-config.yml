@@ -1,0 +1,15 @@
+tunnel: b56467ce-5edf-419f-94d6-f557717f3f49
+credentials-file: C:\Users\Nikhil\.cloudflared\b56467ce-5edf-419f-94d6-f557717f3f49.json
+
+ingress:
+  - hostname: abhinavgoldandsilver.com
+    path: ^/api/.*
+    service: http://localhost:5000
+  - hostname: abhinavgoldandsilver.com
+    service: http://localhost:5173
+  - hostname: www.abhinavgoldandsilver.com
+    path: ^/api/.*
+    service: http://localhost:5000
+  - hostname: www.abhinavgoldandsilver.com
+    service: http://localhost:5173
+  - service: http_status:404

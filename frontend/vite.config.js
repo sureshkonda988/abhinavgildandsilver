@@ -16,6 +16,7 @@ export default defineConfig({
     globals: true,
   },
   server: {
+    allowedHosts: true,
     proxy: {
       '/api-rates': {
         target: 'https://bcast.rbgoldspot.com:7768',

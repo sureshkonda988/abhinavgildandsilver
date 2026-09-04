@@ -23,8 +23,35 @@ const app = express();
 const PORT = process.env.PORT || 5000;
 const MONGODB_URI = process.env.MONGODB_URI || 'mongodb://127.0.0.1:27017/abhinav_jewellers';
 
-// Complete In-Memory Fallbacks matching all Admin features
-let inMemorySettings = {
+// Complete Local JSON File Storage (No MongoDB required)
+const DATA_DIR = path.join(__dirname, 'data');
+if (!fs.existsSync(DATA_DIR)) {
+    fs.mkdirSync(DATA_DIR, { recursive: true });
+}
+
+const readJSON = (filename, defaultVal) => {
+    const filePath = path.join(DATA_DIR, filename);
+    if (!fs.existsSync(filePath)) {
+        fs.writeFileSync(filePath, JSON.stringify(defaultVal, null, 2));
+        return defaultVal;
+    }
+    try {
+        return JSON.parse(fs.readFileSync(filePath, 'utf-8'));
+    } catch (e) {
+        return defaultVal;
+    }
+};
+
+const writeJSON = (filename, data) => {
+    const filePath = path.join(DATA_DIR, filename);
+    try {
+        fs.writeFileSync(filePath, JSON.stringify(data, null, 2));
+    } catch (e) {
+        console.error(`Error writing ${filename}:`, e.message);
+    }
+};
+
+const defaultSettings = {
     key: 'global_settings',
     ticker: 'Welcome to Abhinav Gold & Silver - Quality Purity Guaranteed',
     showModified: false,
@@ -48,12 +75,16 @@ let inMemorySettings = {
     marketStatus: { mode: 'regular', modifiedStatus: 'open', openTime: '10:00', closeTime: '20:00', isStoppedAll: false }
 };
 
-let inMemoryVideos = [];
-let inMemoryMusic = {
+const defaultMusic = {
     key: 'music_settings',
     homeMusic: { sourceType: 'local', videoId: '', fileUrl: '', title: '' },
     ratesMusic: { sourceType: 'local', videoId: '', fileUrl: '', title: '' }
 };
+
+let inMemorySettings = readJSON('settings.json', defaultSettings);
+let inMemoryVideos = readJSON('videos.json', []);
+let inMemoryMusic = readJSON('music.json', defaultMusic);
+let inMemoryMusicLibrary = readJSON('music_library.json', []);
 
 // Middleware
 app.use(cors());
@@ -245,6 +276,7 @@ const handleSettingsUpdate = async (req, res) => {
         if (isMusicEnabled !== undefined) update.isMusicEnabled = isMusicEnabled;
 
         inMemorySettings = { ...inMemorySettings, ...update };
+        writeJSON('settings.json', inMemorySettings);
 
         if (mongoose.connection.readyState === 1) {
             const settings = await RateSettings.findOneAndUpdate(
@@ -284,6 +316,7 @@ app.post('/api/videos', async (req, res) => {
     try {
         const { list } = req.body;
         inMemoryVideos = list || [];
+        writeJSON('videos.json', inMemoryVideos);
 
         if (mongoose.connection.readyState === 1) {
             const videoData = await Video.findOneAndUpdate(
@@ -322,6 +355,7 @@ app.post('/api/music', async (req, res) => {
         if (ratesMusic !== undefined) update.ratesMusic = ratesMusic;
 
         inMemoryMusic = { ...inMemoryMusic, ...update };
+        writeJSON('music.json', inMemoryMusic);
 
         if (mongoose.connection.readyState === 1) {
             const musicData = await Music.findOneAndUpdate(
@@ -346,10 +380,10 @@ app.get('/api/music/library', async (req, res) => {
     if (mongoose.connection.readyState === 1) {
         try {
             const library = await MusicLibrary.find().sort({ createdAt: -1 }).maxTimeMS(1000);
-            return res.json(library);
+            if (library && library.length > 0) return res.json(library);
         } catch (error) {}
     }
-    res.json([]);
+    res.json(inMemoryMusicLibrary);
 });
 
 app.post('/api/music/library/upload', (req, res) => {
@@ -362,6 +396,9 @@ app.post('/api/music/library/upload', (req, res) => {
             const fileUrl = `/music/${req.file.filename}`;
 
             let newTrack = { _id: Date.now().toString(), title, filename: req.file.filename, url: fileUrl, size: req.file.size, createdAt: new Date() };
+
+            inMemoryMusicLibrary.unshift(newTrack);
+            writeJSON('music_library.json', inMemoryMusicLibrary);
 
             if (mongoose.connection.readyState === 1) {
                 newTrack = await MusicLibrary.create({
@@ -382,8 +419,21 @@ app.post('/api/music/library/upload', (req, res) => {
 
 app.delete('/api/music/library/:id', async (req, res) => {
     try {
+        const idToDelete = req.params.id;
+        const trackToDelete = inMemoryMusicLibrary.find(t => t._id === idToDelete || t.id === idToDelete);
+        
+        inMemoryMusicLibrary = inMemoryMusicLibrary.filter(t => t._id !== idToDelete && t.id !== idToDelete);
+        writeJSON('music_library.json', inMemoryMusicLibrary);
+
+        if (trackToDelete && trackToDelete.url) {
+            const filePath = path.join(__dirname, '../../frontend/public', trackToDelete.url);
+            if (fs.existsSync(filePath)) {
+                try { fs.unlinkSync(filePath); } catch (e) {}
+            }
+        }
+
         if (mongoose.connection.readyState === 1) {
-            const track = await MusicLibrary.findByIdAndDelete(req.params.id);
+            const track = await MusicLibrary.findByIdAndDelete(idToDelete);
             if (track && track.url) {
                 const filePath = path.join(__dirname, '../../frontend/public', track.url);
                 if (fs.existsSync(filePath)) {
