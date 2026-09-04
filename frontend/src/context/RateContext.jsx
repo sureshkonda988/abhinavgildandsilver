@@ -9,7 +9,6 @@ import {
 const RateContext = createContext();
 const getBackendOrigin = () => {
     if (import.meta.env.VITE_BACKEND_URL) return `${import.meta.env.VITE_BACKEND_URL}/api`;
-    if (import.meta.env.DEV) return 'http://localhost:5000/api';
     return '/api';
 };
 const BACKEND_ORIGIN = getBackendOrigin();

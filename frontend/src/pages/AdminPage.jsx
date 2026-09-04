@@ -6,7 +6,7 @@ import { computeNavarsu8gBase } from '../utils/ratesPageCalculations';
 // ReactPlayer removed as audio preview is gone
 import { Lock, LogOut, TrendingUp, Video, MessageSquare, Play, Pause, Trash2, Save, RefreshCw, CheckCircle2, AlertCircle, Upload, Youtube, HardDrive, Clock, Music, X } from 'lucide-react';
 
-const BACKEND_ORIGIN = import.meta.env.VITE_BACKEND_URL || (import.meta.env.DEV ? 'http://localhost:5000' : '');
+const BACKEND_ORIGIN = import.meta.env.VITE_BACKEND_URL || '';
 const API_BASE = BACKEND_ORIGIN ? `${BACKEND_ORIGIN}/api` : '/api';
 
 const AudioPreview = ({ url }) => {

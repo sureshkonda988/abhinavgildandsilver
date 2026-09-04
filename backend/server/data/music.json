@@ -1,0 +1,15 @@
+{
+  "key": "music_settings",
+  "homeMusic": {
+    "sourceType": "local",
+    "videoId": "",
+    "fileUrl": "",
+    "title": ""
+  },
+  "ratesMusic": {
+    "sourceType": "local",
+    "videoId": "",
+    "fileUrl": "",
+    "title": ""
+  }
+}
