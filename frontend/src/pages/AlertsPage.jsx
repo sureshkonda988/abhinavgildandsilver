@@ -1,5 +1,5 @@
 import React from 'react';
-import { Bell, Info, Calendar } from 'lucide-react';
+import { Bell, Info, Calendar, ExternalLink } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { useRates } from '../context/RateContext';
 
@@ -46,33 +46,45 @@ const AlertsPage = () => {
             </div>
 
             <div className="flex flex-col gap-6">
-                {displayAlerts.map((alert, idx) => (
-                    <motion.div
-                        key={alert.id || idx}
-                        initial={{ opacity: 0, x: -20 }}
-                        animate={{ opacity: 1, x: 0 }}
-                        transition={{ delay: idx * 0.1 }}
-                        className="glass p-6 rounded-3xl shadow-luxury border-l-8 border-magenta-600 hover:scale-[1.02] transition-transform cursor-default overflow-hidden relative group"
-                    >
-                        {/* Hover Glow */}
-                        <div className="absolute inset-0 bg-gold-400/5 opacity-0 group-hover:opacity-100 transition-opacity" />
+                {displayAlerts.map((alert, idx) => {
+                    const CardTag = alert.link ? 'a' : 'div';
+                    const cardProps = alert.link ? { href: alert.link, target: '_blank', rel: 'noopener noreferrer' } : {};
+                    return (
+                        <motion.div
+                            key={alert.id || idx}
+                            initial={{ opacity: 0, x: -20 }}
+                            animate={{ opacity: 1, x: 0 }}
+                            transition={{ delay: idx * 0.1 }}
+                        >
+                            <CardTag
+                                {...cardProps}
+                                className="block glass p-6 rounded-3xl shadow-luxury border-l-8 border-magenta-600 hover:scale-[1.02] transition-transform cursor-pointer overflow-hidden relative group"
+                            >
+                                {/* Hover Glow */}
+                                <div className="absolute inset-0 bg-gold-400/5 opacity-0 group-hover:opacity-100 transition-opacity" />
 
-                        <div className="flex justify-between items-start mb-4 relative z-10">
-                            <div className="flex flex-col gap-1">
-                                <h3 className="text-xl font-playfair font-black text-black group-hover:text-gold-500 transition-colors uppercase tracking-tight">{alert.title}</h3>
-                                <div className="flex items-center gap-2 text-black/60">
-                                    <Calendar size={14} />
-                                    <span className="text-[10px] font-bold uppercase tracking-widest font-poppins">{alert.date}</span>
+                                <div className="flex justify-between items-start mb-4 relative z-10">
+                                    <div className="flex flex-col gap-1">
+                                        <div className="flex items-center gap-2 pr-2">
+                                            <h3 className="text-xl font-playfair font-black text-black group-hover:text-gold-500 transition-colors uppercase tracking-tight">{alert.title}</h3>
+                                            {alert.link && <ExternalLink size={16} className="text-black/40 group-hover:text-gold-500 transition-colors flex-shrink-0" />}
+                                        </div>
+                                        <div className="flex items-center gap-2 text-black/60">
+                                            <Calendar size={14} />
+                                            <span className="text-[10px] font-bold uppercase tracking-widest font-poppins">{alert.date}</span>
+                                        </div>
+                                    </div>
+                                    <span className={`px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-wider ${alert.type === 'urgent' ? 'bg-red-500/20 text-red-600' : 'bg-blue-500/20 text-blue-600'}`}>
+                                        {alert.type}
+                                    </span>
                                 </div>
-                            </div>
-                            <span className={`px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-wider ${alert.type === 'urgent' ? 'bg-red-500/20 text-red-600' : 'bg-blue-500/20 text-blue-600'}`}>
-                                {alert.type}
-                            </span>
-                        </div>
-                        <p className="text-black font-poppins text-sm font-semibold leading-relaxed relative z-10">{alert.msg}</p>
-
-                    </motion.div>
-                ))}
+                                {alert.msg && alert.msg !== alert.title && (
+                                    <p className="text-black font-poppins text-sm font-semibold leading-relaxed relative z-10">{alert.msg}</p>
+                                )}
+                            </CardTag>
+                        </motion.div>
+                    );
+                })}
             </div>
 
             <div className="mt-16 bg-white/5 p-10 rounded-3xl border border-white/20 text-center backdrop-blur-sm">

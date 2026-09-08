@@ -472,35 +472,86 @@ export const RateProvider = ({ children }) => {
 
     const [news, setNews] = useState([]);
 
-    const parseNews = (xml) => {
-        if (!xml) return [];
-        const items = xml.match(/<item>([\s\S]*?)<\/item>/g);
-        if (!items) return [];
+    const parseNews = (data) => {
+        if (!data) return [];
+        let items = [];
+
+        if (typeof data === 'string') {
+            const matchItems = data.match(/<item>([\s\S]*?)<\/item>/g);
+            if (matchItems) {
+                return matchItems.map((it, idx) => {
+                    const titleMatch = it.match(/<title><!\[CDATA\[(.*?)\]\]><\/title>/) || it.match(/<title>(.*?)<\/title>/);
+                    const title = titleMatch?.[1];
+                    const pubDate = it.match(/<pubDate>(.*?)<\/pubDate>/)?.[1];
+                    const link = it.match(/<link>(.*?)<\/link>/)?.[1];
+                    let dateStr = pubDate || '';
+                    if (dateStr.includes('-')) {
+                        const [y, m, dayParts] = dateStr.split('-');
+                        const day = dayParts.split(' ')[0];
+                        const monthNames = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+                        dateStr = `${day} ${monthNames[parseInt(m) - 1]} ${y}`;
+                    }
+                    return {
+                        id: `news-${idx}`,
+                        title: title?.replace(/&amp;/g, '&'),
+                        msg: title?.replace(/&amp;/g, '&'),
+                        date: dateStr,
+                        link,
+                        type: (title?.toLowerCase().includes('surge') || title?.toLowerCase().includes('fall')) ? 'urgent' : 'info'
+                    };
+                }).slice(0, 20);
+            }
+            try {
+                data = JSON.parse(data);
+            } catch (e) {
+                return [];
+            }
+        }
+
+        if (Array.isArray(data)) {
+            items = data;
+        } else if (data && Array.isArray(data.Data)) {
+            items = data.Data;
+        } else if (data && Array.isArray(data.data)) {
+            items = data.data;
+        }
+
+        if (!items || items.length === 0) return [];
 
         return items.map((it, idx) => {
-            const titleMatch = it.match(/<title><!\[CDATA\[(.*?)\]\]><\/title>/) || it.match(/<title>(.*?)<\/title>/);
-            const title = titleMatch?.[1];
-            const pubDate = it.match(/<pubDate>(.*?)<\/pubDate>/)?.[1];
-            const link = it.match(/<link>(.*?)<\/link>/)?.[1];
+            const title = it.Title || it.title || '';
+            const rawDate = it.Date || it.date || '';
+            const link = it.Link || it.link || '';
+            const id = it.Id || it.id || idx;
 
-            // Format date: "2026-03-02 09:43:12" -> "02 Mar 2026"
-            let dateStr = pubDate || '';
-            if (dateStr.includes('-')) {
-                const [y, m, dayParts] = dateStr.split('-');
-                const day = dayParts.split(' ')[0];
-                const monthNames = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
-                dateStr = `${day} ${monthNames[parseInt(m) - 1]} ${y}`;
+            let dateStr = rawDate;
+            if (rawDate) {
+                try {
+                    const d = new Date(rawDate);
+                    if (!isNaN(d.getTime())) {
+                        const day = String(d.getDate()).padStart(2, '0');
+                        const monthNames = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+                        const month = monthNames[d.getMonth()];
+                        const year = d.getFullYear();
+                        dateStr = `${day} ${month} ${year}`;
+                    }
+                } catch (e) {
+                    // keep rawDate fallback
+                }
             }
 
+            const cleanTitle = title.replace(/&amp;/g, '&');
+            const isUrgent = /surge|fall|plunge|soar|jump|record|break|drop|alert|urgent|hike/i.test(cleanTitle);
+
             return {
-                id: `news-${idx}`,
-                title: title?.replace(/&amp;/g, '&'),
-                msg: title?.replace(/&amp;/g, '&'), // Using title as message for standard alerts
+                id: `news-${id}`,
+                title: cleanTitle,
+                msg: cleanTitle,
                 date: dateStr,
-                link,
-                type: (title?.toLowerCase().includes('surge') || title?.toLowerCase().includes('fall')) ? 'urgent' : 'info'
+                link: link,
+                type: isUrgent ? 'urgent' : 'info'
             };
-        }).slice(0, 10);
+        }).slice(0, 20);
     };
 
     const lastProcessedTimestamp = React.useRef(0);
@@ -517,13 +568,28 @@ export const RateProvider = ({ children }) => {
             const now = Date.now();
             if (now - lastNewsFetch.current > 30000) {
                 lastNewsFetch.current = now;
-                fetch(`${window.location.origin}/api-news/rss/news.rss?_=${now}`)
-                    .then(r => r.text())
-                    .then(xml => {
-                        const parsedNews = parseNews(xml);
+                const newsProxyUrl = `${window.location.origin}/api-news/api/GetNewsList?_=${now}`;
+                const newsDirectUrl = `https://news.chirayusoft.com:9101/api/GetNewsList?_=${now}`;
+                
+                fetch(newsProxyUrl)
+                    .then(r => {
+                        if (!r.ok) throw new Error(`HTTP ${r.status}`);
+                        return r.json();
+                    })
+                    .then(json => {
+                        const parsedNews = parseNews(json);
                         if (parsedNews && parsedNews.length > 0) setNews(parsedNews);
                     })
-                    .catch(err => console.error("News fetch failed:", err));
+                    .catch(() => {
+                        // Direct fetch fallback if proxy route fails
+                        fetch(newsDirectUrl)
+                            .then(r => r.json())
+                            .then(json => {
+                                const parsedNews = parseNews(json);
+                                if (parsedNews && parsedNews.length > 0) setNews(parsedNews);
+                            })
+                            .catch(err => console.error("News fetch failed:", err));
+                    });
             }
 
             const liveUrl = `${LIVE_RATES_API_URL}?_=${currentFetchId}`;

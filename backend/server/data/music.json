@@ -2,9 +2,8 @@
   "key": "music_settings",
   "homeMusic": {
     "sourceType": "local",
-    "videoId": "",
-    "fileUrl": "",
-    "title": ""
+    "fileUrl": "/music/1788507951835-941657640.mp3",
+    "title": "Love Or Friendship.mp3"
   },
   "ratesMusic": {
     "sourceType": "local",

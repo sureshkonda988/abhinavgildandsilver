@@ -13,7 +13,7 @@
     },
     {
       "source": "/api-news/:path*",
-      "destination": "https://www.investing.com/:path*"
+      "destination": "https://news.chirayusoft.com:9101/:path*"
     },
     {
       "source": "/(.*)",

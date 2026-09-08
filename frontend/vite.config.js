@@ -25,8 +25,9 @@ export default defineConfig({
         rewrite: (path) => path.replace(/^\/api-rates/, '/VOTSBroadcastStreaming/Services/xml/GetLiveRateByTemplateID'),
       },
       '/api-news': {
-        target: 'https://www.investing.com',
+        target: 'https://news.chirayusoft.com:9101',
         changeOrigin: true,
+        secure: false,
         rewrite: (path) => path.replace(/^\/api-news/, ''),
       },
       '/api': {
