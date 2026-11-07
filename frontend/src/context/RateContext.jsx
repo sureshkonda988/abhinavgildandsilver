@@ -351,14 +351,16 @@ export const RateProvider = ({ children }) => {
         }
     };
 
-    const fetchWithTimeout = async (url, ms = 4000) => {
+    const fetchWithTimeout = async (url, ms = 8000) => {
         const controller = new AbortController();
         const id = setTimeout(() => controller.abort(), ms);
         try {
             const res = await fetch(url, {
                 signal: controller.signal,
-                cache: 'no-store',
                 headers: {
+                    'Cache-Control': 'no-cache, no-store, must-revalidate',
+                    'Pragma': 'no-cache',
+                    'Expires': '0',
                     'ngrok-skip-browser-warning': 'true'
                 }
             });
@@ -472,33 +474,21 @@ export const RateProvider = ({ children }) => {
 
     const [news, setNews] = useState([]);
 
-    const parseNews = (xml) => {
-        if (!xml) return [];
-        const items = xml.match(/<item>([\s\S]*?)<\/item>/g);
-        if (!items) return [];
+    const parseNews = (data) => {
+        if (!Array.isArray(data)) return [];
 
-        return items.map((it, idx) => {
-            const titleMatch = it.match(/<title><!\[CDATA\[(.*?)\]\]><\/title>/) || it.match(/<title>(.*?)<\/title>/);
-            const title = titleMatch?.[1];
-            const pubDate = it.match(/<pubDate>(.*?)<\/pubDate>/)?.[1];
-            const link = it.match(/<link>(.*?)<\/link>/)?.[1];
-
-            // Format date: "2026-03-02 09:43:12" -> "02 Mar 2026"
-            let dateStr = pubDate || '';
-            if (dateStr.includes('-')) {
-                const [y, m, dayParts] = dateStr.split('-');
-                const day = dayParts.split(' ')[0];
-                const monthNames = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
-                dateStr = `${day} ${monthNames[parseInt(m) - 1]} ${y}`;
-            }
+        return data.map((item, idx) => {
+            const title = item.Title || '';
+            const link = item.Link || '';
+            let dateStr = item.Date || '';
 
             return {
-                id: `news-${idx}`,
-                title: title?.replace(/&amp;/g, '&'),
-                msg: title?.replace(/&amp;/g, '&'), // Using title as message for standard alerts
+                id: item.Id?.toString() || `news-${idx}`,
+                title: title,
+                msg: title, // Using title as message for standard alerts
                 date: dateStr,
-                link,
-                type: (title?.toLowerCase().includes('surge') || title?.toLowerCase().includes('fall')) ? 'urgent' : 'info'
+                link: link,
+                type: (title.toLowerCase().includes('surge') || title.toLowerCase().includes('fall')) ? 'urgent' : 'info'
             };
         }).slice(0, 10);
     };
@@ -517,10 +507,10 @@ export const RateProvider = ({ children }) => {
             const now = Date.now();
             if (now - lastNewsFetch.current > 30000) {
                 lastNewsFetch.current = now;
-                fetch(`${window.location.origin}/api-news/rss/news.rss?_=${now}`)
-                    .then(r => r.text())
-                    .then(xml => {
-                        const parsedNews = parseNews(xml);
+                fetch(`${window.location.origin}/api-news/api/GetNewsList?_=${now}`)
+                    .then(r => r.json())
+                    .then(json => {
+                        const parsedNews = parseNews(json);
                         if (parsedNews && parsedNews.length > 0) setNews(parsedNews);
                     })
                     .catch(err => console.error("News fetch failed:", err));
@@ -544,13 +534,16 @@ export const RateProvider = ({ children }) => {
             // Fail-safe fallback: If backend returns empty or is offline, try proxy/direct stream
             if (!text || text.length <= 20) {
                 try {
-                    const fallbackRes = await fetchWithTimeout('/api-rates/rbgold', 4000);
+                    const fallbackRes = await fetchWithTimeout(`/api-rates/rbgold?_=${currentFetchId}`, 5000);
                     if (fallbackRes.ok) {
-                        text = await fallbackRes.text();
+                        const checkText = await fallbackRes.text();
+                        if (!checkText.trim().toLowerCase().startsWith('<!doctype') && !checkText.trim().toLowerCase().startsWith('<html')) {
+                            text = checkText;
+                        }
                     }
                 } catch (fallbackErr) {
                     try {
-                        const directRes = await fetchWithTimeout('https://bcast.rbgoldspot.com:7768/VOTSBroadcastStreaming/Services/xml/GetLiveRateByTemplateID/rbgold', 4000);
+                        const directRes = await fetchWithTimeout(`https://bcast.rbgoldspot.com:7768/VOTSBroadcastStreaming/Services/xml/GetLiveRateByTemplateID/rbgold?_=${currentFetchId}`, 5000);
                         if (directRes.ok) {
                             text = await directRes.text();
                         }

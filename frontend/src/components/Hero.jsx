@@ -96,13 +96,9 @@ const Hero = () => {
                                             const displayLow = isStoppedAll ? '-' : item.low;
 
                                             return (
-                                                <motion.div
+                                                <div
                                                     key={`live-${idx}`}
-                                                    initial={{ opacity: 0, x: -30 }}
-                                                    whileInView={{ opacity: 1, x: 0 }}
-                                                    viewport={{ once: true }}
-                                                    transition={{ delay: idx * 0.12 }}
-                                                    className="bg-white/10 backdrop-blur-sm rounded-[16px] py-4 md:py-2 md:bg-transparent md:backdrop-blur-none md:rounded-none md:px-0 md:shadow-none md:border-none relative group"
+                                                    className="bg-white/10 backdrop-blur-sm rounded-[16px] py-4 md:py-2 md:bg-transparent md:backdrop-blur-none md:rounded-none md:px-0 md:shadow-none md:border-none relative group min-h-[80px] shrink-0 w-full"
                                                 >
                                                     <div className="rate-row grid grid-cols-[0.8fr_1.4fr_65px_1.1fr] md:grid-cols-[1.1fr_1.8fr_100px_1.1fr] gap-2 md:gap-6 items-center w-full relative">
                                                         {/* Product Section */}
@@ -169,7 +165,7 @@ const Hero = () => {
                                                             </div>
                                                         </div>
                                                     </div>
-                                                </motion.div>
+                                                </div>
                                             );
                                         })}
                                     </div>
@@ -263,13 +259,9 @@ const Hero = () => {
                                     const sellColor = getRateColor(sellChange, defaultColor);
 
                                     return (
-                                        <motion.div
+                                        <div
                                             key={`retail-${item.id}-${idx}`}
-                                            initial={{ opacity: 0, x: -30 }}
-                                            whileInView={{ opacity: 1, x: 0 }}
-                                            viewport={{ once: true }}
-                                            transition={{ delay: idx * 0.12 }}
-                                            className="bg-white/10 backdrop-blur-sm rounded-[16px] py-4 md:py-2 md:bg-transparent md:backdrop-blur-none md:rounded-none md:px-0 md:shadow-none md:border-none relative group"
+                                            className="bg-white/10 backdrop-blur-sm rounded-[16px] py-4 md:py-2 md:bg-transparent md:backdrop-blur-none md:rounded-none md:px-0 md:shadow-none md:border-none relative group min-h-[80px] shrink-0 w-full"
                                         >
                                             <div className="grid grid-cols-[1fr_1.2fr_1.2fr] md:grid-cols-[1.1fr_1.2fr_1.2fr] gap-1 md:gap-6 items-stretch w-full">
                                                 {/* Product Name */}
@@ -316,7 +308,7 @@ const Hero = () => {
                                                     </motion.div>
                                                 </div>
                                             </div>
-                                        </motion.div>
+                                        </div>
                                     );
                                 });
                             })()}

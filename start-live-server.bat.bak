@@ -1,0 +1,30 @@
+@echo off
+title Starting Abhinav Gold & Silver Local Server + Cloudflare Tunnel
+echo ===================================================
+echo Starting Local Servers (Backend: 5000, Frontend: 5173)...
+echo ===================================================
+
+:: Start Backend
+start "Backend Server (Port 5000)" cmd /k "npm run backend"
+
+:: Start Frontend
+start "Frontend Server (Port 5173)" cmd /k "npm run frontend"
+
+echo.
+echo Waiting 4 seconds for servers to start...
+timeout /t 4 /nobreak >nul
+
+echo.
+echo ===================================================
+echo Starting Cloudflare Tunnel for abhinavgoldandsilver.com...
+echo ===================================================
+echo.
+
+"%~dp0cloudflared.exe" --config "%~dp0cloudflared-config.yml" tunnel run abhinav-live-server
+if %errorlevel% neq 0 (
+    echo.
+    echo [INFO] Launching Quick TryCloudflare Tunnel on http://localhost:5173 ...
+    echo.
+    "%~dp0cloudflared.exe" tunnel --url http://localhost:5173
+)
+pause

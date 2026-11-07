@@ -1,11 +1,11 @@
 {
   "key": "global_settings",
   "ticker": "Welcome to Abhinav Gold & Silver - Quality Purity Guaranteed",
-  "showModified": false,
+  "showModified": true,
   "adminPassword": "admin123",
   "gold": {
     "mode": "amount",
-    "value": 0,
+    "value": -3300,
     "isPaused": false,
     "pausedBuy": 0,
     "pausedSell": 0,
@@ -13,7 +13,7 @@
   },
   "silver": {
     "mode": "amount",
-    "value": 0,
+    "value": -2300,
     "isPaused": false,
     "pausedBuy": 0,
     "pausedSell": 0,
@@ -22,7 +22,7 @@
   "baseModifications": {
     "gold999": {
       "mode": "amount",
-      "value": 0,
+      "value": -600,
       "isPaused": false,
       "pausedBuy": 0,
       "pausedSell": 0,
@@ -30,7 +30,7 @@
     },
     "silver999": {
       "mode": "amount",
-      "value": 0,
+      "value": 1800,
       "isPaused": false,
       "pausedBuy": 0,
       "pausedSell": 0,
